@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 function getAdminClient() {
@@ -11,14 +12,19 @@ function getAdminClient() {
   });
 }
 
-async function verifyAdmin(request: NextRequest) {
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
-  if (!token) return false;
+function getAuthedClient(token: string) {
+  return createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+}
 
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const supabase = createClient(supabaseUrl, anonKey);
+async function verifyAdmin(request: NextRequest): Promise<string | null> {
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  if (!token) return null;
+
+  const supabase = getAuthedClient(token);
   const { data: { user } } = await supabase.auth.getUser(token);
-  if (!user) return false;
+  if (!user) return null;
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -26,11 +32,12 @@ async function verifyAdmin(request: NextRequest) {
     .eq('id', user.id)
     .single();
 
-  return profile?.role === 'admin';
+  return profile?.role === 'admin' ? token : null;
 }
 
 export async function POST(request: NextRequest) {
-  if (!(await verifyAdmin(request))) {
+  const token = await verifyAdmin(request);
+  if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -53,11 +60,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ user: data.user });
   }
 
-  // Fallback: use public signup + SQL confirm
+  // Fallback without service role key: signup + confirm via SQL workaround
   const res = await fetch(`${supabaseUrl}/auth/v1/signup`, {
     method: 'POST',
     headers: {
-      'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      'apikey': anonKey,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -68,13 +75,21 @@ export async function POST(request: NextRequest) {
   });
 
   const result = await res.json();
-  if (!res.ok) return NextResponse.json({ error: result.msg || result.message || 'Erro ao criar usuário' }, { status: 400 });
+  if (!res.ok) {
+    return NextResponse.json(
+      { error: result.msg || result.message || result.error_description || 'Erro ao criar usuário' },
+      { status: 400 }
+    );
+  }
 
-  return NextResponse.json({ user: result });
+  // User created but needs email confirmation - confirm via admin client or return success
+  // The user will need to be confirmed manually if no service role key
+  return NextResponse.json({ user: result, needsConfirmation: !serviceRoleKey });
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!(await verifyAdmin(request))) {
+  const token = await verifyAdmin(request);
+  if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -91,14 +106,8 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
-  // Fallback: just delete the profile (user won't be able to log in if profile is deleted)
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const supabase = createClient(supabaseUrl, anonKey);
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '') || '';
-  const authed = createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  });
-
+  // Fallback: delete profile only
+  const authed = getAuthedClient(token);
   await authed.from('profiles').delete().eq('id', userId);
   return NextResponse.json({ success: true });
 }
