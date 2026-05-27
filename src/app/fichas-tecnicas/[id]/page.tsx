@@ -359,7 +359,7 @@ export default function FichaTecnicaDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700" />
       </div>
     );
   }
@@ -371,7 +371,7 @@ export default function FichaTecnicaDetailPage() {
         <p className="text-gray-500 text-lg font-medium">{error || 'Erro ao carregar ficha tecnica'}</p>
         <Link
           href="/fichas-tecnicas"
-          className="inline-flex items-center gap-2 mt-4 text-indigo-600 hover:text-blue-900 font-medium"
+          className="inline-flex items-center gap-2 mt-4 text-blue-700 hover:text-blue-900 font-medium"
         >
           <ArrowLeft size={16} />
           Voltar para lista
@@ -398,7 +398,7 @@ export default function FichaTecnicaDetailPage() {
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+              <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
                 <Wine size={24} />
               </div>
               <div>
@@ -487,12 +487,12 @@ export default function FichaTecnicaDetailPage() {
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
           <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-            <ClipboardList size={18} className="text-indigo-600" />
+            <ClipboardList size={18} className="text-blue-700" />
             Ingredientes
           </h2>
           <button
             onClick={handleOpenAddForm}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-blue-800 rounded-lg transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors"
           >
             <Plus size={16} />
             Adicionar
@@ -501,14 +501,14 @@ export default function FichaTecnicaDetailPage() {
 
         {/* Add ingredient form */}
         {showAddForm && (
-          <div className="px-6 py-4 border-b border-gray-200 bg-indigo-50/50">
+          <div className="px-6 py-4 border-b border-gray-200 bg-blue-50/50">
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
               <div className="sm:col-span-4">
                 <label className="block text-xs font-medium text-gray-600 mb-1">Insumo</label>
                 <select
                   value={newInsumoId}
                   onChange={(e) => setNewInsumoId(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
                   <option value="">Selecione um insumo...</option>
                   {insumos.map((insumo) => (
@@ -527,7 +527,7 @@ export default function FichaTecnicaDetailPage() {
                   value={newQuantity}
                   onChange={(e) => setNewQuantity(e.target.value)}
                   placeholder="0.00"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -603,7 +603,7 @@ export default function FichaTecnicaDetailPage() {
                             min="0"
                             value={editQuantity}
                             onChange={(e) => setEditQuantity(e.target.value)}
-                            className="w-24 px-2 py-1 text-sm text-right border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-24 px-2 py-1 text-sm text-right border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') handleSaveIngredientQuantity(ing);
@@ -642,7 +642,7 @@ export default function FichaTecnicaDetailPage() {
                         <button
                           onClick={() => handleEditIngredient(ing)}
                           disabled={editingIngredientId !== null}
-                          className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="p-1.5 text-gray-400 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           title="Editar quantidade"
                         >
                           <Pencil size={14} />
@@ -661,7 +661,7 @@ export default function FichaTecnicaDetailPage() {
                 ))}
               </tbody>
               <tfoot>
-                <tr className="bg-indigo-50 border-t-2 border-indigo-200">
+                <tr className="bg-blue-50 border-t-2 border-blue-300">
                   <td colSpan={4} className="px-6 py-3.5 text-right font-semibold text-blue-950">
                     Custo Total dos Ingredientes
                   </td>
@@ -695,7 +695,7 @@ export default function FichaTecnicaDetailPage() {
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2">
                     <div
-                      className="h-2 rounded-full bg-indigo-500 transition-all duration-300"
+                      className="h-2 rounded-full bg-blue-600 transition-all duration-300"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
