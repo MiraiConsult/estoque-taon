@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { formatCurrency, formatNumber, casaBgColor } from '@/lib/format';
 import CasaFilter from '@/components/CasaFilter';
 import StatCard from '@/components/StatCard';
+import LoadingState from '@/components/LoadingState';
 import { ClipboardList, Search, Wine, DollarSign, TrendingUp, LayoutGrid, List, ArrowUpDown } from 'lucide-react';
 
 interface DrinkRecipe {
@@ -106,15 +107,8 @@ export default function FichasTecnicasPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700" />
-      </div>
-    );
-  }
-
   return (
+    <LoadingState loading={loading}>
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
@@ -288,5 +282,6 @@ export default function FichasTecnicasPage() {
         </div>
       )}
     </div>
+    </LoadingState>
   );
 }

@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDateTime } from '@/lib/format';
 import { History, ChevronDown, ChevronRight, Filter, Search } from 'lucide-react';
+import LoadingState from '@/components/LoadingState';
 
 const TABLE_NAME_LABELS: Record<string, string> = {
   products: 'Produtos',

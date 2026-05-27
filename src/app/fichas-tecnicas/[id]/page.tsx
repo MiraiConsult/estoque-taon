@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency, formatNumber, casaBgColor } from '@/lib/format';
+import LoadingState from '@/components/LoadingState';
 import {
   ArrowLeft,
   ClipboardList,
@@ -356,34 +357,24 @@ export default function FichaTecnicaDetailPage() {
     await fetchRecipe();
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700" />
-      </div>
-    );
-  }
-
-  if (error || !recipe) {
-    return (
-      <div className="text-center py-20">
-        <ClipboardList className="mx-auto text-gray-300 mb-4" size={48} />
-        <p className="text-gray-500 text-lg font-medium">{error || 'Erro ao carregar ficha tecnica'}</p>
-        <Link
-          href="/fichas-tecnicas"
-          className="inline-flex items-center gap-2 mt-4 text-blue-700 hover:text-blue-900 font-medium"
-        >
-          <ArrowLeft size={16} />
-          Voltar para lista
-        </Link>
-      </div>
-    );
-  }
-
-  const totalIngredientCost = recipe.ingredients.reduce((sum, ing) => sum + ing.ingredient_cost, 0);
+  const totalIngredientCost = recipe ? recipe.ingredients.reduce((sum, ing) => sum + ing.ingredient_cost, 0) : 0;
 
   return (
+    <LoadingState loading={loading}>
     <div className="max-w-4xl mx-auto">
+      {error || !recipe ? (
+        <div className="text-center py-20">
+          <ClipboardList className="mx-auto text-gray-300 mb-4" size={48} />
+          <p className="text-gray-500 text-lg font-medium">{error || 'Erro ao carregar ficha tecnica'}</p>
+          <Link
+            href="/fichas-tecnicas"
+            className="inline-flex items-center gap-2 mt-4 text-blue-700 hover:text-blue-900 font-medium"
+          >
+            <ArrowLeft size={16} />
+            Voltar para lista
+          </Link>
+        </div>
+      ) : (<>
       {/* Back button */}
       <Link
         href="/fichas-tecnicas"
@@ -705,6 +696,8 @@ export default function FichaTecnicaDetailPage() {
           </div>
         </div>
       )}
+      </>)}
     </div>
+    </LoadingState>
   );
 }

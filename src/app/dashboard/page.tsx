@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { formatCurrency, formatNumber, casaBgColor } from '@/lib/format';
 import CasaFilter from '@/components/CasaFilter';
 import StatCard from '@/components/StatCard';
+import LoadingState from '@/components/LoadingState';
 import {
   DollarSign,
   Package,
@@ -201,18 +202,10 @@ export default function DashboardPage() {
     fetchData();
   }, [fetchData]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700" />
-      </div>
-    );
-  }
-
-  if (!data) return null;
-
   return (
-    <div>
+    <LoadingState loading={loading}>
+      <div>
+      {data && (<>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
@@ -404,6 +397,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </div>
+      </>)}
+      </div>
+    </LoadingState>
   );
 }

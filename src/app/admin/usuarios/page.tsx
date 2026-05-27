@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { formatDateTime } from '@/lib/format';
 import { Users, Plus, Pencil, Trash2, X, Shield } from 'lucide-react';
+import LoadingState from '@/components/LoadingState';
 
 interface ProfileRow {
   id: string;
@@ -185,6 +186,7 @@ export default function UsuariosPage() {
   }
 
   return (
+    <LoadingState loading={loading}>
     <div>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -203,11 +205,7 @@ export default function UsuariosPage() {
 
       {/* Users Table */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center h-48">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700" />
-          </div>
-        ) : users.length === 0 ? (
+        {users.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-gray-400">
             <Users size={32} className="mb-2" />
             <p className="text-sm">Nenhum usuário encontrado.</p>
@@ -363,5 +361,6 @@ export default function UsuariosPage() {
         </div>
       )}
     </div>
+    </LoadingState>
   );
 }

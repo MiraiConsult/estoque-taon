@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import StatCard from '@/components/StatCard';
+import LoadingState from '@/components/LoadingState';
 import {
   Plus,
   Pencil,
@@ -178,15 +179,8 @@ export default function InsumosPage() {
     fetchInsumos();
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700" />
-      </div>
-    );
-  }
-
   return (
+    <LoadingState loading={loading}>
     <div>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -479,5 +473,6 @@ export default function InsumosPage() {
         </div>
       )}
     </div>
+    </LoadingState>
   );
 }
