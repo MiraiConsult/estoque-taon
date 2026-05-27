@@ -26,9 +26,11 @@ export default function AnalisePage() {
   const [period, setPeriod] = useState('all');
   const [data, setData] = useState<AnalysisData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       let casaId: string | null = null;
       if (selectedCasa !== 'all') {
@@ -171,7 +173,9 @@ export default function AnalisePage() {
         totalItems,
       });
     } catch (err) {
-      console.error('Fetch error:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('Fetch error:', msg);
+      setFetchError(msg);
     } finally {
       setLoading(false);
     }
@@ -182,7 +186,7 @@ export default function AnalisePage() {
   }, [fetchData]);
 
   return (
-    <LoadingState loading={loading}>
+    <LoadingState loading={loading} error={fetchError}>
       <div>
         {data && (<>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">

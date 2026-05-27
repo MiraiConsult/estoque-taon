@@ -3,7 +3,13 @@
 import { useEffect, useState } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
-export default function LoadingState({ children, loading }: { children: React.ReactNode; loading: boolean }) {
+interface Props {
+  children: React.ReactNode;
+  loading: boolean;
+  error?: string | null;
+}
+
+export default function LoadingState({ children, loading, error }: Props) {
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
@@ -11,18 +17,23 @@ export default function LoadingState({ children, loading }: { children: React.Re
       setTimedOut(false);
       return;
     }
-    const timer = setTimeout(() => setTimedOut(true), 8000);
+    const timer = setTimeout(() => setTimedOut(true), 10000);
     return () => clearTimeout(timer);
   }, [loading]);
 
-  if (!loading) return <>{children}</>;
-
-  if (timedOut) {
+  if (error || (timedOut && loading)) {
     return (
       <div className="flex flex-col items-center justify-center h-96 gap-4">
-        <AlertCircle size={40} className="text-gray-300" />
-        <p className="text-gray-500 font-medium">Erro ao carregar dados</p>
-        <p className="text-gray-400 text-sm">Verifique sua conexão e tente novamente</p>
+        <AlertCircle size={40} className="text-red-300" />
+        <p className="text-gray-700 font-medium">Erro ao carregar dados</p>
+        {error && (
+          <div className="max-w-lg w-full bg-red-50 border border-red-200 rounded-lg p-3">
+            <p className="text-red-700 text-xs font-mono break-all">{error}</p>
+          </div>
+        )}
+        {!error && timedOut && (
+          <p className="text-gray-400 text-sm">Tempo limite excedido. Verifique sua conexão.</p>
+        )}
         <button
           onClick={() => window.location.reload()}
           className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg text-sm hover:bg-blue-800"
@@ -33,6 +44,8 @@ export default function LoadingState({ children, loading }: { children: React.Re
       </div>
     );
   }
+
+  if (!loading) return <>{children}</>;
 
   return (
     <div className="flex items-center justify-center h-96">

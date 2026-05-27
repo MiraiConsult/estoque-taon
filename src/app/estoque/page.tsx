@@ -71,6 +71,7 @@ function EstoqueContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [insumos, setInsumos] = useState<Insumo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
@@ -93,6 +94,7 @@ function EstoqueContent() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       let casaId: string | null = null;
       if (selectedCasa !== 'all') {
@@ -122,7 +124,9 @@ function EstoqueContent() {
       setProducts((productsRes.data || []) as Product[]);
       setInsumos((insumosRes.data || []) as Insumo[]);
     } catch (err) {
-      console.error('Fetch error:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('Fetch error:', msg);
+      setFetchError(msg);
     } finally {
       setLoading(false);
     }
@@ -302,7 +306,7 @@ function EstoqueContent() {
   );
 
   return (
-    <LoadingState loading={loading}>
+    <LoadingState loading={loading} error={fetchError}>
     <div>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">

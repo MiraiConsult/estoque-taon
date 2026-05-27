@@ -48,6 +48,7 @@ const emptyForm: InsumoForm = {
 export default function InsumosPage() {
   const [insumos, setInsumos] = useState<Insumo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -57,6 +58,7 @@ export default function InsumosPage() {
 
   const fetchInsumos = useCallback(async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       const { data, error } = await supabase
         .from('insumos')
@@ -72,7 +74,9 @@ export default function InsumosPage() {
         );
       }
     } catch (err) {
-      console.error('Fetch error:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('Fetch error:', msg);
+      setFetchError(msg);
     } finally {
       setLoading(false);
     }
@@ -180,7 +184,7 @@ export default function InsumosPage() {
   };
 
   return (
-    <LoadingState loading={loading}>
+    <LoadingState loading={loading} error={fetchError}>
     <div>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">

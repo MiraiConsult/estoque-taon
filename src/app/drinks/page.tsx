@@ -43,6 +43,7 @@ export default function DrinksPage() {
   const [selectedCasa, setSelectedCasa] = useState('all');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -55,6 +56,7 @@ export default function DrinksPage() {
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       let casaId: string | null = null;
       if (selectedCasa !== 'all') {
@@ -101,7 +103,9 @@ export default function DrinksPage() {
 
       setProducts(mapped);
     } catch (err) {
-      console.error('Fetch error:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('Fetch error:', msg);
+      setFetchError(msg);
     } finally {
       setLoading(false);
     }
@@ -218,7 +222,7 @@ export default function DrinksPage() {
   }
 
   return (
-    <LoadingState loading={loading}>
+    <LoadingState loading={loading} error={fetchError}>
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>

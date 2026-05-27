@@ -46,9 +46,11 @@ export default function DashboardPage() {
   const [selectedCasa, setSelectedCasa] = useState('all');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setFetchError(null);
     try {
 
     const casaFilter = selectedCasa !== 'all';
@@ -191,8 +193,10 @@ export default function DashboardPage() {
       topDrinks,
     });
 
-    } catch (err) {
-      console.error('Dashboard fetch error:', err);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('Dashboard fetch error:', msg);
+      setFetchError(msg);
     } finally {
       setLoading(false);
     }
@@ -203,7 +207,7 @@ export default function DashboardPage() {
   }, [fetchData]);
 
   return (
-    <LoadingState loading={loading}>
+    <LoadingState loading={loading} error={fetchError}>
       <div>
       {data && (<>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">

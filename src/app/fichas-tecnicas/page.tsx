@@ -26,6 +26,7 @@ type SortField = 'product_name' | 'casa_name' | 'category' | 'cost' | 'sale_pric
 export default function FichasTecnicasPage() {
   const [recipes, setRecipes] = useState<DrinkRecipe[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [selectedCasa, setSelectedCasa] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [search, setSearch] = useState('');
@@ -35,6 +36,7 @@ export default function FichasTecnicasPage() {
 
   const fetchRecipes = useCallback(async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       const { data } = await supabase
         .from('drink_recipes')
@@ -57,7 +59,9 @@ export default function FichasTecnicasPage() {
 
       setRecipes(mapped);
     } catch (err) {
-      console.error('Fetch error:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('Fetch error:', msg);
+      setFetchError(msg);
     } finally {
       setLoading(false);
     }
@@ -108,7 +112,7 @@ export default function FichasTecnicasPage() {
   }
 
   return (
-    <LoadingState loading={loading}>
+    <LoadingState loading={loading} error={fetchError}>
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
