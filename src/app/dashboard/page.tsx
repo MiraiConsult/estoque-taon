@@ -53,12 +53,6 @@ export default function DashboardPage() {
     setFetchError(null);
     try {
 
-    // Quick test query
-    const testResult = await supabase.from('casas').select('name').limit(1);
-    if (testResult.error) {
-      throw new Error(`Supabase error: ${testResult.error.message} (code: ${testResult.error.code})`);
-    }
-
     const casaFilter = selectedCasa !== 'all';
     let casaId: string | null = null;
 
