@@ -21,8 +21,8 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${inter.className} h-full`}>
       <body className="min-h-full bg-gray-50">
         <Sidebar />
-        <main className="lg:ml-64 min-h-screen">
-          <div className="p-6 lg:p-8">{children}</div>
+        <main className="sidebar-main min-h-screen">
+          <div className="p-4 lg:p-6">{children}</div>
         </main>
       </body>
     </html>
