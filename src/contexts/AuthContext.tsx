@@ -21,7 +21,15 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  session: null,
+  profile: null,
+  loading: false,
+  isAdmin: false,
+  signIn: async () => ({ error: null }),
+  signOut: async () => {},
+});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -34,17 +42,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (initialized.current) return;
     initialized.current = true;
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setUser(data.session?.user ?? null);
+      if (data.session?.user) {
         supabase
           .from('profiles')
           .select('id, email, name, role')
-          .eq('id', session.user.id)
+          .eq('id', data.session.user.id)
           .single()
-          .then(({ data }) => {
-            if (data) setProfile(data as Profile);
+          .then(({ data: p }) => {
+            if (p) setProfile(p as Profile);
             setLoading(false);
           })
           .then(undefined, () => setLoading(false));
@@ -54,12 +62,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }).catch(() => setLoading(false));
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (!session) {
-          setProfile(null);
-        }
+      (_event, s) => {
+        setSession(s);
+        setUser(s?.user ?? null);
+        if (!s) setProfile(null);
       }
     );
 
@@ -88,7 +94,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
-  return context;
+  return useContext(AuthContext);
 }
