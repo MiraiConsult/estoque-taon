@@ -104,7 +104,7 @@ export default function FichasTecnicasPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700" />
       </div>
     );
   }
@@ -114,7 +114,7 @@ export default function FichasTecnicasPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <ClipboardList className="text-indigo-600" size={24} />
+            <ClipboardList className="text-blue-700" size={24} />
             Fichas Tecnicas
           </h1>
           <p className="text-sm text-gray-500">Receitas e custos detalhados dos drinks</p>
@@ -136,7 +136,7 @@ export default function FichasTecnicasPage() {
             placeholder="Buscar por nome do drink..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white"
           />
         </div>
         <select
@@ -153,13 +153,13 @@ export default function FichasTecnicasPage() {
         <div className="flex border border-gray-300 rounded-lg overflow-hidden">
           <button
             onClick={() => setViewMode('list')}
-            className={`px-3 py-2 text-sm ${viewMode === 'list' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+            className={`px-3 py-2 text-sm ${viewMode === 'list' ? 'bg-blue-700 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
           >
             <List size={16} />
           </button>
           <button
             onClick={() => setViewMode('grid')}
-            className={`px-3 py-2 text-sm ${viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+            className={`px-3 py-2 text-sm ${viewMode === 'grid' ? 'bg-blue-700 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
           >
             <LayoutGrid size={16} />
           </button>
@@ -195,7 +195,7 @@ export default function FichasTecnicasPage() {
                     >
                       <span className={`inline-flex items-center gap-1 ${col.align === 'right' ? 'justify-end' : col.align === 'center' ? 'justify-center' : ''}`}>
                         {col.label}
-                        <ArrowUpDown size={14} className={sortField === col.field ? 'text-indigo-600' : 'text-gray-300'} />
+                        <ArrowUpDown size={14} className={sortField === col.field ? 'text-blue-700' : 'text-gray-300'} />
                       </span>
                     </th>
                   ))}
@@ -207,7 +207,7 @@ export default function FichasTecnicasPage() {
                 {filtered.map((recipe) => (
                   <tr key={recipe.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 font-medium text-gray-900">
-                      <Link href={`/fichas-tecnicas/${recipe.id}`} className="hover:text-indigo-600 transition-colors">
+                      <Link href={`/fichas-tecnicas/${recipe.id}`} className="hover:text-blue-700 transition-colors">
                         {recipe.product_name}
                       </Link>
                     </td>
@@ -230,7 +230,7 @@ export default function FichasTecnicasPage() {
                     </td>
                     <td className="px-4 py-3 text-right text-gray-600">{formatCurrency(recipe.margin)}</td>
                     <td className="px-4 py-3 text-center">
-                      <Link href={`/fichas-tecnicas/${recipe.id}`} className="text-indigo-500 hover:text-indigo-700">
+                      <Link href={`/fichas-tecnicas/${recipe.id}`} className="text-blue-600 hover:text-blue-800">
                         <ClipboardList size={16} />
                       </Link>
                     </td>
@@ -249,10 +249,10 @@ export default function FichasTecnicasPage() {
             <Link
               key={recipe.id}
               href={`/fichas-tecnicas/${recipe.id}`}
-              className="group bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg hover:border-indigo-200 transition-all"
+              className="group bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg hover:border-blue-300 transition-all"
             >
               <div className="flex items-start justify-between mb-3">
-                <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-2">
+                <h3 className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors line-clamp-2">
                   {recipe.product_name}
                 </h3>
                 <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ml-2 ${casaBgColor(recipe.casa_name)}`}>

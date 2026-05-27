@@ -18,6 +18,7 @@ import {
   PlusCircle,
 } from 'lucide-react';
 import { useState, createContext, useContext } from 'react';
+import Logo from './Logo';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -47,7 +48,7 @@ export default function Sidebar() {
 
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-gray-900 text-white rounded-lg"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-slate-900 text-white rounded-lg"
       >
         <Menu size={18} />
       </button>
@@ -60,15 +61,17 @@ export default function Sidebar() {
       )}
 
       <aside
-        className={`fixed top-0 left-0 h-full ${width} bg-gray-900 text-white z-50 transition-all duration-200 transform lg:translate-x-0 ${
+        className={`fixed top-0 left-0 h-full ${width} bg-slate-900 text-white z-50 transition-all duration-200 transform lg:translate-x-0 ${
           mobileOpen ? 'translate-x-0 !w-52' : '-translate-x-full'
         }`}
       >
         <div className={`flex items-center ${collapsed ? 'justify-center p-3' : 'justify-between px-4 py-3'} border-b border-gray-700`}>
-          {!collapsed && (
+          {collapsed ? (
+            <Logo collapsed />
+          ) : (
             <div className="min-w-0">
-              <h1 className="text-base font-bold truncate">Ta&apos;On</h1>
-              <p className="text-[10px] text-gray-400">Controle de Estoque</p>
+              <Logo />
+              <p className="text-[10px] text-gray-400 mt-1">Controle de Estoque</p>
             </div>
           )}
           <button
@@ -98,7 +101,7 @@ export default function Sidebar() {
                 title={collapsed ? item.label : undefined}
                 className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-2.5 px-3 py-2 rounded-lg mb-0.5 transition-colors text-[13px] ${
                   isActive
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-blue-700 text-white'
                     : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                 }`}
               >
@@ -113,7 +116,7 @@ export default function Sidebar() {
               href="/estoque?ajustar=true"
               onClick={() => setMobileOpen(false)}
               title={collapsed ? 'Ajustar Estoque' : undefined}
-              className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-2.5 px-3 py-2 rounded-lg text-[13px] bg-emerald-600 hover:bg-emerald-500 text-white transition-colors`}
+              className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-2.5 px-3 py-2 rounded-lg text-[13px] bg-blue-600 hover:bg-blue-500 text-white transition-colors`}
             >
               <PlusCircle size={18} className="shrink-0" />
               {!collapsed && <span className="font-medium truncate">Ajustar Estoque</span>}

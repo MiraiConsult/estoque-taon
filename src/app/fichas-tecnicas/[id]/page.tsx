@@ -371,7 +371,7 @@ export default function FichaTecnicaDetailPage() {
         <p className="text-gray-500 text-lg font-medium">{error || 'Erro ao carregar ficha tecnica'}</p>
         <Link
           href="/fichas-tecnicas"
-          className="inline-flex items-center gap-2 mt-4 text-indigo-600 hover:text-indigo-800 font-medium"
+          className="inline-flex items-center gap-2 mt-4 text-indigo-600 hover:text-blue-900 font-medium"
         >
           <ArrowLeft size={16} />
           Voltar para lista
@@ -492,7 +492,7 @@ export default function FichaTecnicaDetailPage() {
           </h2>
           <button
             onClick={handleOpenAddForm}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-blue-800 rounded-lg transition-colors"
           >
             <Plus size={16} />
             Adicionar
@@ -662,10 +662,10 @@ export default function FichaTecnicaDetailPage() {
               </tbody>
               <tfoot>
                 <tr className="bg-indigo-50 border-t-2 border-indigo-200">
-                  <td colSpan={4} className="px-6 py-3.5 text-right font-semibold text-indigo-900">
+                  <td colSpan={4} className="px-6 py-3.5 text-right font-semibold text-blue-950">
                     Custo Total dos Ingredientes
                   </td>
-                  <td className="px-6 py-3.5 text-right font-bold text-indigo-900 text-base">
+                  <td className="px-6 py-3.5 text-right font-bold text-blue-950 text-base">
                     {formatCurrency(totalIngredientCost)}
                   </td>
                   <td />

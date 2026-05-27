@@ -150,9 +150,9 @@ export default function DrinksPage() {
   function SortIcon({ field }: { field: SortField }) {
     if (sortField !== field) return <ArrowUpDown size={14} className="text-gray-400" />;
     return sortDirection === 'asc' ? (
-      <ArrowUp size={14} className="text-indigo-600" />
+      <ArrowUp size={14} className="text-blue-700" />
     ) : (
-      <ArrowDown size={14} className="text-indigo-600" />
+      <ArrowDown size={14} className="text-blue-700" />
     );
   }
 
@@ -216,7 +216,7 @@ export default function DrinksPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700" />
       </div>
     );
   }
@@ -273,13 +273,13 @@ export default function DrinksPage() {
               placeholder="Buscar por nome..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
             />
           </div>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent bg-white"
           >
             <option value="all">Todas Categorias</option>
             {categories.map((cat) => (
@@ -291,7 +291,7 @@ export default function DrinksPage() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent bg-white"
           >
             <option value="all">Todos os Tipos</option>
             <option value="drink">Drink</option>
@@ -342,7 +342,7 @@ export default function DrinksPage() {
                     {product.recipe_id ? (
                       <Link
                         href={`/fichas-tecnicas/${product.recipe_id}`}
-                        className="inline-flex items-center justify-center text-indigo-500 hover:text-indigo-700 transition-colors"
+                        className="inline-flex items-center justify-center text-blue-600 hover:text-blue-800 transition-colors"
                         title="Ver ficha técnica"
                       >
                         <ClipboardList size={16} />
@@ -360,7 +360,7 @@ export default function DrinksPage() {
                     <span
                       className={`text-xs px-2 py-0.5 rounded font-medium ${
                         product.type === 'drink'
-                          ? 'bg-indigo-50 text-indigo-700'
+                          ? 'bg-blue-50 text-blue-800'
                           : 'bg-orange-50 text-orange-700'
                       }`}
                     >
@@ -379,7 +379,7 @@ export default function DrinksPage() {
                           onBlur={() => savePrice(product)}
                           onKeyDown={(e) => handleKeyDown(e, product)}
                           disabled={saving}
-                          className="w-24 px-2 py-1 text-right border border-indigo-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="w-24 px-2 py-1 text-right border border-blue-400 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
                         />
                         <button
                           onClick={() => savePrice(product)}
@@ -399,7 +399,7 @@ export default function DrinksPage() {
                     ) : (
                       <button
                         onClick={() => startEditing(product)}
-                        className="text-gray-900 font-medium hover:text-indigo-600 hover:underline decoration-dashed underline-offset-2 transition-colors cursor-pointer"
+                        className="text-gray-900 font-medium hover:text-blue-700 hover:underline decoration-dashed underline-offset-2 transition-colors cursor-pointer"
                         title="Clique para editar"
                       >
                         {formatCurrency(product.sale_price)}

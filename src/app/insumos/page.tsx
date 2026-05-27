@@ -253,7 +253,8 @@ export default function InsumosPage() {
               {filteredInsumos.map((insumo) => (
                 <tr
                   key={insumo.id}
-                  className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                  onClick={() => openEditModal(insumo)}
+                  className="border-b border-gray-50 hover:bg-blue-50 transition-colors cursor-pointer"
                 >
                   <td className="py-3">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-gray-100 text-gray-700 text-xs font-mono font-medium">

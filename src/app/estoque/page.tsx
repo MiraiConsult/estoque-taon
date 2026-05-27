@@ -290,7 +290,7 @@ function EstoqueContent() {
         {label}
         <ArrowUpDown
           size={14}
-          className={sortField === field ? 'text-indigo-600' : 'text-gray-300'}
+          className={sortField === field ? 'text-blue-700' : 'text-gray-300'}
         />
       </span>
     </th>
@@ -299,7 +299,7 @@ function EstoqueContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700" />
       </div>
     );
   }
@@ -349,12 +349,12 @@ function EstoqueContent() {
             placeholder="Buscar por nome do produto ou insumo..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
           />
         </div>
         <button
           onClick={openModal}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors whitespace-nowrap"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors whitespace-nowrap"
         >
           <Plus size={18} />
           Ajustar Estoque
@@ -456,7 +456,7 @@ function EstoqueContent() {
                   value={formCasaId}
                   onChange={(e) => setFormCasaId(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
                   <option value="">Selecione a casa</option>
                   {casas.map((casa) => (
@@ -476,7 +476,7 @@ function EstoqueContent() {
                     onClick={() => { setFormItemType('product'); setFormItemId(''); }}
                     className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                       formItemType === 'product'
-                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        ? 'bg-blue-700 text-white border-blue-700'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -487,7 +487,7 @@ function EstoqueContent() {
                     onClick={() => { setFormItemType('insumo'); setFormItemId(''); }}
                     className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                       formItemType === 'insumo'
-                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        ? 'bg-blue-700 text-white border-blue-700'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -505,7 +505,7 @@ function EstoqueContent() {
                   value={formItemId}
                   onChange={(e) => setFormItemId(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
                   <option value="">
                     Selecione {formItemType === 'product' ? 'o produto' : 'o insumo'}
@@ -569,7 +569,7 @@ function EstoqueContent() {
                   onChange={(e) => setFormQuantity(e.target.value)}
                   required
                   placeholder="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
 
@@ -583,7 +583,7 @@ function EstoqueContent() {
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
                   placeholder="Motivo do ajuste..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
 
@@ -599,7 +599,7 @@ function EstoqueContent() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Salvando...' : 'Salvar'}
                 </button>
