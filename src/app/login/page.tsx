@@ -18,15 +18,20 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { error } = await signIn(email, password);
-      if (error) {
-        setError('Email ou senha incorretos');
+      const result = await Promise.race([
+        signIn(email, password),
+        new Promise<{ error: Error }>((resolve) =>
+          setTimeout(() => resolve({ error: new Error('Timeout: servidor demorou demais') }), 10000)
+        ),
+      ]);
+      if (result.error) {
+        setError(result.error.message || 'Email ou senha incorretos');
         setLoading(false);
       } else {
         window.location.href = '/dashboard';
       }
-    } catch {
-      setError('Erro de conexão. Tente novamente.');
+    } catch (err) {
+      setError(`Erro: ${err instanceof Error ? err.message : String(err)}`);
       setLoading(false);
     }
   };
@@ -104,7 +109,8 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <div className="flex justify-center mt-6 gap-2">
+        <p className="text-center text-[10px] text-gray-600 mt-4">v2.1</p>
+        <div className="flex justify-center mt-2 gap-2">
           {['Isla', 'Playa', 'Aura'].map((casa) => (
             <span
               key={casa}
