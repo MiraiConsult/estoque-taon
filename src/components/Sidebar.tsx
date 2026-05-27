@@ -20,6 +20,7 @@ import {
   History,
   LogOut,
   Shield,
+  ChevronDown,
 } from 'lucide-react';
 import { useState, createContext, useContext } from 'react';
 import Logo from './Logo';
@@ -48,6 +49,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
   const { profile, isAdmin, signOut } = useAuth();
 
   const width = collapsed ? 'w-[68px]' : 'w-52';
@@ -138,13 +140,24 @@ export default function Sidebar() {
 
             {isAdmin && (
               <div className="mt-2 pt-2 border-t border-gray-700">
-                {!collapsed && (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider">
-                    <Shield size={12} />
-                    Admin
+                <button
+                  onClick={() => setAdminOpen(!adminOpen)}
+                  title={collapsed ? 'Admin' : undefined}
+                  className={`flex items-center w-full ${collapsed ? 'justify-center' : 'justify-between'} px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:bg-gray-800 hover:text-white transition-colors`}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <Shield size={18} className="shrink-0" />
+                    {!collapsed && <span className="font-medium">Admin</span>}
+                  </span>
+                  {!collapsed && (
+                    <ChevronDown size={14} className={`transition-transform ${adminOpen ? 'rotate-180' : ''}`} />
+                  )}
+                </button>
+                {(adminOpen || collapsed) && (
+                  <div className={collapsed ? '' : 'ml-3'}>
+                    {adminItems.map(renderNavItem)}
                   </div>
                 )}
-                {adminItems.map(renderNavItem)}
               </div>
             )}
           </div>
