@@ -279,7 +279,7 @@ export default function InsumosPage() {
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => openEditModal(insumo)}
-                        className="p-1.5 text-gray-400 hover:text-blue-700 hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
                         title="Editar"
                       >
                         <Pencil size={16} />

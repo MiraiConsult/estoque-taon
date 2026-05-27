@@ -185,7 +185,7 @@ export default function TransferenciasPage() {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 flex items-center gap-2"
+          className="bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 flex items-center gap-2"
         >
           <Plus size={18} />
           Nova Transferencia
@@ -196,7 +196,7 @@ export default function TransferenciasPage() {
         <h3 className="font-semibold text-gray-900 mb-4">Historico de Transferencias</h3>
         {loading ? (
           <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700" />
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -390,7 +390,7 @@ export default function TransferenciasPage() {
               <button
                 onClick={handleSubmit}
                 disabled={submitting || !fromCasa || !toCasa || !itemId || !quantity || fromCasa === toCasa}
-                className="w-full bg-indigo-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
