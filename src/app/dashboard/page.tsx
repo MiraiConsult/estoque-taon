@@ -52,6 +52,11 @@ export default function DashboardPage() {
     setLoading(true);
     setFetchError(null);
     try {
+    // Debug: test basic connectivity
+    const t0 = Date.now();
+    const { error: testErr } = await supabase.from('casas').select('name').limit(1);
+    if (testErr) throw new Error(`DB Error: ${testErr.message}`);
+    console.log(`[Dashboard] Basic query OK in ${Date.now() - t0}ms`);
 
     const casaFilter = selectedCasa !== 'all';
     let casaId: string | null = null;
