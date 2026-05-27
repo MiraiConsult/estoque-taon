@@ -34,27 +34,32 @@ export default function FichasTecnicasPage() {
 
   const fetchRecipes = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('drink_recipes')
-      .select(`id, product_id, product:products (id, name, category, sale_price, cost, markup, margin, casa:casas ( name ))`);
+    try {
+      const { data } = await supabase
+        .from('drink_recipes')
+        .select(`id, product_id, product:products (id, name, category, sale_price, cost, markup, margin, casa:casas ( name ))`);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mapped: DrinkRecipe[] = ((data || []) as any[])
-      .filter((r) => r.product !== null)
-      .map((r) => ({
-        id: r.id,
-        product_id: r.product_id,
-        product_name: r.product!.name,
-        category: r.product!.category || 'Sem categoria',
-        casa_name: r.product!.casa?.name || 'Desconhecido',
-        sale_price: Number(r.product!.sale_price) || 0,
-        cost: Number(r.product!.cost) || 0,
-        markup: Number(r.product!.markup) || 0,
-        margin: Number(r.product!.margin) || 0,
-      }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mapped: DrinkRecipe[] = ((data || []) as any[])
+        .filter((r) => r.product !== null)
+        .map((r) => ({
+          id: r.id,
+          product_id: r.product_id,
+          product_name: r.product!.name,
+          category: r.product!.category || 'Sem categoria',
+          casa_name: r.product!.casa?.name || 'Desconhecido',
+          sale_price: Number(r.product!.sale_price) || 0,
+          cost: Number(r.product!.cost) || 0,
+          markup: Number(r.product!.markup) || 0,
+          margin: Number(r.product!.margin) || 0,
+        }));
 
-    setRecipes(mapped);
-    setLoading(false);
+      setRecipes(mapped);
+    } catch (err) {
+      console.error('Fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {

@@ -56,20 +56,25 @@ export default function InsumosPage() {
 
   const fetchInsumos = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('insumos')
-      .select('*')
-      .order('name', { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from('insumos')
+        .select('*')
+        .order('name', { ascending: true });
 
-    if (!error && data) {
-      setInsumos(
-        data.map((i: Record<string, unknown>) => ({
-          ...i,
-          minimum: Number(i.minimum) || 0,
-        })) as Insumo[]
-      );
+      if (!error && data) {
+        setInsumos(
+          data.map((i: Record<string, unknown>) => ({
+            ...i,
+            minimum: Number(i.minimum) || 0,
+          })) as Insumo[]
+        );
+      }
+    } catch (err) {
+      console.error('Fetch error:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {

@@ -54,53 +54,56 @@ export default function DrinksPage() {
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
+    try {
+      let casaId: string | null = null;
+      if (selectedCasa !== 'all') {
+        const { data: casa } = await supabase
+          .from('casas')
+          .select('id')
+          .eq('name', selectedCasa)
+          .single();
+        casaId = casa?.id || null;
+      }
 
-    let casaId: string | null = null;
-    if (selectedCasa !== 'all') {
-      const { data: casa } = await supabase
-        .from('casas')
-        .select('id')
-        .eq('name', selectedCasa)
-        .single();
-      casaId = casa?.id || null;
-    }
+      let query = supabase
+        .from('products')
+        .select('id, name, category, type, sale_price, cost, markup, margin, casa_id, casa:casas(name)');
 
-    let query = supabase
-      .from('products')
-      .select('id, name, category, type, sale_price, cost, markup, margin, casa_id, casa:casas(name)');
+      if (casaId) {
+        query = query.eq('casa_id', casaId);
+      }
 
-    if (casaId) {
-      query = query.eq('casa_id', casaId);
-    }
+      const { data, error } = await query;
 
-    const { data, error } = await query;
+      if (error) {
+        console.error('Error fetching products:', error);
+        return;
+      }
 
-    if (error) {
-      console.error('Error fetching products:', error);
+      const { data: recipes } = await supabase.from('drink_recipes').select('id, product_id');
+      const recipeMap = new Map((recipes || []).map(r => [r.product_id, r.id]));
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mapped = ((data || []) as any[]).map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        category: p.category || '',
+        type: p.type || '',
+        sale_price: Number(p.sale_price) || 0,
+        cost: Number(p.cost) || 0,
+        markup: Number(p.markup) || 0,
+        margin: Number(p.margin) || 0,
+        casa_id: p.casa_id,
+        casa_name: p.casa?.name || '',
+        recipe_id: recipeMap.get(p.id) || null,
+      }));
+
+      setProducts(mapped);
+    } catch (err) {
+      console.error('Fetch error:', err);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const { data: recipes } = await supabase.from('drink_recipes').select('id, product_id');
-    const recipeMap = new Map((recipes || []).map(r => [r.product_id, r.id]));
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mapped = ((data || []) as any[]).map((p: any) => ({
-      id: p.id,
-      name: p.name,
-      category: p.category || '',
-      type: p.type || '',
-      sale_price: Number(p.sale_price) || 0,
-      cost: Number(p.cost) || 0,
-      markup: Number(p.markup) || 0,
-      margin: Number(p.margin) || 0,
-      casa_id: p.casa_id,
-      casa_name: p.casa?.name || '',
-      recipe_id: recipeMap.get(p.id) || null,
-    }));
-
-    setProducts(mapped);
-    setLoading(false);
   }, [selectedCasa]);
 
   useEffect(() => {

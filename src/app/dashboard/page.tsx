@@ -48,6 +48,7 @@ export default function DashboardPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    try {
 
     const casaFilter = selectedCasa !== 'all';
     let casaId: string | null = null;
@@ -189,7 +190,11 @@ export default function DashboardPage() {
       topDrinks,
     });
 
-    setLoading(false);
+    } catch (err) {
+      console.error('Dashboard fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
   }, [selectedCasa]);
 
   useEffect(() => {

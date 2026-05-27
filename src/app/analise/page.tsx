@@ -28,149 +28,152 @@ export default function AnalisePage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    try {
+      let casaId: string | null = null;
+      if (selectedCasa !== 'all') {
+        const { data: casa } = await supabase
+          .from('casas')
+          .select('id')
+          .eq('name', selectedCasa)
+          .single();
+        casaId = casa?.id || null;
+      }
 
-    let casaId: string | null = null;
-    if (selectedCasa !== 'all') {
-      const { data: casa } = await supabase
-        .from('casas')
-        .select('id')
-        .eq('name', selectedCasa)
-        .single();
-      casaId = casa?.id || null;
+      let salesQuery = supabase
+        .from('sales')
+        .select('quantity, total_value, ticket_medio, event_date, product:products(name, category, cost, type), casa:casas(name)');
+
+      if (casaId) salesQuery = salesQuery.eq('casa_id', casaId);
+
+      if (period !== 'all') {
+        const now = new Date();
+        let startDate: Date;
+        if (period === '7d') startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        else if (period === '30d') startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        else startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        salesQuery = salesQuery.gte('event_date', startDate.toISOString().split('T')[0]);
+      }
+
+      const { data: salesRaw } = await salesQuery;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sales = ((salesRaw || []) as any[]).map((s) => ({
+        quantity: Number(s.quantity),
+        total_value: Number(s.total_value),
+        ticket_medio: Number(s.ticket_medio),
+        event_date: String(s.event_date),
+        product: s.product as { name: string; category: string; cost: number; type: string } | null,
+        casa: s.casa as { name: string } | null,
+      }));
+
+      const totalRevenue = sales.reduce((s, r) => s + Number(r.total_value), 0);
+      const totalItems = sales.reduce((s, r) => s + Number(r.quantity), 0);
+      const totalCost = sales.reduce(
+        (s, r) => s + (Number(r.product?.cost || 0) * Number(r.quantity)),
+        0
+      );
+      const totalProfit = totalRevenue - totalCost;
+      const avgTicket = totalItems > 0 ? totalRevenue / totalItems : 0;
+
+      const categoryMap = new Map<string, { quantity: number; revenue: number; cost: number }>();
+      sales.forEach((s) => {
+        const cat = s.product?.category || 'Outros';
+        const existing = categoryMap.get(cat) || { quantity: 0, revenue: 0, cost: 0 };
+        existing.quantity += Number(s.quantity);
+        existing.revenue += Number(s.total_value);
+        existing.cost += Number(s.product?.cost || 0) * Number(s.quantity);
+        categoryMap.set(cat, existing);
+      });
+      const salesByCategory = Array.from(categoryMap.entries())
+        .map(([category, d]) => ({
+          category,
+          ...d,
+          profit: d.revenue - d.cost,
+        }))
+        .sort((a, b) => b.revenue - a.revenue);
+
+      const dateMap = new Map<string, { revenue: number; quantity: number }>();
+      sales.forEach((s) => {
+        const date = s.event_date;
+        const existing = dateMap.get(date) || { revenue: 0, quantity: 0 };
+        existing.revenue += Number(s.total_value);
+        existing.quantity += Number(s.quantity);
+        dateMap.set(date, existing);
+      });
+      const salesByDate = Array.from(dateMap.entries())
+        .map(([date, d]) => ({ date, ...d }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      const drinkProfitMap = new Map<string, { name: string; casa: string; revenue: number; cost: number; quantity: number }>();
+      sales.forEach((s) => {
+        if (s.product?.type !== 'drink') return;
+        const key = `${s.product.name}-${s.casa?.name}`;
+        const existing = drinkProfitMap.get(key) || {
+          name: s.product.name,
+          casa: s.casa?.name || '',
+          revenue: 0,
+          cost: 0,
+          quantity: 0,
+        };
+        existing.revenue += Number(s.total_value);
+        existing.cost += Number(s.product.cost) * Number(s.quantity);
+        existing.quantity += Number(s.quantity);
+        drinkProfitMap.set(key, existing);
+      });
+      const topProfitDrinks = Array.from(drinkProfitMap.values())
+        .map((d) => ({
+          ...d,
+          profit: d.revenue - d.cost,
+          margin_pct: d.revenue > 0 ? ((d.revenue - d.cost) / d.revenue) * 100 : 0,
+        }))
+        .sort((a, b) => b.profit - a.profit)
+        .slice(0, 10);
+
+      const topCostDrinks = Array.from(drinkProfitMap.values())
+        .map((d) => ({
+          name: d.name,
+          casa: d.casa,
+          cost: d.cost / (d.quantity || 1),
+          quantity: d.quantity,
+          total_cost: d.cost,
+        }))
+        .sort((a, b) => b.total_cost - a.total_cost)
+        .slice(0, 10);
+
+      const casaMap = new Map<string, { revenue: number; cost: number; items_sold: number }>();
+      sales.forEach((s) => {
+        const casa = s.casa?.name || 'Desconhecido';
+        const existing = casaMap.get(casa) || { revenue: 0, cost: 0, items_sold: 0 };
+        existing.revenue += Number(s.total_value);
+        existing.cost += Number(s.product?.cost || 0) * Number(s.quantity);
+        existing.items_sold += Number(s.quantity);
+        casaMap.set(casa, existing);
+      });
+      const casaComparison = Array.from(casaMap.entries())
+        .map(([casa, d]) => ({
+          casa,
+          ...d,
+          profit: d.revenue - d.cost,
+        }))
+        .sort((a, b) => b.revenue - a.revenue);
+
+      setData({
+        salesByCategory,
+        salesByDate,
+        topProfitDrinks,
+        topCostDrinks,
+        casaComparison,
+        totalRevenue,
+        totalCost,
+        totalProfit,
+        avgTicket,
+        totalItems,
+      });
+    } catch (err) {
+      console.error('Fetch error:', err);
+    } finally {
+      setLoading(false);
     }
-
-    let salesQuery = supabase
-      .from('sales')
-      .select('quantity, total_value, ticket_medio, event_date, product:products(name, category, cost, type), casa:casas(name)');
-
-    if (casaId) salesQuery = salesQuery.eq('casa_id', casaId);
-
-    if (period !== 'all') {
-      const now = new Date();
-      let startDate: Date;
-      if (period === '7d') startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      else if (period === '30d') startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      else startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-      salesQuery = salesQuery.gte('event_date', startDate.toISOString().split('T')[0]);
-    }
-
-    const { data: salesRaw } = await salesQuery;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sales = ((salesRaw || []) as any[]).map((s) => ({
-      quantity: Number(s.quantity),
-      total_value: Number(s.total_value),
-      ticket_medio: Number(s.ticket_medio),
-      event_date: String(s.event_date),
-      product: s.product as { name: string; category: string; cost: number; type: string } | null,
-      casa: s.casa as { name: string } | null,
-    }));
-
-    const totalRevenue = sales.reduce((s, r) => s + Number(r.total_value), 0);
-    const totalItems = sales.reduce((s, r) => s + Number(r.quantity), 0);
-    const totalCost = sales.reduce(
-      (s, r) => s + (Number(r.product?.cost || 0) * Number(r.quantity)),
-      0
-    );
-    const totalProfit = totalRevenue - totalCost;
-    const avgTicket = totalItems > 0 ? totalRevenue / totalItems : 0;
-
-    const categoryMap = new Map<string, { quantity: number; revenue: number; cost: number }>();
-    sales.forEach((s) => {
-      const cat = s.product?.category || 'Outros';
-      const existing = categoryMap.get(cat) || { quantity: 0, revenue: 0, cost: 0 };
-      existing.quantity += Number(s.quantity);
-      existing.revenue += Number(s.total_value);
-      existing.cost += Number(s.product?.cost || 0) * Number(s.quantity);
-      categoryMap.set(cat, existing);
-    });
-    const salesByCategory = Array.from(categoryMap.entries())
-      .map(([category, d]) => ({
-        category,
-        ...d,
-        profit: d.revenue - d.cost,
-      }))
-      .sort((a, b) => b.revenue - a.revenue);
-
-    const dateMap = new Map<string, { revenue: number; quantity: number }>();
-    sales.forEach((s) => {
-      const date = s.event_date;
-      const existing = dateMap.get(date) || { revenue: 0, quantity: 0 };
-      existing.revenue += Number(s.total_value);
-      existing.quantity += Number(s.quantity);
-      dateMap.set(date, existing);
-    });
-    const salesByDate = Array.from(dateMap.entries())
-      .map(([date, d]) => ({ date, ...d }))
-      .sort((a, b) => a.date.localeCompare(b.date));
-
-    const drinkProfitMap = new Map<string, { name: string; casa: string; revenue: number; cost: number; quantity: number }>();
-    sales.forEach((s) => {
-      if (s.product?.type !== 'drink') return;
-      const key = `${s.product.name}-${s.casa?.name}`;
-      const existing = drinkProfitMap.get(key) || {
-        name: s.product.name,
-        casa: s.casa?.name || '',
-        revenue: 0,
-        cost: 0,
-        quantity: 0,
-      };
-      existing.revenue += Number(s.total_value);
-      existing.cost += Number(s.product.cost) * Number(s.quantity);
-      existing.quantity += Number(s.quantity);
-      drinkProfitMap.set(key, existing);
-    });
-    const topProfitDrinks = Array.from(drinkProfitMap.values())
-      .map((d) => ({
-        ...d,
-        profit: d.revenue - d.cost,
-        margin_pct: d.revenue > 0 ? ((d.revenue - d.cost) / d.revenue) * 100 : 0,
-      }))
-      .sort((a, b) => b.profit - a.profit)
-      .slice(0, 10);
-
-    const topCostDrinks = Array.from(drinkProfitMap.values())
-      .map((d) => ({
-        name: d.name,
-        casa: d.casa,
-        cost: d.cost / (d.quantity || 1),
-        quantity: d.quantity,
-        total_cost: d.cost,
-      }))
-      .sort((a, b) => b.total_cost - a.total_cost)
-      .slice(0, 10);
-
-    const casaMap = new Map<string, { revenue: number; cost: number; items_sold: number }>();
-    sales.forEach((s) => {
-      const casa = s.casa?.name || 'Desconhecido';
-      const existing = casaMap.get(casa) || { revenue: 0, cost: 0, items_sold: 0 };
-      existing.revenue += Number(s.total_value);
-      existing.cost += Number(s.product?.cost || 0) * Number(s.quantity);
-      existing.items_sold += Number(s.quantity);
-      casaMap.set(casa, existing);
-    });
-    const casaComparison = Array.from(casaMap.entries())
-      .map(([casa, d]) => ({
-        casa,
-        ...d,
-        profit: d.revenue - d.cost,
-      }))
-      .sort((a, b) => b.revenue - a.revenue);
-
-    setData({
-      salesByCategory,
-      salesByDate,
-      topProfitDrinks,
-      topCostDrinks,
-      casaComparison,
-      totalRevenue,
-      totalCost,
-      totalProfit,
-      avgTicket,
-      totalItems,
-    });
-
-    setLoading(false);
   }, [selectedCasa, period]);
 
   useEffect(() => {

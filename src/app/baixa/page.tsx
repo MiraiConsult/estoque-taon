@@ -38,26 +38,30 @@ export default function BaixaPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchHistory = useCallback(async () => {
-    const { data } = await supabase
-      .from('sale_imports')
-      .select('*, casa:casas(name)')
-      .order('created_at', { ascending: false })
-      .limit(20);
+    try {
+      const { data } = await supabase
+        .from('sale_imports')
+        .select('*, casa:casas(name)')
+        .order('created_at', { ascending: false })
+        .limit(20);
 
-    if (data) {
-      setHistory(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (data as any[]).map((d) => ({
-          id: d.id,
-          casa_name: d.casa?.name || '',
-          event_date: d.event_date,
-          event_name: d.event_name,
-          file_name: d.file_name,
-          total_items: d.total_items,
-          total_value: d.total_value,
-          created_at: d.created_at,
-        }))
-      );
+      if (data) {
+        setHistory(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (data as any[]).map((d) => ({
+            id: d.id,
+            casa_name: d.casa?.name || '',
+            event_date: d.event_date,
+            event_name: d.event_name,
+            file_name: d.file_name,
+            total_items: d.total_items,
+            total_value: d.total_value,
+            created_at: d.created_at,
+          }))
+        );
+      }
+    } catch (err) {
+      console.error('Fetch error:', err);
     }
   }, []);
 

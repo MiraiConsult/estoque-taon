@@ -92,35 +92,39 @@ function EstoqueContent() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    try {
+      let casaId: string | null = null;
+      if (selectedCasa !== 'all') {
+        const { data: casa } = await supabase
+          .from('casas')
+          .select('id')
+          .eq('name', selectedCasa)
+          .single();
+        casaId = casa?.id || null;
+      }
 
-    let casaId: string | null = null;
-    if (selectedCasa !== 'all') {
-      const { data: casa } = await supabase
-        .from('casas')
-        .select('id')
-        .eq('name', selectedCasa)
-        .single();
-      casaId = casa?.id || null;
+      const [stockRes, casasRes, productsRes, insumosRes] = await Promise.all([
+        (() => {
+          let q = supabase
+            .from('stock_items')
+            .select('id, casa_id, product_id, insumo_id, quantity, minimum, unit, updated_at, product:products(name, category, cost), insumo:insumos(name, unit), casa:casas(name)');
+          if (casaId) q = q.eq('casa_id', casaId);
+          return q;
+        })(),
+        supabase.from('casas').select('id, name'),
+        supabase.from('products').select('id, name, category, type, sale_price, cost').order('name'),
+        supabase.from('insumos').select('id, name, unit').order('name'),
+      ]);
+
+      setStockItems((stockRes.data || []) as unknown as StockItem[]);
+      setCasas((casasRes.data || []) as Casa[]);
+      setProducts((productsRes.data || []) as Product[]);
+      setInsumos((insumosRes.data || []) as Insumo[]);
+    } catch (err) {
+      console.error('Fetch error:', err);
+    } finally {
+      setLoading(false);
     }
-
-    const [stockRes, casasRes, productsRes, insumosRes] = await Promise.all([
-      (() => {
-        let q = supabase
-          .from('stock_items')
-          .select('id, casa_id, product_id, insumo_id, quantity, minimum, unit, updated_at, product:products(name, category, cost), insumo:insumos(name, unit), casa:casas(name)');
-        if (casaId) q = q.eq('casa_id', casaId);
-        return q;
-      })(),
-      supabase.from('casas').select('id, name'),
-      supabase.from('products').select('id, name, category, type, sale_price, cost').order('name'),
-      supabase.from('insumos').select('id, name, unit').order('name'),
-    ]);
-
-    setStockItems((stockRes.data || []) as unknown as StockItem[]);
-    setCasas((casasRes.data || []) as Casa[]);
-    setProducts((productsRes.data || []) as Product[]);
-    setInsumos((insumosRes.data || []) as Insumo[]);
-    setLoading(false);
   }, [selectedCasa]);
 
   useEffect(() => {

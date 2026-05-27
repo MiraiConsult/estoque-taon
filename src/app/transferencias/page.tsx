@@ -39,30 +39,35 @@ export default function TransferenciasPage() {
 
   const fetchTransfers = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('transfers')
-      .select(
-        'id, quantity, notes, created_at, from_casa:casas!transfers_from_casa_id_fkey(name), to_casa:casas!transfers_to_casa_id_fkey(name), product:products(name), insumo:insumos(name)'
-      )
-      .order('created_at', { ascending: false })
-      .limit(50);
+    try {
+      const { data } = await supabase
+        .from('transfers')
+        .select(
+          'id, quantity, notes, created_at, from_casa:casas!transfers_from_casa_id_fkey(name), to_casa:casas!transfers_to_casa_id_fkey(name), product:products(name), insumo:insumos(name)'
+        )
+        .order('created_at', { ascending: false })
+        .limit(50);
 
-    if (data) {
-      setTransfers(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (data as any[]).map((t) => ({
-          id: t.id,
-          from_casa: t.from_casa?.name || '',
-          to_casa: t.to_casa?.name || '',
-          item_name: t.product?.name || t.insumo?.name || 'Desconhecido',
-          item_type: t.product ? 'product' : 'insumo',
-          quantity: t.quantity,
-          notes: t.notes,
-          created_at: t.created_at,
-        }))
-      );
+      if (data) {
+        setTransfers(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (data as any[]).map((t) => ({
+            id: t.id,
+            from_casa: t.from_casa?.name || '',
+            to_casa: t.to_casa?.name || '',
+            item_name: t.product?.name || t.insumo?.name || 'Desconhecido',
+            item_type: t.product ? 'product' : 'insumo',
+            quantity: t.quantity,
+            notes: t.notes,
+            created_at: t.created_at,
+          }))
+        );
+      }
+    } catch (err) {
+      console.error('Fetch error:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const fetchOptions = useCallback(async () => {
