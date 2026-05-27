@@ -1,0 +1,1904 @@
+{
+  "stock_isla": [
+    {
+      "category": "CERVEJA",
+      "product": "CORONA",
+      "quantity": 54,
+      "minimum": 480
+    },
+    {
+      "category": "CERVEJA",
+      "product": "CORONA ZERO",
+      "quantity": 84,
+      "minimum": 24
+    },
+    {
+      "category": "CERVEJA",
+      "product": "SPATEN",
+      "quantity": 3,
+      "minimum": 120
+    },
+    {
+      "category": "CERVEJA",
+      "product": "STELLA PURE GOLD",
+      "quantity": 20,
+      "minimum": 120
+    },
+    {
+      "category": "DOSES",
+      "product": "APEROL",
+      "quantity": 24,
+      "minimum": 24
+    },
+    {
+      "category": "DOSES",
+      "product": "INDIAZINHA JAMBU",
+      "quantity": 45,
+      "minimum": 0
+    },
+    {
+      "category": "DOSES",
+      "product": "MARTINI BIANCO",
+      "quantity": 4,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "CINZANO ROSSO",
+      "quantity": 1,
+      "minimum": 3
+    },
+    {
+      "category": "DOSES",
+      "product": "MARTINI ROSSO",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "MARTINI EXTRA DRY",
+      "quantity": 3,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "BACARDI OURO 4ANOS",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "BACARDI OURO",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "RUM SAN BASILE",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "RUM SPICE DOCCA",
+      "quantity": 0,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "CAMPARI",
+      "quantity": 2,
+      "minimum": 22
+    },
+    {
+      "category": "DOSES",
+      "product": "BITTER ANGOSTURA",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "XAROPE AGAVE",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "XAROPE TORANJA",
+      "quantity": 6,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "XAROPE PESSEGO",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "XAROPE MORANGO",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "XAROPE GRENADINE",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "SAQUE",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "FERNET",
+      "quantity": 3,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "CACHACA SAGATIBA",
+      "quantity": 0,
+      "minimum": 2
+    },
+    {
+      "category": "DOSES",
+      "product": "MALIBU",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL TRADICIONAL",
+      "quantity": 213,
+      "minimum": 600
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL MELANCIA",
+      "quantity": 6,
+      "minimum": 120
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL FRUTAS VERMELHAS",
+      "quantity": 26,
+      "minimum": 2
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL SUGAR FREE",
+      "quantity": 57,
+      "minimum": 240
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL TROPICAL",
+      "quantity": 52,
+      "minimum": 240
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL POMELO",
+      "quantity": 33,
+      "minimum": 2
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL MELAO",
+      "quantity": 50,
+      "minimum": 22
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL PESSEGO MORANGO",
+      "quantity": 86,
+      "minimum": 2
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "CHANDON",
+      "quantity": 3,
+      "minimum": 6
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "CHANDON SPRITZ",
+      "quantity": 6,
+      "minimum": 6
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "VEUVE CLICQUOT",
+      "quantity": 4,
+      "minimum": 6
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "FREIXENET BRUT",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "UKO DOCE",
+      "quantity": 6,
+      "minimum": 2
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "UKO BRUT",
+      "quantity": 10,
+      "minimum": 2
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "SALTON",
+      "quantity": 18,
+      "minimum": 22
+    },
+    {
+      "category": "GIN",
+      "product": "TANQUERAY",
+      "quantity": 0,
+      "minimum": 2
+    },
+    {
+      "category": "GIN",
+      "product": "HENDRICKS",
+      "quantity": 8,
+      "minimum": 2
+    },
+    {
+      "category": "GIN",
+      "product": "ROKU GIN",
+      "quantity": 10,
+      "minimum": 2
+    },
+    {
+      "category": "GIN",
+      "product": "MONKEY GIN",
+      "quantity": 6,
+      "minimum": 2
+    },
+    {
+      "category": "GIN",
+      "product": "BAG GIN DOCCA",
+      "quantity": 0,
+      "minimum": 2
+    },
+    {
+      "category": "LICOR",
+      "product": "GELATTO PISTACHE",
+      "quantity": 8,
+      "minimum": 2
+    },
+    {
+      "category": "LICOR",
+      "product": "JAGERMEISTER",
+      "quantity": 0,
+      "minimum": 6
+    },
+    {
+      "category": "LICOR",
+      "product": "LICOR 43",
+      "quantity": 4,
+      "minimum": 2
+    },
+    {
+      "category": "LICOR",
+      "product": "LICOR 43 CHOCOLATE",
+      "quantity": 4,
+      "minimum": 2
+    },
+    {
+      "category": "LICOR",
+      "product": "BALENA",
+      "quantity": 3,
+      "minimum": 2
+    },
+    {
+      "category": "LICOR",
+      "product": "COINTREAU",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "LICOR",
+      "product": "BANANINHA",
+      "quantity": 3,
+      "minimum": 2
+    },
+    {
+      "category": "LICOR",
+      "product": "AMARETTO",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "LICOR",
+      "product": "LIMONCELLO",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "LICOR",
+      "product": "PEACH THREE",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "OUTROS",
+      "product": "BAG KAVALAGE",
+      "quantity": 5,
+      "minimum": 2
+    },
+    {
+      "category": "OUTROS",
+      "product": "BLU",
+      "quantity": 0,
+      "minimum": 22
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA PANNA",
+      "quantity": 8,
+      "minimum": 2
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA SAN PELLEGRINO",
+      "quantity": 7,
+      "minimum": 2
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA SEM GAS",
+      "quantity": 259,
+      "minimum": 480
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA COM GAS",
+      "quantity": 110,
+      "minimum": 120
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "TONICA ZERO",
+      "quantity": 0,
+      "minimum": 2
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "TONICA",
+      "quantity": 6,
+      "minimum": 60
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "GUARANA",
+      "quantity": 43,
+      "minimum": 60
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "GUARANA ZERO",
+      "quantity": 52,
+      "minimum": 60
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "COCA COLA",
+      "quantity": 115,
+      "minimum": 240
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "COCA COLA ZERO",
+      "quantity": 121,
+      "minimum": 240
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SCHWEPPES",
+      "quantity": 1,
+      "minimum": 30
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SCHWEPPES ZERO",
+      "quantity": 0,
+      "minimum": 30
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA DE COCO",
+      "quantity": 11,
+      "minimum": 120
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SUCO MANGA",
+      "quantity": 78,
+      "minimum": 2
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SUCO MARACUJA",
+      "quantity": 15,
+      "minimum": 2
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SUCO UVA",
+      "quantity": 57,
+      "minimum": 2
+    },
+    {
+      "category": "TEQUILA",
+      "product": "TEQUILA JOSE CUERVO OURO",
+      "quantity": 8,
+      "minimum": 6
+    },
+    {
+      "category": "TEQUILA",
+      "product": "TEQUILA DON JULIO BLANCO",
+      "quantity": 1,
+      "minimum": 1
+    },
+    {
+      "category": "TEQUILA",
+      "product": "TEQUILA DON JULIO",
+      "quantity": 3,
+      "minimum": 3
+    },
+    {
+      "category": "VINHO",
+      "product": "BAG VINHO TINTO",
+      "quantity": 0,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "DON GUERINO SINAIS",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "DON GUERINO RIESLING",
+      "quantity": 17,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "DON GUERINO MOSCATEL ROSE",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "SMILEY ROSE",
+      "quantity": 6,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "SANTA PARRA ROSE",
+      "quantity": 13,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "DIABLES",
+      "quantity": 4,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "LEZ ARTS",
+      "quantity": 0,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "L&C POITOUT",
+      "quantity": 3,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "ESSENCIAL MALBEC",
+      "quantity": 6,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "ESSENCIAL BLEND",
+      "quantity": 6,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "ESSENCIAL CABERNET",
+      "quantity": 3,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "SANTA PARRA",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "ANTONIO SARAMAGO",
+      "quantity": 11,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "SMILEY MERLOT",
+      "quantity": 6,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "UKO OLD VINES",
+      "quantity": 5,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "TUPAC MALBEC",
+      "quantity": 6,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "CAMAS PINOT NOIR",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "CONCLAVE",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "CRUCE DE MUNDOS",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "CAPIVARA",
+      "quantity": 6,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "MARRENOM",
+      "quantity": 4,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "CABERNET DRINK",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "VINHO",
+      "product": "SANTA RITA",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "VODKA",
+      "product": "BAG DOCCA VODKA 4L",
+      "quantity": 0,
+      "minimum": 2
+    },
+    {
+      "category": "VODKA",
+      "product": "BELVEDERE",
+      "quantity": 4,
+      "minimum": 2
+    },
+    {
+      "category": "VODKA",
+      "product": "ABSOLUT",
+      "quantity": 10,
+      "minimum": 22
+    },
+    {
+      "category": "VODKA",
+      "product": "GREY GOOSE",
+      "quantity": 19,
+      "minimum": 60
+    },
+    {
+      "category": "WHISKY",
+      "product": "BLACK LABEL",
+      "quantity": 8,
+      "minimum": 24
+    },
+    {
+      "category": "WHISKY",
+      "product": "JIM BEAM",
+      "quantity": 3,
+      "minimum": 2
+    },
+    {
+      "category": "WHISKY",
+      "product": "JACK DANIELS",
+      "quantity": 0,
+      "minimum": 2
+    },
+    {
+      "category": "WHISKY",
+      "product": "GOLD LABEL",
+      "quantity": 10,
+      "minimum": 22
+    },
+    {
+      "category": "WHISKY",
+      "product": "MACALLAN 12",
+      "quantity": 3,
+      "minimum": 2
+    },
+    {
+      "category": "WHISKY",
+      "product": "MACALLAN 18",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "WHISKY",
+      "product": "BULLEIT",
+      "quantity": 2,
+      "minimum": 2
+    },
+    {
+      "category": "XR",
+      "product": "XAROPE 1883 COCO",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "OUTROS",
+      "product": "CYNAR",
+      "quantity": 3,
+      "minimum": 2
+    }
+  ],
+  "stock_playa": [
+    {
+      "category": "CERVEJA",
+      "product": "CORONA ZERO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "CERVEJA",
+      "product": "CORONA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "CERVEJA",
+      "product": "SPATEN",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "CERVEJA",
+      "product": "STELLA PURE GOLD",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "CERVEJA",
+      "product": "SKOL BEATS",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "DOSES",
+      "product": "CACHACA SAGATIBA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "DOSES",
+      "product": "CAMPARI",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "DOSES",
+      "product": "APEROL",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "DOSES",
+      "product": "JAGERMEISTER",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "DOSES",
+      "product": "VERMUTE",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL TRADICIONAL",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL TROPICAL",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL MELANCIA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL CEREJA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL MELAO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL AMORA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL ZERO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL POMELO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL PESSEGO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "BAG VINHO MIOLO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "CHANDON BRUT",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "CHANDON GARDEN SPRITZ",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "CHANDON ROSE",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "VEUVE CLICQUOT",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "DOM PERIGNON 2013",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "DOM PERIGNON 2018",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "PERRIER JOUET",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "GIN",
+      "product": "GIN TANQUERAY",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "GIN",
+      "product": "GIN DOCCA BAG",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "LICOR",
+      "product": "LICOR 43 CREME BRULEE",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "LICOR",
+      "product": "LICOR 43",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "LICOR",
+      "product": "LICOR 43 CHOCOLATE",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "LICOR",
+      "product": "BALENA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "LICOR",
+      "product": "PISTACHE",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA DE COCO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "COCA COLA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "COCA COLA ZERO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA COM GAS",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "TONICA ZERO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "TONICA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SUCO UVA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SUCO MANGA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SUCO MARACUJA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "GUARANA ZERO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "GUARANA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "TEQUILA",
+      "product": "TEQUILA JOSE CUERVO PRATA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "TEQUILA",
+      "product": "TEQUILA JOSE CUERVO DOURADA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "TEQUILA",
+      "product": "TEQUILA 1800",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "ANGELICA ZAPATA CHARDONNAY",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "JUDAS MALBEC",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "CORDEIRO DEL PIERO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "LA LINDA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "LUIGI BOSCA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "DV CATENA CHARDONNAY",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "RANINA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "ANTONIO SARAMAGO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "PERICO JULIETTE ROSE",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "ESSENCIAL NARANJO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "TUPAC",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "SMILEY CHARDONNAY",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "CATENA ZAPATA MALBEC",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "DV CATENA MALBEC",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "L&C POITOUT",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VODKA",
+      "product": "ABSOLUT",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VODKA",
+      "product": "GREY GOOSE",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VODKA",
+      "product": "BAG VODKA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VODKA",
+      "product": "SKY VODKA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "WHISKY",
+      "product": "JIM BEAM",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "WHISKY",
+      "product": "GOLD LABEL",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "WHISKY",
+      "product": "JACK DANIELS",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "WHISKY",
+      "product": "BLACK LABEL",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "WHISKY",
+      "product": "BLUE LABEL",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR MELANCIA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR BITTER FABRI",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR KIWI",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR COCO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR MORANGO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR MANGA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR CRANBERRY",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR YUZU",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR LIMAO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR TANGERINA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR MELAO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR MARACUJA",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR MOJITO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR MACA VERDE",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR ABACAXI",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "XR",
+      "product": "XR CHA",
+      "quantity": 0,
+      "minimum": 0
+    }
+  ],
+  "stock_viva": [
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA S/ GAS",
+      "quantity": 444,
+      "minimum": 600
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA C/ GAS",
+      "quantity": 371,
+      "minimum": 120
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA TONICA LATA",
+      "quantity": 138,
+      "minimum": 60
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "AGUA DE COCO 330ML",
+      "quantity": 68,
+      "minimum": 72
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "COCA COLA",
+      "quantity": 882,
+      "minimum": 500
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "COCA ZERO",
+      "quantity": 551,
+      "minimum": 500
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "GUARANA",
+      "quantity": 180,
+      "minimum": 48
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "GUARANA ZERO",
+      "quantity": 252,
+      "minimum": 48
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SPRITE",
+      "quantity": 84,
+      "minimum": 24
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SPRITE ZERO",
+      "quantity": 36,
+      "minimum": 24
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "CITRUS",
+      "quantity": 22,
+      "minimum": 36
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "CITRUS ZERO",
+      "quantity": 84,
+      "minimum": 36
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SUCO MANGA",
+      "quantity": 335,
+      "minimum": 36
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SUCO MARACUJA",
+      "quantity": 110,
+      "minimum": 36
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SUCO UVA",
+      "quantity": 93,
+      "minimum": 36
+    },
+    {
+      "category": "SOFT DRINKS",
+      "product": "SKOL BEATS",
+      "quantity": 342,
+      "minimum": 240
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL TRADICIONAL",
+      "quantity": 583,
+      "minimum": 960
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL TROPICAL",
+      "quantity": 90,
+      "minimum": 240
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL MELANCIA",
+      "quantity": 156,
+      "minimum": 240
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL PESSEGO",
+      "quantity": 239,
+      "minimum": 96
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL POMELO",
+      "quantity": 465,
+      "minimum": 96
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL MELAO",
+      "quantity": 283,
+      "minimum": 96
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL ZERO",
+      "quantity": 238,
+      "minimum": 240
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL CEREJA",
+      "quantity": 387,
+      "minimum": 0
+    },
+    {
+      "category": "ENERGETICO",
+      "product": "RED BULL AMORA",
+      "quantity": 111,
+      "minimum": 96
+    },
+    {
+      "category": "CERVEJA",
+      "product": "CORONA",
+      "quantity": 72,
+      "minimum": 720
+    },
+    {
+      "category": "CERVEJA",
+      "product": "CORONA ZERO",
+      "quantity": 601,
+      "minimum": 48
+    },
+    {
+      "category": "CERVEJA",
+      "product": "HEINEKEN",
+      "quantity": 1087,
+      "minimum": 720
+    },
+    {
+      "category": "CERVEJA",
+      "product": "HEINEKEN ZERO",
+      "quantity": 121,
+      "minimum": 48
+    },
+    {
+      "category": "CERVEJA",
+      "product": "SPATEN",
+      "quantity": 177,
+      "minimum": 0
+    },
+    {
+      "category": "VODKA",
+      "product": "ABSOLUT 1L",
+      "quantity": 45,
+      "minimum": 60
+    },
+    {
+      "category": "VODKA",
+      "product": "GREY GOOSE",
+      "quantity": 19,
+      "minimum": 18
+    },
+    {
+      "category": "VODKA",
+      "product": "BAG VODKA",
+      "quantity": 6,
+      "minimum": 4
+    },
+    {
+      "category": "GIN",
+      "product": "TANQUERAY",
+      "quantity": 30,
+      "minimum": 60
+    },
+    {
+      "category": "GIN",
+      "product": "BAG GIN",
+      "quantity": 5,
+      "minimum": 4
+    },
+    {
+      "category": "WHISKY",
+      "product": "JACK DANIELS",
+      "quantity": 51,
+      "minimum": 60
+    },
+    {
+      "category": "WHISKY",
+      "product": "BLACK LABEL",
+      "quantity": 25,
+      "minimum": 36
+    },
+    {
+      "category": "WHISKY",
+      "product": "GOLD LABEL",
+      "quantity": 8,
+      "minimum": 12
+    },
+    {
+      "category": "WHISKY",
+      "product": "BLUE LABEL",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "LICOR",
+      "product": "BALENA",
+      "quantity": 8,
+      "minimum": 12
+    },
+    {
+      "category": "LICOR",
+      "product": "PISTACHE",
+      "quantity": 12,
+      "minimum": 0
+    },
+    {
+      "category": "LICOR",
+      "product": "JAGERMEISTER",
+      "quantity": 15,
+      "minimum": 12
+    },
+    {
+      "category": "LICOR",
+      "product": "LICOR 43",
+      "quantity": 24,
+      "minimum": 12
+    },
+    {
+      "category": "LICOR",
+      "product": "LICOR 43 CREME",
+      "quantity": 17,
+      "minimum": 6
+    },
+    {
+      "category": "LICOR",
+      "product": "LICOR 43 CHOCOLATE",
+      "quantity": 17,
+      "minimum": 6
+    },
+    {
+      "category": "LICOR",
+      "product": "LIMONCELLO",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "LICOR",
+      "product": "TRIPLE SEC LARANJA",
+      "quantity": 7,
+      "minimum": 3
+    },
+    {
+      "category": "LICOR",
+      "product": "TRIPLE SEC BLUE",
+      "quantity": 3,
+      "minimum": 0
+    },
+    {
+      "category": "TEQUILA",
+      "product": "TEQUILA 1800",
+      "quantity": 7,
+      "minimum": 2
+    },
+    {
+      "category": "TEQUILA",
+      "product": "TEQUILA JOSE CUERVO",
+      "quantity": 13,
+      "minimum": 12
+    },
+    {
+      "category": "OUTROS",
+      "product": "CAMPARI",
+      "quantity": 24,
+      "minimum": 3
+    },
+    {
+      "category": "OUTROS",
+      "product": "SAQUE",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "OUTROS",
+      "product": "APEROL",
+      "quantity": 8,
+      "minimum": 6
+    },
+    {
+      "category": "OUTROS",
+      "product": "BACARDI",
+      "quantity": 4,
+      "minimum": 4
+    },
+    {
+      "category": "OUTROS",
+      "product": "ANGOSTURA",
+      "quantity": 0,
+      "minimum": 1
+    },
+    {
+      "category": "OUTROS",
+      "product": "SAGATIBA",
+      "quantity": 30,
+      "minimum": 12
+    },
+    {
+      "category": "OUTROS",
+      "product": "RUM HAVANNA",
+      "quantity": 1,
+      "minimum": 0
+    },
+    {
+      "category": "OUTROS",
+      "product": "XAROPE GRENADINE",
+      "quantity": 3,
+      "minimum": 6
+    },
+    {
+      "category": "OUTROS",
+      "product": "XAROPE CRANBERRY",
+      "quantity": 4,
+      "minimum": 6
+    },
+    {
+      "category": "OUTROS",
+      "product": "XAROPE MARACUJA",
+      "quantity": 10,
+      "minimum": 6
+    },
+    {
+      "category": "OUTROS",
+      "product": "VERMOUTH ROSSO",
+      "quantity": 15,
+      "minimum": 3
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "SALTON BRUT",
+      "quantity": 20,
+      "minimum": 18
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "CASA PERINI",
+      "quantity": 11,
+      "minimum": 6
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "CHANDON BRUT",
+      "quantity": 36,
+      "minimum": 12
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "CHANDON SPRITZ",
+      "quantity": 40,
+      "minimum": 6
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "CHANDON ROSE",
+      "quantity": 21,
+      "minimum": 0
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "MOET CHANDON IMPERIAL",
+      "quantity": 2,
+      "minimum": 0
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "VEUVE CLICQUOT",
+      "quantity": 9,
+      "minimum": 12
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "DOM PERIGNON",
+      "quantity": 1,
+      "minimum": 2
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "FREIXENET DEMISEC",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "ESPUMANTE",
+      "product": "FREIXENET BRUT",
+      "quantity": 5,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "LUIGI BOSCA SAUVIGNON BLANC",
+      "quantity": 17,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "LA LINDA",
+      "quantity": 5,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "ALMA NEGRA",
+      "quantity": 5,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "DV CATENA MALBEC",
+      "quantity": 3,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "EL ENEMIGO",
+      "quantity": 2,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "RISCO TINTO",
+      "quantity": 10,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "DV CATENA CHARDONNAY",
+      "quantity": 20,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "MARICHAL ROSE",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "CORDERO CHARDONNAY",
+      "quantity": 10,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "SANTA PARRA",
+      "quantity": 6,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "PERICO JULIETTE ROSE",
+      "quantity": 8,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "NINA PINOT GRIGIO ROSE",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "RANINA BRANCO",
+      "quantity": 12,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "LUIGI BOSCA MALBEC",
+      "quantity": 3,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "LOUCO VINHO TINTO",
+      "quantity": 6,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "FUZION ORGANIC CHARDONNAY",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "JUDAS TINTO",
+      "quantity": 5,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "CORDEIRO PIEL DE LOBO CABERNET",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "ANGELICA ZAPATA TINTO",
+      "quantity": 3,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "8 RIOS CABERNET SAUVIGNON",
+      "quantity": 0,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "ANGELICA ZAPATA BRANCO",
+      "quantity": 11,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "CATENA ZAPATA TINTO",
+      "quantity": 2,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "SMILEY BRANCO",
+      "quantity": 20,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "ANTONIO SARAMAGO",
+      "quantity": 5,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "ESENCIAL NARANJO",
+      "quantity": 4,
+      "minimum": 0
+    },
+    {
+      "category": "VINHO",
+      "product": "TUPAC BRANCO",
+      "quantity": 2,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE MAÇA VERDE",
+      "quantity": 45,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE MELAO",
+      "quantity": 21,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE LIMAO SICILIANO",
+      "quantity": 19,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE ABACAXI",
+      "quantity": 24,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE KIWI",
+      "quantity": 6,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE MOJITO",
+      "quantity": 4,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE MANGA",
+      "quantity": 2,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE TANJERINA",
+      "quantity": 8,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE BITTER",
+      "quantity": 1,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE MELANCIA",
+      "quantity": 9,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE COCO",
+      "quantity": 11,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE ICE TEA PEACH",
+      "quantity": 1,
+      "minimum": 0
+    },
+    {
+      "category": "XAROPE",
+      "product": "XAROPE YUZU",
+      "quantity": 14,
+      "minimum": 0
+    },
+    {
+      "category": "WHISKY",
+      "product": "JIM BEAN",
+      "quantity": 39,
+      "minimum": 0
+    },
+    {
+      "category": "WHISKY",
+      "product": "JIM BEAN MAÇA VERDE",
+      "quantity": 18,
+      "minimum": 0
+    },
+    {
+      "category": "WHISKY",
+      "product": "BALLANTINES",
+      "quantity": 15,
+      "minimum": 0
+    },
+    {
+      "category": "VODKA",
+      "product": "SKY",
+      "quantity": 8,
+      "minimum": 0
+    }
+  ]
+}

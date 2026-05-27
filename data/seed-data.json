@@ -1,0 +1,4038 @@
+{
+  "insumos": [
+    {
+      "code": "INS001",
+      "name": "Aperol",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 38.29,
+      "unit_cost": 0.03829,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS002",
+      "name": "Bag de Vinho Branco",
+      "unit": "ml",
+      "package_qty": 3000.0,
+      "package_price": 99.0,
+      "unit_cost": 0.033,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS003",
+      "name": "Gin Verve",
+      "unit": "ml",
+      "package_qty": 750.0,
+      "package_price": 114.8,
+      "unit_cost": 0.1530666667,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS004",
+      "name": "Campari",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 64.47,
+      "unit_cost": 0.06447,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS005",
+      "name": "Cinzano Rosso",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 38.8,
+      "unit_cost": 0.0388,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS006",
+      "name": "Tequila",
+      "unit": "ml",
+      "package_qty": 750.0,
+      "package_price": 103.67,
+      "unit_cost": 0.1382266667,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS007",
+      "name": "Suco de Laranja",
+      "unit": "ml",
+      "package_qty": 3000.0,
+      "package_price": 36.99,
+      "unit_cost": 0.01233,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS008",
+      "name": "Limão (suco)",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 4.99,
+      "unit_cost": 0.00499,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS009",
+      "name": "Jim Beam",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 101.57,
+      "unit_cost": 0.10157,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS010",
+      "name": "Açúcar",
+      "unit": "g",
+      "package_qty": 1000.0,
+      "package_price": 3.49,
+      "unit_cost": 0.00349,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS011",
+      "name": "Albumina",
+      "unit": "ml",
+      "package_qty": 500.0,
+      "package_price": 118.0,
+      "unit_cost": 0.236,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS012",
+      "name": "Angostura",
+      "unit": "ml",
+      "package_qty": 200.0,
+      "package_price": 84.9,
+      "unit_cost": 0.4245,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS013",
+      "name": "Bag de Vodka Kavelage",
+      "unit": "ml",
+      "package_qty": 5000.0,
+      "package_price": 159.0,
+      "unit_cost": 0.0318,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS014",
+      "name": "Chá Mate",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 0,
+      "unit_cost": 0.0,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS015",
+      "name": "Maracujá Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 84.9,
+      "unit_cost": 0.0849,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS016",
+      "name": "Jim Beam Maçã Verde",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 101.57,
+      "unit_cost": 0.10157,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS017",
+      "name": "Yuzu Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 94.9,
+      "unit_cost": 0.0949,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS018",
+      "name": "Kiwi Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 84.9,
+      "unit_cost": 0.0849,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS019",
+      "name": "Maçã Verde Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 84.9,
+      "unit_cost": 0.0849,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS020",
+      "name": "Melancia Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 84.9,
+      "unit_cost": 0.0849,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS021",
+      "name": "Tangerina Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 84.9,
+      "unit_cost": 0.0849,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS022",
+      "name": "Melão Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 84.9,
+      "unit_cost": 0.0849,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS023",
+      "name": "Jack Daniel's",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 119.15,
+      "unit_cost": 0.11915,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS024",
+      "name": "Coca-Cola (lata 350ml)",
+      "unit": "ml",
+      "package_qty": 350.0,
+      "package_price": 2.5,
+      "unit_cost": 0.007142857143,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS025",
+      "name": "Licor de Laranja",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 46.99,
+      "unit_cost": 0.06712857143,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS026",
+      "name": "Espumante",
+      "unit": "ml",
+      "package_qty": 750.0,
+      "package_price": 32.9,
+      "unit_cost": 0.04386666667,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS027",
+      "name": "Jägermeister",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 115.6,
+      "unit_cost": 0.1651428571,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS028",
+      "name": "Red Bull (lata 250ml)",
+      "unit": "ml",
+      "package_qty": 250.0,
+      "package_price": 8.0,
+      "unit_cost": 0.032,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS029",
+      "name": "Xarope Mojito Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 84.9,
+      "unit_cost": 0.0849,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS030",
+      "name": "Coco Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 94.9,
+      "unit_cost": 0.0949,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS031",
+      "name": "Abacaxi Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 94.9,
+      "unit_cost": 0.0949,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS032",
+      "name": "Limone Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 189.9,
+      "unit_cost": 0.1899,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS033",
+      "name": "Morango Plus Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 84.9,
+      "unit_cost": 0.0849,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS034",
+      "name": "Polpa de Maracujá",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 37.0,
+      "unit_cost": 0.037,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS035",
+      "name": "Manga Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 94.9,
+      "unit_cost": 0.0949,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS036",
+      "name": "Maracujá Manga Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 84.9,
+      "unit_cost": 0.0849,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS037",
+      "name": "Aperol Zero Álcool",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 38.29,
+      "unit_cost": 0.0547,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS038",
+      "name": "Bitter Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 94.9,
+      "unit_cost": 0.0949,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS039",
+      "name": "Laranja Fabri",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 84.9,
+      "unit_cost": 0.0849,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS040",
+      "name": "Água Tônica",
+      "unit": "ml",
+      "package_qty": 200.0,
+      "package_price": 2.7,
+      "unit_cost": 0.0135,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS041",
+      "name": "Corona (garrafa)",
+      "unit": "ml",
+      "package_qty": 330.0,
+      "package_price": 5.22,
+      "unit_cost": 0.01581818182,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS042",
+      "name": "Água",
+      "unit": "ml",
+      "package_qty": 20000.0,
+      "package_price": 30.0,
+      "unit_cost": 0.0015,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS043",
+      "name": "Hortelã",
+      "unit": "g",
+      "package_qty": 50.0,
+      "package_price": 2.79,
+      "unit_cost": 0.0558,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS044",
+      "name": "Laranja Bahia (garnish)",
+      "unit": "un",
+      "package_qty": 1000.0,
+      "package_price": 12.99,
+      "unit_cost": 0.01299,
+      "casa": "Playa"
+    },
+    {
+      "code": "INS045",
+      "name": "Gin seco",
+      "unit": "ml",
+      "package_qty": 750.0,
+      "package_price": 114.8,
+      "unit_cost": 0.1530666667,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS046",
+      "name": "Gin Hendricks",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 189.0,
+      "unit_cost": 0.27,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS047",
+      "name": "Rum (base)",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 34.9,
+      "unit_cost": 0.0349,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS048",
+      "name": "Rum envelhecido",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 109.73,
+      "unit_cost": 0.10973,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS049",
+      "name": "Rum de coco",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 68.36,
+      "unit_cost": 0.09765714286,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS050",
+      "name": "Bourbon",
+      "unit": "ml",
+      "package_qty": 750.0,
+      "package_price": 218.41,
+      "unit_cost": 0.2912133333,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS051",
+      "name": "Saquê",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 64.9,
+      "unit_cost": 0.0649,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS052",
+      "name": "Whisky",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 98.36,
+      "unit_cost": 0.09836,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS053",
+      "name": "Bacardi Añejo 4 anos",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 34.9,
+      "unit_cost": 0.0349,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS054",
+      "name": "Água ardente centenária",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 0,
+      "unit_cost": 0.0,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS055",
+      "name": "Cachaça centenária",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 25.92,
+      "unit_cost": 0.02592,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS056",
+      "name": "Cachaça envelhecida",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 25.92,
+      "unit_cost": 0.02592,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS057",
+      "name": "Fernet",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 141.0,
+      "unit_cost": 0.141,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS058",
+      "name": "Fernet-Branca",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 161.41,
+      "unit_cost": 0.16141,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS059",
+      "name": "Gin infusionado com morango",
+      "unit": "ml",
+      "package_qty": 750.0,
+      "package_price": 114.8,
+      "unit_cost": 0.1530666667,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS060",
+      "name": "Gin infusionado frutas vermelhas",
+      "unit": "ml",
+      "package_qty": 750.0,
+      "package_price": 114.8,
+      "unit_cost": 0.1530666667,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS061",
+      "name": "Rum infusionado com goiaba",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 34.9,
+      "unit_cost": 0.0349,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS062",
+      "name": "Aperol infusionado com damasco",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 38.29,
+      "unit_cost": 0.03829,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS063",
+      "name": "Campari infusionado morango",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 64.47,
+      "unit_cost": 0.06447,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS064",
+      "name": "Vermute infusionado cacau",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 38.8,
+      "unit_cost": 0.0388,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS065",
+      "name": "Martini Dry",
+      "unit": "ml",
+      "package_qty": 750.0,
+      "package_price": 129.9,
+      "unit_cost": 0.1732,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS066",
+      "name": "Vermute extra dry",
+      "unit": "ml",
+      "package_qty": 750.0,
+      "package_price": 42.66,
+      "unit_cost": 0.05688,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS067",
+      "name": "Vermute da casa (tinto)",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 38.8,
+      "unit_cost": 0.0388,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS068",
+      "name": "Cynar",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 28.99,
+      "unit_cost": 0.02899,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS069",
+      "name": "Amaro Averna",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 118.0,
+      "unit_cost": 0.1685714286,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS070",
+      "name": "Amaretto",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 92.99,
+      "unit_cost": 0.1328428571,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS071",
+      "name": "Licor 43",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 159.9,
+      "unit_cost": 0.2284285714,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS072",
+      "name": "Licor de banana",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 95.3,
+      "unit_cost": 0.1361428571,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS073",
+      "name": "Licor de cassis",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 52.16,
+      "unit_cost": 0.07451428571,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS074",
+      "name": "Licor de café",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 52.16,
+      "unit_cost": 0.07451428571,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS075",
+      "name": "Licor Bizantino San Basile",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 179.9,
+      "unit_cost": 0.257,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS076",
+      "name": "Cointreau",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 109.0,
+      "unit_cost": 0.1557142857,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS077",
+      "name": "Xarope de açúcar",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 78.97,
+      "unit_cost": 0.07897,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS078",
+      "name": "Simple Demerara",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 4.39,
+      "unit_cost": 0.00439,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS079",
+      "name": "Xarope de limão siciliano",
+      "unit": "ml",
+      "package_qty": 500.0,
+      "package_price": 56.98,
+      "unit_cost": 0.11396,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS080",
+      "name": "Xarope de capim limão",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 56.98,
+      "unit_cost": 0.05698,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS081",
+      "name": "Xarope erva mate",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 61.9,
+      "unit_cost": 0.0619,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS082",
+      "name": "Xarope de melão",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 84.9,
+      "unit_cost": 0.0849,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS083",
+      "name": "Xarope de amêndoas",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 66.41,
+      "unit_cost": 0.09487142857,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS084",
+      "name": "Xarope cranberry/grenadine",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 46.9,
+      "unit_cost": 0.0469,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS085",
+      "name": "Sacarum de grapefruit",
+      "unit": "ml",
+      "package_qty": 500.0,
+      "package_price": 0,
+      "unit_cost": 0.0,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS086",
+      "name": "Calda de cereja",
+      "unit": "ml",
+      "package_qty": 500.0,
+      "package_price": 69.9,
+      "unit_cost": 0.1398,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS087",
+      "name": "Mel flor silvestre",
+      "unit": "g",
+      "package_qty": 280.0,
+      "package_price": 17.17,
+      "unit_cost": 0.06132142857,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS088",
+      "name": "Redução purê de goiaba",
+      "unit": "ml",
+      "package_qty": 500.0,
+      "package_price": 0,
+      "unit_cost": 0.0,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS089",
+      "name": "Purê de framboesa",
+      "unit": "ml",
+      "package_qty": 1000.0,
+      "package_price": 0,
+      "unit_cost": 0.0,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS090",
+      "name": "Suco de mamão papaya",
+      "unit": "g",
+      "package_qty": 1000.0,
+      "package_price": 10.19,
+      "unit_cost": 0.01019,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS091",
+      "name": "Limão Siciliano (suco)",
+      "unit": "g",
+      "package_qty": 1000.0,
+      "package_price": 18.99,
+      "unit_cost": 0.01899,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS092",
+      "name": "Tônica St. Pierre Rosé",
+      "unit": "ml",
+      "package_qty": 310.0,
+      "package_price": 4.87,
+      "unit_cost": 0.01570967742,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS093",
+      "name": "Cerveja de gengibre",
+      "unit": "ml",
+      "package_qty": 355.0,
+      "package_price": 0,
+      "unit_cost": 0.0,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS094",
+      "name": "Vinho tinto seco",
+      "unit": "ml",
+      "package_qty": 750.0,
+      "package_price": 46.0,
+      "unit_cost": 0.06133333333,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS095",
+      "name": "Espresso",
+      "unit": "un",
+      "package_qty": 20.0,
+      "package_price": 70.2,
+      "unit_cost": 3.51,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS096",
+      "name": "Cordial de amora",
+      "unit": "ml",
+      "package_qty": 700.0,
+      "package_price": 56.91,
+      "unit_cost": 0.0813,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS097",
+      "name": "Tintura de cúrcuma",
+      "unit": "ml",
+      "package_qty": 150.0,
+      "package_price": 48.3,
+      "unit_cost": 0.322,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS098",
+      "name": "Compota frutas vermelhas",
+      "unit": "g",
+      "package_qty": 284.0,
+      "package_price": 37.91,
+      "unit_cost": 0.1334859155,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS099",
+      "name": "Compota frutas amarelas",
+      "unit": "g",
+      "package_qty": 600.0,
+      "package_price": 22.71,
+      "unit_cost": 0.03785,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS100",
+      "name": "Gengibre fresco",
+      "unit": "g",
+      "package_qty": 1000.0,
+      "package_price": 19.9,
+      "unit_cost": 0.0199,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS101",
+      "name": "Bagas de zimbro",
+      "unit": "g",
+      "package_qty": 1000.0,
+      "package_price": 34.99,
+      "unit_cost": 0.03499,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS102",
+      "name": "Abacaxi (lâminas)",
+      "unit": "g",
+      "package_qty": 1000.0,
+      "package_price": 10.99,
+      "unit_cost": 0.01099,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS103",
+      "name": "Manjericão",
+      "unit": "un",
+      "package_qty": 1.0,
+      "package_price": 3.99,
+      "unit_cost": 3.99,
+      "casa": "Isla"
+    },
+    {
+      "code": "INS104",
+      "name": "Maracujá azedo (polpa)",
+      "unit": "g",
+      "package_qty": 400.0,
+      "package_price": 14.99,
+      "unit_cost": 0.037475,
+      "casa": "Isla"
+    }
+  ],
+  "drinks": [
+    {
+      "name": "Aperol Spritz",
+      "casa": "Playa",
+      "category": "Clássicos",
+      "sale_price": 45.0,
+      "total_cost": 7.26039,
+      "markup": 5.198014156,
+      "ingredients": [
+        {
+          "insumo_name": "Aperol",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.03829,
+          "ingredient_cost": 2.2974
+        },
+        {
+          "insumo_name": "Bag de Vinho Branco",
+          "quantity": 150.0,
+          "unit": "ml",
+          "unit_cost": 0.033,
+          "ingredient_cost": 4.95
+        },
+        {
+          "insumo_name": "Laranja Bahia (garnish)",
+          "quantity": 1.0,
+          "unit": "un",
+          "unit_cost": 0.01299,
+          "ingredient_cost": 0.01299
+        }
+      ]
+    },
+    {
+      "name": "Negroni",
+      "casa": "Playa",
+      "category": "Clássicos",
+      "sale_price": 45.0,
+      "total_cost": 7.6901,
+      "markup": 4.851679432,
+      "ingredients": [
+        {
+          "insumo_name": "Gin Verve",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 4.592
+        },
+        {
+          "insumo_name": "Campari",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.06447,
+          "ingredient_cost": 1.9341
+        },
+        {
+          "insumo_name": "Cinzano Rosso",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0388,
+          "ingredient_cost": 1.164
+        }
+      ]
+    },
+    {
+      "name": "Paloma",
+      "casa": "Playa",
+      "category": "Clássicos",
+      "sale_price": 45.0,
+      "total_cost": 8.810733333,
+      "markup": 4.107406875,
+      "ingredients": [
+        {
+          "insumo_name": "Tequila",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.1382266667,
+          "ingredient_cost": 6.911333333
+        },
+        {
+          "insumo_name": "Suco de Laranja",
+          "quantity": 150.0,
+          "unit": "ml",
+          "unit_cost": 0.01233,
+          "ingredient_cost": 1.8495
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 10.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.0499
+        }
+      ]
+    },
+    {
+      "name": "Whiskey Sour",
+      "casa": "Playa",
+      "category": "Clássicos",
+      "sale_price": 45.0,
+      "total_cost": 8.3352,
+      "markup": 4.398790671,
+      "ingredients": [
+        {
+          "insumo_name": "Jim Beam",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.10157,
+          "ingredient_cost": 6.0942
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.12475
+        },
+        {
+          "insumo_name": "Açúcar",
+          "quantity": 25.0,
+          "unit": "g",
+          "unit_cost": 0.00349,
+          "ingredient_cost": 0.08725
+        },
+        {
+          "insumo_name": "Albumina",
+          "quantity": 5.0,
+          "unit": "ml",
+          "unit_cost": 0.236,
+          "ingredient_cost": 1.18
+        },
+        {
+          "insumo_name": "Angostura",
+          "quantity": 2.0,
+          "unit": "ml",
+          "unit_cost": 0.4245,
+          "ingredient_cost": 0.849
+        }
+      ]
+    },
+    {
+      "name": "Gold Rush",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 49.0,
+      "total_cost": 7.277728571,
+      "markup": 5.73286995,
+      "ingredients": [
+        {
+          "insumo_name": "Whisky",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.09836,
+          "ingredient_cost": 5.9016
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Mel flor silvestre",
+          "quantity": 20.0,
+          "unit": "g",
+          "unit_cost": 0.06132142857,
+          "ingredient_cost": 1.226428571
+        }
+      ]
+    },
+    {
+      "name": "Brumble",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 45.0,
+      "total_cost": 10.61358333,
+      "markup": 3.239849878,
+      "ingredients": [
+        {
+          "insumo_name": "Gin seco",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 7.653333333
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Xarope de açúcar",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.07897,
+          "ingredient_cost": 1.18455
+        },
+        {
+          "insumo_name": "Cordial de amora",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.0813,
+          "ingredient_cost": 1.626
+        }
+      ]
+    },
+    {
+      "name": "Rosa dos Ventos – South Side",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 42.0,
+      "total_cost": 11.0805,
+      "markup": 2.79044267,
+      "ingredients": [
+        {
+          "insumo_name": "Gin seco",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 9.184
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Xarope de açúcar",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.07897,
+          "ingredient_cost": 1.5794
+        },
+        {
+          "insumo_name": "Hortelã",
+          "quantity": 3.0,
+          "unit": "g",
+          "unit_cost": 0.0558,
+          "ingredient_cost": 0.1674
+        }
+      ]
+    },
+    {
+      "name": "Mai Tai",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 44.0,
+      "total_cost": 8.9827,
+      "markup": 3.898304519,
+      "ingredients": [
+        {
+          "insumo_name": "Rum (base)",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.0349,
+          "ingredient_cost": 2.094
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Xarope de amêndoas",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.09487142857,
+          "ingredient_cost": 2.846142857
+        },
+        {
+          "insumo_name": "Cointreau",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.1557142857,
+          "ingredient_cost": 3.892857143
+        }
+      ]
+    },
+    {
+      "name": "Old Fashioned",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 48.0,
+      "total_cost": 7.4057,
+      "markup": 5.481493984,
+      "ingredients": [
+        {
+          "insumo_name": "Whisky",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.09836,
+          "ingredient_cost": 4.918
+        },
+        {
+          "insumo_name": "Xarope de açúcar",
+          "quantity": 10.0,
+          "unit": "ml",
+          "unit_cost": 0.07897,
+          "ingredient_cost": 0.7897
+        },
+        {
+          "insumo_name": "Angostura",
+          "quantity": 4.0,
+          "unit": "ml",
+          "unit_cost": 0.4245,
+          "ingredient_cost": 1.698
+        }
+      ]
+    },
+    {
+      "name": "Kir Royal",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 45.0,
+      "total_cost": 11.65757143,
+      "markup": 2.8601522,
+      "ingredients": [
+        {
+          "insumo_name": "Espumante",
+          "quantity": 150.0,
+          "unit": "ml",
+          "unit_cost": 0.04386666667,
+          "ingredient_cost": 6.58
+        },
+        {
+          "insumo_name": "Licor de cassis",
+          "quantity": 40.0,
+          "unit": "ml",
+          "unit_cost": 0.07451428571,
+          "ingredient_cost": 2.980571429
+        },
+        {
+          "insumo_name": "Calda de cereja",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.1398,
+          "ingredient_cost": 2.097
+        }
+      ]
+    },
+    {
+      "name": "Good Father",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 48.0,
+      "total_cost": 11.21531429,
+      "markup": 3.279862229,
+      "ingredients": [
+        {
+          "insumo_name": "Whisky",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.09836,
+          "ingredient_cost": 5.9016
+        },
+        {
+          "insumo_name": "Amaretto",
+          "quantity": 40.0,
+          "unit": "ml",
+          "unit_cost": 0.1328428571,
+          "ingredient_cost": 5.313714286
+        }
+      ]
+    },
+    {
+      "name": "Cosmopolitan",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 45.0,
+      "total_cost": 6.578985714,
+      "markup": 5.839960133,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 1.908
+        },
+        {
+          "insumo_name": "Xarope cranberry/grenadine",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0469,
+          "ingredient_cost": 1.407
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Cointreau",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.1557142857,
+          "ingredient_cost": 3.114285714
+        }
+      ]
+    },
+    {
+      "name": "Dry Martini",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 45.0,
+      "total_cost": 10.0372,
+      "markup": 3.483322042,
+      "ingredients": [
+        {
+          "insumo_name": "Gin seco",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 9.184
+        },
+        {
+          "insumo_name": "Vermute extra dry",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.05688,
+          "ingredient_cost": 0.8532
+        }
+      ]
+    },
+    {
+      "name": "Espresso Martini",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 48.0,
+      "total_cost": 8.837978571,
+      "markup": 4.431106176,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 1.908
+        },
+        {
+          "insumo_name": "Espresso",
+          "quantity": 1.0,
+          "unit": "un",
+          "unit_cost": 3.51,
+          "ingredient_cost": 3.51
+        },
+        {
+          "insumo_name": "Licor de café",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.07451428571,
+          "ingredient_cost": 2.235428571
+        },
+        {
+          "insumo_name": "Xarope de açúcar",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.07897,
+          "ingredient_cost": 1.18455
+        }
+      ]
+    },
+    {
+      "name": "Carajillo",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 50.0,
+      "total_cost": 154.1057143,
+      "markup": -0.6755473979,
+      "ingredients": [
+        {
+          "insumo_name": "Licor 43",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.2284285714,
+          "ingredient_cost": 13.70571429
+        },
+        {
+          "insumo_name": "Espresso",
+          "quantity": 40.0,
+          "unit": "un",
+          "unit_cost": 3.51,
+          "ingredient_cost": 140.4
+        }
+      ]
+    },
+    {
+      "name": "Aperol Spritz",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 45.0,
+      "total_cost": 6.729066667,
+      "markup": 5.687405881,
+      "ingredients": [
+        {
+          "insumo_name": "Aperol",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.03829,
+          "ingredient_cost": 2.2974
+        },
+        {
+          "insumo_name": "Espumante",
+          "quantity": 100.0,
+          "unit": "ml",
+          "unit_cost": 0.04386666667,
+          "ingredient_cost": 4.386666667
+        },
+        {
+          "insumo_name": "Água",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.045
+        }
+      ]
+    },
+    {
+      "name": "Aperol Passion",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 45.0,
+      "total_cost": 8.848166667,
+      "markup": 4.085799318,
+      "ingredients": [
+        {
+          "insumo_name": "Aperol",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.03829,
+          "ingredient_cost": 1.9145
+        },
+        {
+          "insumo_name": "Espumante",
+          "quantity": 100.0,
+          "unit": "ml",
+          "unit_cost": 0.04386666667,
+          "ingredient_cost": 4.386666667
+        },
+        {
+          "insumo_name": "Maracujá Fabri",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 2.547
+        }
+      ]
+    },
+    {
+      "name": "Aperol Fresh",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 45.0,
+      "total_cost": 6.374733333,
+      "markup": 6.059118813,
+      "ingredients": [
+        {
+          "insumo_name": "Aperol",
+          "quantity": 40.0,
+          "unit": "ml",
+          "unit_cost": 0.03829,
+          "ingredient_cost": 1.5316
+        },
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 0.954
+        },
+        {
+          "insumo_name": "Limão Siciliano (suco)",
+          "quantity": 20.0,
+          "unit": "g",
+          "unit_cost": 0.01899,
+          "ingredient_cost": 0.3798
+        },
+        {
+          "insumo_name": "Espumante",
+          "quantity": 80.0,
+          "unit": "ml",
+          "unit_cost": 0.04386666667,
+          "ingredient_cost": 3.509333333
+        }
+      ]
+    },
+    {
+      "name": "Aperol Spritz da Ilha",
+      "casa": "Isla",
+      "category": "Clássicos",
+      "sale_price": 47.0,
+      "total_cost": 6.729066667,
+      "markup": 5.98462392,
+      "ingredients": [
+        {
+          "insumo_name": "Aperol infusionado com damasco",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.03829,
+          "ingredient_cost": 2.2974
+        },
+        {
+          "insumo_name": "Espumante",
+          "quantity": 100.0,
+          "unit": "ml",
+          "unit_cost": 0.04386666667,
+          "ingredient_cost": 4.386666667
+        },
+        {
+          "insumo_name": "Água",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.045
+        }
+      ]
+    },
+    {
+      "name": "Passion Spritz",
+      "casa": "Playa",
+      "category": "Autorais",
+      "sale_price": 45.0,
+      "total_cost": 7.6175,
+      "markup": 4.907449951,
+      "ingredients": [
+        {
+          "insumo_name": "Aperol",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.03829,
+          "ingredient_cost": 1.9145
+        },
+        {
+          "insumo_name": "Bag de Vinho Branco",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.033,
+          "ingredient_cost": 3.96
+        },
+        {
+          "insumo_name": "Água",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.045
+        },
+        {
+          "insumo_name": "Maracujá Fabri",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 1.698
+        }
+      ]
+    },
+    {
+      "name": "Playa Tea",
+      "casa": "Playa",
+      "category": "Autorais",
+      "sale_price": 45.0,
+      "total_cost": 1.7397,
+      "markup": 24.86652871,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 1.59
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Chá Mate",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Espaghett",
+      "casa": "Playa",
+      "category": "Autorais",
+      "sale_price": 45.0,
+      "total_cost": 5.535886364,
+      "markup": 7.128779575,
+      "ingredients": [
+        {
+          "insumo_name": "Aperol",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.03829,
+          "ingredient_cost": 2.2974
+        },
+        {
+          "insumo_name": "Corona (garrafa)",
+          "quantity": 200.0,
+          "unit": "ml",
+          "unit_cost": 0.01581818182,
+          "ingredient_cost": 3.163636364
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.07485
+        }
+      ]
+    },
+    {
+      "name": "Breeze",
+      "casa": "Playa",
+      "category": "Autorais",
+      "sale_price": 48.0,
+      "total_cost": 8.15525,
+      "markup": 4.885779099,
+      "ingredients": [
+        {
+          "insumo_name": "Jim Beam Maçã Verde",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.10157,
+          "ingredient_cost": 5.0785
+        },
+        {
+          "insumo_name": "Yuzu Fabri",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0949,
+          "ingredient_cost": 2.847
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.12475
+        },
+        {
+          "insumo_name": "Água",
+          "quantity": 70.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.105
+        }
+      ]
+    },
+    {
+      "name": "Sunset",
+      "casa": "Playa",
+      "category": "Autorais",
+      "sale_price": 45.0,
+      "total_cost": 5.2407,
+      "markup": 7.586639189,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 1.59
+        },
+        {
+          "insumo_name": "Kiwi Fabri",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 2.1225
+        },
+        {
+          "insumo_name": "Maçã Verde Fabri",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 1.2735
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Água",
+          "quantity": 70.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.105
+        }
+      ]
+    },
+    {
+      "name": "Fresh",
+      "casa": "Playa",
+      "category": "Autorais",
+      "sale_price": 45.0,
+      "total_cost": 11.30403333,
+      "markup": 2.980879981,
+      "ingredients": [
+        {
+          "insumo_name": "Gin Verve",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 7.653333333
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Maracujá Fabri",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 1.698
+        },
+        {
+          "insumo_name": "Maracujá Manga Fabri",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 1.698
+        },
+        {
+          "insumo_name": "Água",
+          "quantity": 70.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.105
+        }
+      ]
+    },
+    {
+      "name": "Playa Spritz",
+      "casa": "Playa",
+      "category": "Autorais",
+      "sale_price": 45.0,
+      "total_cost": 8.218683333,
+      "markup": 4.475329584,
+      "ingredients": [
+        {
+          "insumo_name": "Gin Verve",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 3.061333333
+        },
+        {
+          "insumo_name": "Aperol",
+          "quantity": 40.0,
+          "unit": "ml",
+          "unit_cost": 0.03829,
+          "ingredient_cost": 1.5316
+        },
+        {
+          "insumo_name": "Melancia Fabri",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 1.698
+        },
+        {
+          "insumo_name": "Tangerina Fabri",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 1.698
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.12475
+        },
+        {
+          "insumo_name": "Água",
+          "quantity": 70.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.105
+        }
+      ]
+    },
+    {
+      "name": "Smash",
+      "casa": "Playa",
+      "category": "Autorais",
+      "sale_price": 45.0,
+      "total_cost": 11.42908333,
+      "markup": 2.937323641,
+      "ingredients": [
+        {
+          "insumo_name": "Gin Verve",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 7.653333333
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.12475
+        },
+        {
+          "insumo_name": "Melão Fabri",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 2.1225
+        },
+        {
+          "insumo_name": "Yuzu Fabri",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.0949,
+          "ingredient_cost": 1.4235
+        },
+        {
+          "insumo_name": "Água",
+          "quantity": 70.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.105
+        }
+      ]
+    },
+    {
+      "name": "Welcome ISLA",
+      "casa": "Isla",
+      "category": "Autorais",
+      "sale_price": 44.0,
+      "total_cost": 12.14953161,
+      "markup": 2.621538789,
+      "ingredients": [
+        {
+          "insumo_name": "Gin infusionado com morango",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 9.184
+        },
+        {
+          "insumo_name": "Tônica St. Pierre Rosé",
+          "quantity": 150.0,
+          "unit": "ml",
+          "unit_cost": 0.01570967742,
+          "ingredient_cost": 2.356451613
+        },
+        {
+          "insumo_name": "Abacaxi (lâminas)",
+          "quantity": 40.0,
+          "unit": "g",
+          "unit_cost": 0.01099,
+          "ingredient_cost": 0.4396
+        },
+        {
+          "insumo_name": "Bagas de zimbro",
+          "quantity": 2.0,
+          "unit": "g",
+          "unit_cost": 0.03499,
+          "ingredient_cost": 0.06998
+        },
+        {
+          "insumo_name": "Gengibre fresco",
+          "quantity": 5.0,
+          "unit": "g",
+          "unit_cost": 0.0199,
+          "ingredient_cost": 0.0995
+        }
+      ]
+    },
+    {
+      "name": "Fitzguava",
+      "casa": "Isla",
+      "category": "Autorais",
+      "sale_price": 45.0,
+      "total_cost": 1.22165,
+      "markup": 35.8354275,
+      "ingredients": [
+        {
+          "insumo_name": "Rum infusionado com goiaba",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0349,
+          "ingredient_cost": 1.047
+        },
+        {
+          "insumo_name": "Água ardente centenária",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 35.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.17465
+        },
+        {
+          "insumo_name": "Redução purê de goiaba",
+          "quantity": 40.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Ritual da Ilha",
+      "casa": "Isla",
+      "category": "Autorais",
+      "sale_price": 42.0,
+      "total_cost": 7.9159,
+      "markup": 4.305776981,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 1.59
+        },
+        {
+          "insumo_name": "Maracujá azedo (polpa)",
+          "quantity": 20.0,
+          "unit": "g",
+          "unit_cost": 0.037475,
+          "ingredient_cost": 0.7495
+        },
+        {
+          "insumo_name": "Xarope erva mate",
+          "quantity": 35.0,
+          "unit": "ml",
+          "unit_cost": 0.0619,
+          "ingredient_cost": 2.1665
+        },
+        {
+          "insumo_name": "Tintura de cúrcuma",
+          "quantity": 10.0,
+          "unit": "ml",
+          "unit_cost": 0.322,
+          "ingredient_cost": 3.22
+        },
+        {
+          "insumo_name": "Limão Siciliano (suco)",
+          "quantity": 10.0,
+          "unit": "g",
+          "unit_cost": 0.01899,
+          "ingredient_cost": 0.1899
+        }
+      ]
+    },
+    {
+      "name": "Island Breeze",
+      "casa": "Isla",
+      "category": "Autorais",
+      "sale_price": 36.0,
+      "total_cost": 6.21865,
+      "markup": 4.789037814,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 1.908
+        },
+        {
+          "insumo_name": "Xarope de melão",
+          "quantity": 40.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 3.396
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 35.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.17465
+        },
+        {
+          "insumo_name": "Polpa de Maracujá",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.037,
+          "ingredient_cost": 0.74
+        }
+      ]
+    },
+    {
+      "name": "Náufrago",
+      "casa": "Isla",
+      "category": "Autorais",
+      "sale_price": 42.0,
+      "total_cost": 3.1088,
+      "markup": 12.51003603,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 1.59
+        },
+        {
+          "insumo_name": "Purê de framboesa",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        },
+        {
+          "insumo_name": "Licor Bizantino San Basile",
+          "quantity": 5.0,
+          "unit": "ml",
+          "unit_cost": 0.257,
+          "ingredient_cost": 1.285
+        },
+        {
+          "insumo_name": "Limão Siciliano (suco)",
+          "quantity": 10.0,
+          "unit": "g",
+          "unit_cost": 0.01899,
+          "ingredient_cost": 0.1899
+        },
+        {
+          "insumo_name": "Simple Demerara",
+          "quantity": 10.0,
+          "unit": "ml",
+          "unit_cost": 0.00439,
+          "ingredient_cost": 0.0439
+        },
+        {
+          "insumo_name": "Sacarum de grapefruit",
+          "quantity": 10.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Solstício da Ilha",
+      "casa": "Isla",
+      "category": "Autorais",
+      "sale_price": 48.0,
+      "total_cost": 2.86555,
+      "markup": 15.75071103,
+      "ingredients": [
+        {
+          "insumo_name": "Bacardi Añejo 4 anos",
+          "quantity": 45.0,
+          "unit": "ml",
+          "unit_cost": 0.0349,
+          "ingredient_cost": 1.5705
+        },
+        {
+          "insumo_name": "Suco de mamão papaya",
+          "quantity": 50.0,
+          "unit": "g",
+          "unit_cost": 0.01019,
+          "ingredient_cost": 0.5095
+        },
+        {
+          "insumo_name": "Cynar",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.02899,
+          "ingredient_cost": 0.43485
+        },
+        {
+          "insumo_name": "Limão Siciliano (suco)",
+          "quantity": 15.0,
+          "unit": "g",
+          "unit_cost": 0.01899,
+          "ingredient_cost": 0.28485
+        },
+        {
+          "insumo_name": "Simple Demerara",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.00439,
+          "ingredient_cost": 0.06585
+        }
+      ]
+    },
+    {
+      "name": "La Sirena",
+      "casa": "Isla",
+      "category": "Autorais",
+      "sale_price": 48.0,
+      "total_cost": 13.54061429,
+      "markup": 2.544890873,
+      "ingredients": [
+        {
+          "insumo_name": "Fernet",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.141,
+          "ingredient_cost": 4.23
+        },
+        {
+          "insumo_name": "Martini Dry",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.1732,
+          "ingredient_cost": 5.196
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Xarope de capim limão",
+          "quantity": 40.0,
+          "unit": "ml",
+          "unit_cost": 0.05698,
+          "ingredient_cost": 2.2792
+        },
+        {
+          "insumo_name": "Amaro Averna",
+          "quantity": 10.0,
+          "unit": "ml",
+          "unit_cost": 0.1685714286,
+          "ingredient_cost": 1.685714286
+        }
+      ]
+    },
+    {
+      "name": "Oasis",
+      "casa": "Isla",
+      "category": "Autorais",
+      "sale_price": 49.0,
+      "total_cost": 10.695,
+      "markup": 3.581580178,
+      "ingredients": [
+        {
+          "insumo_name": "Jack Daniel's",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.11915,
+          "ingredient_cost": 5.9575
+        },
+        {
+          "insumo_name": "Aperol infusionado com damasco",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.03829,
+          "ingredient_cost": 1.1487
+        },
+        {
+          "insumo_name": "Xarope de limão siciliano",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.11396,
+          "ingredient_cost": 2.849
+        },
+        {
+          "insumo_name": "Suco de Laranja",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.01233,
+          "ingredient_cost": 0.7398
+        }
+      ]
+    },
+    {
+      "name": "Jack & Coke",
+      "casa": "Playa",
+      "category": "Jarras",
+      "sale_price": 160.0,
+      "total_cost": 22.9723,
+      "markup": 5.964909913,
+      "ingredients": [
+        {
+          "insumo_name": "Jack Daniel's",
+          "quantity": 150.0,
+          "unit": "ml",
+          "unit_cost": 0.11915,
+          "ingredient_cost": 17.8725
+        },
+        {
+          "insumo_name": "Coca-Cola (lata 350ml)",
+          "quantity": 700.0,
+          "unit": "ml",
+          "unit_cost": 0.007142857143,
+          "ingredient_cost": 5.0
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.0998
+        }
+      ]
+    },
+    {
+      "name": "Clericot",
+      "casa": "Playa",
+      "category": "Jarras",
+      "sale_price": 160.0,
+      "total_cost": 24.25952381,
+      "markup": 5.595347924,
+      "ingredients": [
+        {
+          "insumo_name": "Licor de Laranja",
+          "quantity": 100.0,
+          "unit": "ml",
+          "unit_cost": 0.06712857143,
+          "ingredient_cost": 6.712857143
+        },
+        {
+          "insumo_name": "Espumante",
+          "quantity": 400.0,
+          "unit": "ml",
+          "unit_cost": 0.04386666667,
+          "ingredient_cost": 17.54666667
+        }
+      ]
+    },
+    {
+      "name": "Aperol Passion",
+      "casa": "Playa",
+      "category": "Jarras",
+      "sale_price": 180.0,
+      "total_cost": 22.8525,
+      "markup": 6.876599934,
+      "ingredients": [
+        {
+          "insumo_name": "Aperol",
+          "quantity": 150.0,
+          "unit": "ml",
+          "unit_cost": 0.03829,
+          "ingredient_cost": 5.7435
+        },
+        {
+          "insumo_name": "Bag de Vinho Branco",
+          "quantity": 360.0,
+          "unit": "ml",
+          "unit_cost": 0.033,
+          "ingredient_cost": 11.88
+        },
+        {
+          "insumo_name": "Água",
+          "quantity": 90.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.135
+        },
+        {
+          "insumo_name": "Maracujá Fabri",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 5.094
+        }
+      ]
+    },
+    {
+      "name": "Black Mojito",
+      "casa": "Playa",
+      "category": "Jarras",
+      "sale_price": 170.0,
+      "total_cost": 38.35397857,
+      "markup": 3.432395447,
+      "ingredients": [
+        {
+          "insumo_name": "Jägermeister",
+          "quantity": 150.0,
+          "unit": "ml",
+          "unit_cost": 0.1651428571,
+          "ingredient_cost": 24.77142857
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 45.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.22455
+        },
+        {
+          "insumo_name": "Hortelã",
+          "quantity": 10.0,
+          "unit": "g",
+          "unit_cost": 0.0558,
+          "ingredient_cost": 0.558
+        },
+        {
+          "insumo_name": "Red Bull (lata 250ml)",
+          "quantity": 400.0,
+          "unit": "ml",
+          "unit_cost": 0.032,
+          "ingredient_cost": 12.8
+        }
+      ]
+    },
+    {
+      "name": "Breeze Jarra",
+      "casa": "Playa",
+      "category": "Jarras",
+      "sale_price": 180.0,
+      "total_cost": 24.46575,
+      "markup": 6.357223874,
+      "ingredients": [
+        {
+          "insumo_name": "Jim Beam Maçã Verde",
+          "quantity": 150.0,
+          "unit": "ml",
+          "unit_cost": 0.10157,
+          "ingredient_cost": 15.2355
+        },
+        {
+          "insumo_name": "Yuzu Fabri",
+          "quantity": 90.0,
+          "unit": "ml",
+          "unit_cost": 0.0949,
+          "ingredient_cost": 8.541
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 75.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.37425
+        },
+        {
+          "insumo_name": "Água",
+          "quantity": 210.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.315
+        }
+      ]
+    },
+    {
+      "name": "Frozen Jager",
+      "casa": "Playa",
+      "category": "Frozen",
+      "sale_price": 50.0,
+      "total_cost": 13.45427143,
+      "markup": 2.716291905,
+      "ingredients": [
+        {
+          "insumo_name": "Jägermeister",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.1651428571,
+          "ingredient_cost": 9.908571429
+        },
+        {
+          "insumo_name": "Xarope Mojito Fabri",
+          "quantity": 40.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 3.396
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        }
+      ]
+    },
+    {
+      "name": "Frozen Spritz",
+      "casa": "Playa",
+      "category": "Frozen",
+      "sale_price": 50.0,
+      "total_cost": 5.8431,
+      "markup": 7.557101539,
+      "ingredients": [
+        {
+          "insumo_name": "Aperol",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.03829,
+          "ingredient_cost": 2.2974
+        },
+        {
+          "insumo_name": "Tangerina Fabri",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 1.698
+        },
+        {
+          "insumo_name": "Maracujá Fabri",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 1.698
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        }
+      ]
+    },
+    {
+      "name": "Frozen Coconut",
+      "casa": "Playa",
+      "category": "Frozen",
+      "sale_price": 50.0,
+      "total_cost": 6.1785,
+      "markup": 7.092579105,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 1.908
+        },
+        {
+          "insumo_name": "Coco Fabri",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0949,
+          "ingredient_cost": 2.847
+        },
+        {
+          "insumo_name": "Abacaxi Fabri",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.0949,
+          "ingredient_cost": 1.4235
+        }
+      ]
+    },
+    {
+      "name": "Caipirinha Limão",
+      "casa": "Playa",
+      "category": "Caipirinhas",
+      "sale_price": 40.0,
+      "total_cost": 6.9144,
+      "markup": 4.785028347,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 90.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 2.862
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Limone Fabri",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.1899,
+          "ingredient_cost": 3.798
+        },
+        {
+          "insumo_name": "Açúcar",
+          "quantity": 30.0,
+          "unit": "g",
+          "unit_cost": 0.00349,
+          "ingredient_cost": 0.1047
+        }
+      ]
+    },
+    {
+      "name": "Caipirinha Frutas Vermelhas",
+      "casa": "Playa",
+      "category": "Caipirinhas",
+      "sale_price": 40.0,
+      "total_cost": 6.45255,
+      "markup": 5.199099581,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 90.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 2.862
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.12475
+        },
+        {
+          "insumo_name": "Morango Plus Fabri",
+          "quantity": 40.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 3.396
+        },
+        {
+          "insumo_name": "Açúcar",
+          "quantity": 20.0,
+          "unit": "g",
+          "unit_cost": 0.00349,
+          "ingredient_cost": 0.0698
+        }
+      ]
+    },
+    {
+      "name": "Caipirinha Maracujá",
+      "casa": "Playa",
+      "category": "Caipirinhas",
+      "sale_price": 40.0,
+      "total_cost": 6.27375,
+      "markup": 5.375772066,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 90.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 2.862
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.12475
+        },
+        {
+          "insumo_name": "Maracujá Fabri",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 2.547
+        },
+        {
+          "insumo_name": "Polpa de Maracujá",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.037,
+          "ingredient_cost": 0.74
+        }
+      ]
+    },
+    {
+      "name": "No Bad Day Yellow",
+      "casa": "Playa",
+      "category": "Sem Álcool",
+      "sale_price": 35.0,
+      "total_cost": 3.90075,
+      "markup": 7.972633468,
+      "ingredients": [
+        {
+          "insumo_name": "Água",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.18
+        },
+        {
+          "insumo_name": "Manga Fabri",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.0949,
+          "ingredient_cost": 1.898
+        },
+        {
+          "insumo_name": "Maracujá Fabri",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 1.698
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.12475
+        }
+      ]
+    },
+    {
+      "name": "No Bad Day Red",
+      "casa": "Playa",
+      "category": "Sem Álcool",
+      "sale_price": 35.0,
+      "total_cost": 2.8767,
+      "markup": 11.16671881,
+      "ingredients": [
+        {
+          "insumo_name": "Morango Plus Fabri",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 2.547
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Água",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0015,
+          "ingredient_cost": 0.18
+        }
+      ]
+    },
+    {
+      "name": "No Bad Day Spritz",
+      "casa": "Playa",
+      "category": "Sem Álcool",
+      "sale_price": 35.0,
+      "total_cost": 5.8205,
+      "markup": 5.013229104,
+      "ingredients": [
+        {
+          "insumo_name": "Aperol Zero Álcool",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.0547,
+          "ingredient_cost": 3.282
+        },
+        {
+          "insumo_name": "Bitter Fabri",
+          "quantity": 5.0,
+          "unit": "ml",
+          "unit_cost": 0.0949,
+          "ingredient_cost": 0.4745
+        },
+        {
+          "insumo_name": "Laranja Fabri",
+          "quantity": 10.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 0.849
+        },
+        {
+          "insumo_name": "Água Tônica",
+          "quantity": 90.0,
+          "unit": "ml",
+          "unit_cost": 0.0135,
+          "ingredient_cost": 1.215
+        }
+      ]
+    },
+    {
+      "name": "D'Gusta (mocktail)",
+      "casa": "Isla",
+      "category": "Sem Álcool",
+      "sale_price": 36.0,
+      "total_cost": 28.70767143,
+      "markup": 0.2540202047,
+      "ingredients": [
+        {
+          "insumo_name": "Licor de banana",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.1361428571,
+          "ingredient_cost": 8.168571429
+        },
+        {
+          "insumo_name": "Polpa de Maracujá",
+          "quantity": 40.0,
+          "unit": "ml",
+          "unit_cost": 0.037,
+          "ingredient_cost": 1.48
+        },
+        {
+          "insumo_name": "Xarope de açúcar",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.07897,
+          "ingredient_cost": 2.3691
+        },
+        {
+          "insumo_name": "Albumina",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.236,
+          "ingredient_cost": 4.72
+        },
+        {
+          "insumo_name": "Manjericão",
+          "quantity": 3.0,
+          "unit": "un",
+          "unit_cost": 3.99,
+          "ingredient_cost": 11.97
+        }
+      ]
+    },
+    {
+      "name": "Moscow Mule (Vodka)",
+      "casa": "Isla",
+      "category": "Mules",
+      "sale_price": 0,
+      "total_cost": 1.7397,
+      "markup": -1.0,
+      "ingredients": [
+        {
+          "insumo_name": "Bag de Vodka Kavelage",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.0318,
+          "ingredient_cost": 1.59
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Cerveja de gengibre",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        }
+      ]
+    },
+    {
+      "name": "London Mule (Gin)",
+      "casa": "Isla",
+      "category": "Mules",
+      "sale_price": 0,
+      "total_cost": 7.803033333,
+      "markup": -1.0,
+      "ingredients": [
+        {
+          "insumo_name": "Gin seco",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 7.653333333
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Cerveja de gengibre",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Passion Mule (Bourbon)",
+      "casa": "Isla",
+      "category": "Mules",
+      "sale_price": 0,
+      "total_cost": 16.40836667,
+      "markup": -1.0,
+      "ingredients": [
+        {
+          "insumo_name": "Bourbon",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.2912133333,
+          "ingredient_cost": 14.56066667
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Cerveja de gengibre",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        },
+        {
+          "insumo_name": "Maracujá Fabri",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.0849,
+          "ingredient_cost": 1.698
+        }
+      ]
+    },
+    {
+      "name": "Caribbean Mule (Rum de Coco)",
+      "casa": "Isla",
+      "category": "Mules",
+      "sale_price": 0,
+      "total_cost": 5.032557143,
+      "markup": -1.0,
+      "ingredients": [
+        {
+          "insumo_name": "Rum de coco",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.09765714286,
+          "ingredient_cost": 4.882857143
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Cerveja de gengibre",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Peach Mule (Saquê)",
+      "casa": "Isla",
+      "category": "Mules",
+      "sale_price": 0,
+      "total_cost": 3.3947,
+      "markup": -1.0,
+      "ingredients": [
+        {
+          "insumo_name": "Saquê",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.0649,
+          "ingredient_cost": 3.245
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Cerveja de gengibre",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Black Mule (Whisky)",
+      "casa": "Isla",
+      "category": "Mules",
+      "sale_price": 0,
+      "total_cost": 5.0677,
+      "markup": -1.0,
+      "ingredients": [
+        {
+          "insumo_name": "Whisky",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.09836,
+          "ingredient_cost": 4.918
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Cerveja de gengibre",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Red Mule (Gin Infusionado)",
+      "casa": "Isla",
+      "category": "Mules",
+      "sale_price": 0,
+      "total_cost": 7.803033333,
+      "markup": -1.0,
+      "ingredients": [
+        {
+          "insumo_name": "Gin infusionado frutas vermelhas",
+          "quantity": 50.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 7.653333333
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Cerveja de gengibre",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0,
+          "ingredient_cost": 0.0
+        }
+      ]
+    },
+    {
+      "name": "G&T Tradicional",
+      "casa": "Isla",
+      "category": "Gin & Tônicas",
+      "sale_price": 45.0,
+      "total_cost": 10.804,
+      "markup": 3.165124028,
+      "ingredients": [
+        {
+          "insumo_name": "Gin seco",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 9.184
+        },
+        {
+          "insumo_name": "Água Tônica",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0135,
+          "ingredient_cost": 1.62
+        }
+      ]
+    },
+    {
+      "name": "G&T Hendricks",
+      "casa": "Isla",
+      "category": "Gin & Tônicas",
+      "sale_price": 55.0,
+      "total_cost": 17.82,
+      "markup": 2.086419753,
+      "ingredients": [
+        {
+          "insumo_name": "Gin Hendricks",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.27,
+          "ingredient_cost": 16.2
+        },
+        {
+          "insumo_name": "Água Tônica",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0135,
+          "ingredient_cost": 1.62
+        }
+      ]
+    },
+    {
+      "name": "G&T Frutas Vermelhas",
+      "casa": "Isla",
+      "category": "Gin & Tônicas",
+      "sale_price": 45.0,
+      "total_cost": 18.81315493,
+      "markup": 1.391943306,
+      "ingredients": [
+        {
+          "insumo_name": "Gin seco",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 9.184
+        },
+        {
+          "insumo_name": "Compota frutas vermelhas",
+          "quantity": 60.0,
+          "unit": "g",
+          "unit_cost": 0.1334859155,
+          "ingredient_cost": 8.00915493
+        },
+        {
+          "insumo_name": "Água Tônica",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0135,
+          "ingredient_cost": 1.62
+        }
+      ]
+    },
+    {
+      "name": "G&T Frutas Amarelas",
+      "casa": "Isla",
+      "category": "Gin & Tônicas",
+      "sale_price": 45.0,
+      "total_cost": 13.075,
+      "markup": 2.4416826,
+      "ingredients": [
+        {
+          "insumo_name": "Gin seco",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 9.184
+        },
+        {
+          "insumo_name": "Compota frutas amarelas",
+          "quantity": 60.0,
+          "unit": "g",
+          "unit_cost": 0.03785,
+          "ingredient_cost": 2.271
+        },
+        {
+          "insumo_name": "Água Tônica",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.0135,
+          "ingredient_cost": 1.62
+        }
+      ]
+    },
+    {
+      "name": "Negroni",
+      "casa": "Isla",
+      "category": "Negroni",
+      "sale_price": 45.0,
+      "total_cost": 7.6901,
+      "markup": 4.851679432,
+      "ingredients": [
+        {
+          "insumo_name": "Gin seco",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 4.592
+        },
+        {
+          "insumo_name": "Vermute da casa (tinto)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0388,
+          "ingredient_cost": 1.164
+        },
+        {
+          "insumo_name": "Campari",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.06447,
+          "ingredient_cost": 1.9341
+        }
+      ]
+    },
+    {
+      "name": "Negroni Sbagliato",
+      "casa": "Isla",
+      "category": "Negroni",
+      "sale_price": 47.0,
+      "total_cost": 8.3621,
+      "markup": 4.620597697,
+      "ingredients": [
+        {
+          "insumo_name": "Campari",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.06447,
+          "ingredient_cost": 1.9341
+        },
+        {
+          "insumo_name": "Vermute da casa (tinto)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0388,
+          "ingredient_cost": 1.164
+        },
+        {
+          "insumo_name": "Espumante",
+          "quantity": 120.0,
+          "unit": "ml",
+          "unit_cost": 0.04386666667,
+          "ingredient_cost": 5.264
+        }
+      ]
+    },
+    {
+      "name": "Boulevardier",
+      "casa": "Isla",
+      "category": "Negroni",
+      "sale_price": 49.0,
+      "total_cost": 6.0489,
+      "markup": 7.100646399,
+      "ingredients": [
+        {
+          "insumo_name": "Whisky",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.09836,
+          "ingredient_cost": 2.9508
+        },
+        {
+          "insumo_name": "Campari",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.06447,
+          "ingredient_cost": 1.9341
+        },
+        {
+          "insumo_name": "Vermute da casa (tinto)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0388,
+          "ingredient_cost": 1.164
+        }
+      ]
+    },
+    {
+      "name": "Kingston Negroni",
+      "casa": "Isla",
+      "category": "Negroni",
+      "sale_price": 45.0,
+      "total_cost": 6.39,
+      "markup": 6.042253521,
+      "ingredients": [
+        {
+          "insumo_name": "Rum envelhecido",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.10973,
+          "ingredient_cost": 3.2919
+        },
+        {
+          "insumo_name": "Campari",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.06447,
+          "ingredient_cost": 1.9341
+        },
+        {
+          "insumo_name": "Vermute da casa (tinto)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0388,
+          "ingredient_cost": 1.164
+        }
+      ]
+    },
+    {
+      "name": "Time Island Negroni",
+      "casa": "Isla",
+      "category": "Negroni",
+      "sale_price": 45.0,
+      "total_cost": 5.220192857,
+      "markup": 7.620371169,
+      "ingredients": [
+        {
+          "insumo_name": "Bacardi Añejo 4 anos",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0349,
+          "ingredient_cost": 1.047
+        },
+        {
+          "insumo_name": "Vermute da casa (tinto)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0388,
+          "ingredient_cost": 1.164
+        },
+        {
+          "insumo_name": "Campari",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.06447,
+          "ingredient_cost": 0.96705
+        },
+        {
+          "insumo_name": "Licor de banana",
+          "quantity": 15.0,
+          "unit": "ml",
+          "unit_cost": 0.1361428571,
+          "ingredient_cost": 2.042142857
+        }
+      ]
+    },
+    {
+      "name": "Negroni Amor & Luxúria",
+      "casa": "Isla",
+      "category": "Negroni",
+      "sale_price": 46.0,
+      "total_cost": 7.6901,
+      "markup": 4.981716753,
+      "ingredients": [
+        {
+          "insumo_name": "Gin seco",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.1530666667,
+          "ingredient_cost": 4.592
+        },
+        {
+          "insumo_name": "Campari infusionado morango",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.06447,
+          "ingredient_cost": 1.9341
+        },
+        {
+          "insumo_name": "Vermute infusionado cacau",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.0388,
+          "ingredient_cost": 1.164
+        }
+      ]
+    },
+    {
+      "name": "Caipirinha com Cana de Açúcar",
+      "casa": "Isla",
+      "category": "Brasilidades",
+      "sale_price": 45.0,
+      "total_cost": 1.7747,
+      "markup": 24.35639826,
+      "ingredients": [
+        {
+          "insumo_name": "Cachaça centenária",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.02592,
+          "ingredient_cost": 1.5552
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Açúcar",
+          "quantity": 20.0,
+          "unit": "g",
+          "unit_cost": 0.00349,
+          "ingredient_cost": 0.0698
+        }
+      ]
+    },
+    {
+      "name": "Banzeiro",
+      "casa": "Isla",
+      "category": "Brasilidades",
+      "sale_price": 45.0,
+      "total_cost": 3.6327,
+      "markup": 11.38748039,
+      "ingredients": [
+        {
+          "insumo_name": "Cachaça envelhecida",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.02592,
+          "ingredient_cost": 1.5552
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.1497
+        },
+        {
+          "insumo_name": "Simple Demerara",
+          "quantity": 20.0,
+          "unit": "ml",
+          "unit_cost": 0.00439,
+          "ingredient_cost": 0.0878
+        },
+        {
+          "insumo_name": "Vinho tinto seco",
+          "quantity": 30.0,
+          "unit": "ml",
+          "unit_cost": 0.06133333333,
+          "ingredient_cost": 1.84
+        }
+      ]
+    },
+    {
+      "name": "Macunaíma",
+      "casa": "Isla",
+      "category": "Brasilidades",
+      "sale_price": 45.0,
+      "total_cost": 4.08375,
+      "markup": 10.01928375,
+      "ingredients": [
+        {
+          "insumo_name": "Cachaça centenária",
+          "quantity": 60.0,
+          "unit": "ml",
+          "unit_cost": 0.02592,
+          "ingredient_cost": 1.5552
+        },
+        {
+          "insumo_name": "Fernet-Branca",
+          "quantity": 10.0,
+          "unit": "ml",
+          "unit_cost": 0.16141,
+          "ingredient_cost": 1.6141
+        },
+        {
+          "insumo_name": "Limão (suco)",
+          "quantity": 25.0,
+          "unit": "ml",
+          "unit_cost": 0.00499,
+          "ingredient_cost": 0.12475
+        },
+        {
+          "insumo_name": "Xarope de açúcar",
+          "quantity": 10.0,
+          "unit": "ml",
+          "unit_cost": 0.07897,
+          "ingredient_cost": 0.7897
+        }
+      ]
+    }
+  ],
+  "banco_dados": [
+    {
+      "casa": "ISLA",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Fitzguava",
+      "sale_price": 45.0,
+      "total_cost": 1.22165,
+      "margin": 43.77835,
+      "markup": 35.8354275
+    },
+    {
+      "casa": "Playa",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Playa Tea",
+      "sale_price": 45.0,
+      "total_cost": 1.7397,
+      "margin": 43.2603,
+      "markup": 24.86652871
+    },
+    {
+      "casa": "ISLA",
+      "category": "BRASILIDADES",
+      "drink": "Caipirinha com Cana de Açúcar",
+      "sale_price": 45.0,
+      "total_cost": 1.7747,
+      "margin": 43.2253,
+      "markup": 24.35639826
+    },
+    {
+      "casa": "ISLA",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Solstício da Ilha",
+      "sale_price": 48.0,
+      "total_cost": 2.86555,
+      "margin": 45.13445,
+      "markup": 15.75071103
+    },
+    {
+      "casa": "ISLA",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Náufrago",
+      "sale_price": 42.0,
+      "total_cost": 3.1088,
+      "margin": 38.8912,
+      "markup": 12.51003603
+    },
+    {
+      "casa": "ISLA",
+      "category": "BRASILIDADES",
+      "drink": "Banzeiro",
+      "sale_price": 45.0,
+      "total_cost": 3.6327,
+      "margin": 41.3673,
+      "markup": 11.38748039
+    },
+    {
+      "casa": "ISLA",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Ritual da Ilha",
+      "sale_price": 42.0,
+      "total_cost": 7.9159,
+      "margin": 34.0841,
+      "markup": 4.305776981
+    },
+    {
+      "casa": "ISLA",
+      "category": "BRASILIDADES",
+      "drink": "Macunaíma",
+      "sale_price": 45.0,
+      "total_cost": 4.08375,
+      "margin": 40.91625,
+      "markup": 10.01928375
+    },
+    {
+      "casa": "ISLA",
+      "category": "NEGRONI EXPERIENCE",
+      "drink": "Time Island Negroni",
+      "sale_price": 45.0,
+      "total_cost": 5.220192857,
+      "margin": 39.77980714,
+      "markup": 7.620371169
+    },
+    {
+      "casa": "Playa",
+      "category": "FROZEN DRINKS",
+      "drink": "Frozen Spritz",
+      "sale_price": 50.0,
+      "total_cost": 5.8431,
+      "margin": 44.1569,
+      "markup": 7.557101539
+    },
+    {
+      "casa": "Playa",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Espaghett",
+      "sale_price": 45.0,
+      "total_cost": 5.535886364,
+      "margin": 39.46411364,
+      "markup": 7.128779575
+    },
+    {
+      "casa": "ISLA",
+      "category": "NEGRONI EXPERIENCE",
+      "drink": "Boulevardier",
+      "sale_price": 49.0,
+      "total_cost": 6.0489,
+      "margin": 42.9511,
+      "markup": 7.100646399
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Gold Rush",
+      "sale_price": 49.0,
+      "total_cost": 7.277728571,
+      "margin": 41.72227143,
+      "markup": 5.73286995
+    },
+    {
+      "casa": "Playa",
+      "category": "FROZEN DRINKS",
+      "drink": "Frozen Coconut",
+      "sale_price": 50.0,
+      "total_cost": 6.1785,
+      "margin": 43.8215,
+      "markup": 7.092579105
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Aperol Fresh",
+      "sale_price": 45.0,
+      "total_cost": 6.374733333,
+      "margin": 38.62526667,
+      "markup": 6.059118813
+    },
+    {
+      "casa": "Playa",
+      "category": "JARRAS",
+      "drink": "Aperol Passion",
+      "sale_price": 180.0,
+      "total_cost": 22.8525,
+      "margin": 157.1475,
+      "markup": 6.876599934
+    },
+    {
+      "casa": "ISLA",
+      "category": "NEGRONI EXPERIENCE",
+      "drink": "Kingston Negroni",
+      "sale_price": 45.0,
+      "total_cost": 6.39,
+      "margin": 38.61,
+      "markup": 6.042253521
+    },
+    {
+      "casa": "Playa",
+      "category": "JARRAS",
+      "drink": "Jack & Coke",
+      "sale_price": 160.0,
+      "total_cost": 22.9723,
+      "margin": 137.0277,
+      "markup": 5.964909913
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Cosmopolitan",
+      "sale_price": 45.0,
+      "total_cost": 6.578985714,
+      "margin": 38.42101429,
+      "markup": 5.839960133
+    },
+    {
+      "casa": "Playa",
+      "category": "JARRAS",
+      "drink": "Clericot",
+      "sale_price": 160.0,
+      "total_cost": 24.25952381,
+      "margin": 135.7404762,
+      "markup": 5.595347924
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Old Fashioned",
+      "sale_price": 48.0,
+      "total_cost": 7.4057,
+      "margin": 40.5943,
+      "markup": 5.481493984
+    },
+    {
+      "casa": "Playa",
+      "category": "CAIPIRINHAS",
+      "drink": "Caipirinha Maracujá",
+      "sale_price": 40.0,
+      "total_cost": 6.27375,
+      "margin": 33.72625,
+      "markup": 5.375772066
+    },
+    {
+      "casa": "Playa",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Sunset",
+      "sale_price": 45.0,
+      "total_cost": 5.2407,
+      "margin": 39.7593,
+      "markup": 7.586639189
+    },
+    {
+      "casa": "Playa",
+      "category": "CAIPIRINHAS",
+      "drink": "Caipirinha Frutas Vermelhas",
+      "sale_price": 40.0,
+      "total_cost": 6.45255,
+      "margin": 33.54745,
+      "markup": 5.199099581
+    },
+    {
+      "casa": "Playa",
+      "category": "CLÁSSICOS",
+      "drink": "Aperol Spritz",
+      "sale_price": 45.0,
+      "total_cost": 7.26039,
+      "margin": 37.73961,
+      "markup": 5.198014156
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Aperol Spritz da Ilha",
+      "sale_price": 47.0,
+      "total_cost": 6.729066667,
+      "margin": 40.27093333,
+      "markup": 5.98462392
+    },
+    {
+      "casa": "Playa",
+      "category": "SEM ÁLCOOL",
+      "drink": "No Bad Day Spritz",
+      "sale_price": 35.0,
+      "total_cost": 5.8205,
+      "margin": 29.1795,
+      "markup": 5.013229104
+    },
+    {
+      "casa": "ISLA",
+      "category": "NEGRONI EXPERIENCE",
+      "drink": "Negroni Amor & Luxúria",
+      "sale_price": 46.0,
+      "total_cost": 7.6901,
+      "margin": 38.3099,
+      "markup": 4.981716753
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Aperol Spritz",
+      "sale_price": 45.0,
+      "total_cost": 6.729066667,
+      "margin": 38.27093333,
+      "markup": 5.687405881
+    },
+    {
+      "casa": "Playa",
+      "category": "JARRAS",
+      "drink": "Breeze Jarra",
+      "sale_price": 180.0,
+      "total_cost": 24.46575,
+      "margin": 155.53425,
+      "markup": 6.357223874
+    },
+    {
+      "casa": "Playa",
+      "category": "CLÁSSICOS",
+      "drink": "Negroni",
+      "sale_price": 45.0,
+      "total_cost": 7.6901,
+      "margin": 37.3099,
+      "markup": 4.851679432
+    },
+    {
+      "casa": "ISLA",
+      "category": "NEGRONI EXPERIENCE",
+      "drink": "Negroni",
+      "sale_price": 45.0,
+      "total_cost": 7.6901,
+      "margin": 37.3099,
+      "markup": 4.851679432
+    },
+    {
+      "casa": "ISLA",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Island Breeze",
+      "sale_price": 36.0,
+      "total_cost": 6.21865,
+      "margin": 29.78135,
+      "markup": 4.789037814
+    },
+    {
+      "casa": "Playa",
+      "category": "CAIPIRINHAS",
+      "drink": "Caipirinha Limão",
+      "sale_price": 40.0,
+      "total_cost": 6.9144,
+      "margin": 33.0856,
+      "markup": 4.785028347
+    },
+    {
+      "casa": "ISLA",
+      "category": "NEGRONI EXPERIENCE",
+      "drink": "Negroni Sbagliato",
+      "sale_price": 47.0,
+      "total_cost": 8.3621,
+      "margin": 38.6379,
+      "markup": 4.620597697
+    },
+    {
+      "casa": "Playa",
+      "category": "SEM ÁLCOOL",
+      "drink": "No Bad Day Red",
+      "sale_price": 35.0,
+      "total_cost": 2.8767,
+      "margin": 32.1233,
+      "markup": 11.16671881
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Espresso Martini",
+      "sale_price": 48.0,
+      "total_cost": 8.837978571,
+      "margin": 39.16202143,
+      "markup": 4.431106176
+    },
+    {
+      "casa": "Playa",
+      "category": "CLÁSSICOS",
+      "drink": "Whiskey Sour",
+      "sale_price": 45.0,
+      "total_cost": 8.3352,
+      "margin": 36.6648,
+      "markup": 4.398790671
+    },
+    {
+      "casa": "Playa",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Passion Spritz",
+      "sale_price": 45.0,
+      "total_cost": 7.6175,
+      "margin": 37.3825,
+      "markup": 4.907449951
+    },
+    {
+      "casa": "Playa",
+      "category": "CLÁSSICOS",
+      "drink": "Paloma",
+      "sale_price": 45.0,
+      "total_cost": 8.810733333,
+      "margin": 36.18926667,
+      "markup": 4.107406875
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Aperol Passion",
+      "sale_price": 45.0,
+      "total_cost": 8.848166667,
+      "margin": 36.15183333,
+      "markup": 4.085799318
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Brumble",
+      "sale_price": 45.0,
+      "total_cost": 10.61358333,
+      "margin": 34.38641667,
+      "markup": 3.239849878
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Mai Tai",
+      "sale_price": 44.0,
+      "total_cost": 8.9827,
+      "margin": 35.0173,
+      "markup": 3.898304519
+    },
+    {
+      "casa": "ISLA",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Welcome ISLA",
+      "sale_price": 44.0,
+      "total_cost": 12.14953161,
+      "margin": 31.85046839,
+      "markup": 2.621538789
+    },
+    {
+      "casa": "Playa",
+      "category": "SEM ÁLCOOL",
+      "drink": "No Bad Day Yellow",
+      "sale_price": 35.0,
+      "total_cost": 3.90075,
+      "margin": 31.09925,
+      "markup": 7.972633468
+    },
+    {
+      "casa": "Playa",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Breeze",
+      "sale_price": 48.0,
+      "total_cost": 8.15525,
+      "margin": 39.84475,
+      "markup": 4.885779099
+    },
+    {
+      "casa": "ISLA",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Oasis",
+      "sale_price": 49.0,
+      "total_cost": 10.695,
+      "margin": 38.305,
+      "markup": 3.581580178
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Dry Martini",
+      "sale_price": 45.0,
+      "total_cost": 10.0372,
+      "margin": 34.9628,
+      "markup": 3.483322042
+    },
+    {
+      "casa": "Playa",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Playa Spritz",
+      "sale_price": 45.0,
+      "total_cost": 8.218683333,
+      "margin": 36.78131667,
+      "markup": 4.475329584
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Good Father",
+      "sale_price": 48.0,
+      "total_cost": 11.21531429,
+      "margin": 36.78468571,
+      "markup": 3.279862229
+    },
+    {
+      "casa": "ISLA",
+      "category": "GIN & TÔNICAS",
+      "drink": "G&T Tradicional",
+      "sale_price": 45.0,
+      "total_cost": 10.804,
+      "margin": 34.196,
+      "markup": 3.165124028
+    },
+    {
+      "casa": "ISLA",
+      "category": "GIN & TÔNICAS",
+      "drink": "G&T Frutas Vermelhas",
+      "sale_price": 45.0,
+      "total_cost": 18.81315493,
+      "margin": 26.18684507,
+      "markup": 1.391943306
+    },
+    {
+      "casa": "ISLA",
+      "category": "GIN & TÔNICAS",
+      "drink": "G&T Frutas Amarelas",
+      "sale_price": 45.0,
+      "total_cost": 13.075,
+      "margin": 31.925,
+      "markup": 2.4416826
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Kir Royal",
+      "sale_price": 45.0,
+      "total_cost": 11.65757143,
+      "margin": 33.34242857,
+      "markup": 2.8601522
+    },
+    {
+      "casa": "Playa",
+      "category": "FROZEN DRINKS",
+      "drink": "Frozen Jager",
+      "sale_price": 50.0,
+      "total_cost": 13.45427143,
+      "margin": 36.54572857,
+      "markup": 2.716291905
+    },
+    {
+      "casa": "ISLA",
+      "category": "DRINKS AUTORAIS",
+      "drink": "La Sirena",
+      "sale_price": 48.0,
+      "total_cost": 13.54061429,
+      "margin": 34.45938571,
+      "markup": 2.544890873
+    },
+    {
+      "casa": "Playa",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Fresh",
+      "sale_price": 45.0,
+      "total_cost": 11.30403333,
+      "margin": 33.69596667,
+      "markup": 2.980879981
+    },
+    {
+      "casa": "Playa",
+      "category": "DRINKS AUTORAIS",
+      "drink": "Smash",
+      "sale_price": 45.0,
+      "total_cost": 11.42908333,
+      "margin": 33.57091667,
+      "markup": 2.937323641
+    },
+    {
+      "casa": "ISLA",
+      "category": "GIN & TÔNICAS",
+      "drink": "G&T Hendricks",
+      "sale_price": 55.0,
+      "total_cost": 17.82,
+      "margin": 37.18,
+      "markup": 2.086419753
+    },
+    {
+      "casa": "Playa",
+      "category": "JARRAS",
+      "drink": "Black Mojito",
+      "sale_price": 170.0,
+      "total_cost": 38.35397857,
+      "margin": 131.6460214,
+      "markup": 3.432395447
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Rosa dos Ventos – South Side",
+      "sale_price": 42.0,
+      "total_cost": 11.0805,
+      "margin": 30.9195,
+      "markup": 2.79044267
+    },
+    {
+      "casa": "ISLA",
+      "category": "SEM ÁLCOOL",
+      "drink": "D'Gusta (mocktail)",
+      "sale_price": 36.0,
+      "total_cost": 28.70767143,
+      "margin": 7.292328571,
+      "markup": 0.2540202047
+    },
+    {
+      "casa": "ISLA",
+      "category": "CLÁSSICOS",
+      "drink": "Carajillo",
+      "sale_price": 50.0,
+      "total_cost": 154.1057143,
+      "margin": -104.1057143,
+      "markup": -0.6755473979
+    },
+    {
+      "casa": "ISLA",
+      "category": "MULES",
+      "drink": "Moscow Mule (Vodka)",
+      "sale_price": 0,
+      "total_cost": 1.7397,
+      "margin": -1.7397,
+      "markup": -1.0
+    },
+    {
+      "casa": "ISLA",
+      "category": "MULES",
+      "drink": "London Mule (Gin)",
+      "sale_price": 0,
+      "total_cost": 7.803033333,
+      "margin": -7.803033333,
+      "markup": -1.0
+    },
+    {
+      "casa": "ISLA",
+      "category": "MULES",
+      "drink": "Passion Mule (Bourbon)",
+      "sale_price": 0,
+      "total_cost": 16.40836667,
+      "margin": -16.40836667,
+      "markup": -1.0
+    },
+    {
+      "casa": "ISLA",
+      "category": "MULES",
+      "drink": "Caribbean Mule (Rum de Coco)",
+      "sale_price": 0,
+      "total_cost": 5.032557143,
+      "margin": -5.032557143,
+      "markup": -1.0
+    },
+    {
+      "casa": "ISLA",
+      "category": "MULES",
+      "drink": "Peach Mule (Saquê)",
+      "sale_price": 0,
+      "total_cost": 3.3947,
+      "margin": -3.3947,
+      "markup": -1.0
+    },
+    {
+      "casa": "ISLA",
+      "category": "MULES",
+      "drink": "Black Mule (Whisky)",
+      "sale_price": 0,
+      "total_cost": 5.0677,
+      "margin": -5.0677,
+      "markup": -1.0
+    },
+    {
+      "casa": "ISLA",
+      "category": "MULES",
+      "drink": "Red Mule (Gin Infusionado)",
+      "sale_price": 0,
+      "total_cost": 7.803033333,
+      "margin": -7.803033333,
+      "markup": -1.0
+    }
+  ]
+}
