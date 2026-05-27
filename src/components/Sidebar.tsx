@@ -16,9 +16,14 @@ import {
   ChevronsLeft,
   ChevronsRight,
   PlusCircle,
+  Users,
+  History,
+  LogOut,
+  Shield,
 } from 'lucide-react';
 import { useState, createContext, useContext } from 'react';
 import Logo from './Logo';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -31,6 +36,11 @@ const navItems = [
   { href: '/analise', label: 'Análise', icon: BarChart3 },
 ];
 
+const adminItems = [
+  { href: '/admin/usuarios', label: 'Usuários', icon: Users },
+  { href: '/admin/historico', label: 'Histórico', icon: History },
+];
+
 export const SidebarContext = createContext({ collapsed: false });
 export const useSidebar = () => useContext(SidebarContext);
 
@@ -38,9 +48,30 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const { profile, isAdmin, signOut } = useAuth();
 
   const width = collapsed ? 'w-[68px]' : 'w-52';
-  const mainMargin = collapsed ? 'lg:ml-[68px]' : 'lg:ml-52';
+
+  const renderNavItem = (item: { href: string; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }) => {
+    const Icon = item.icon;
+    const isActive = pathname.startsWith(item.href);
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        onClick={() => setMobileOpen(false)}
+        title={collapsed ? item.label : undefined}
+        className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-2.5 px-3 py-2 rounded-lg mb-0.5 transition-colors text-[13px] ${
+          isActive
+            ? 'bg-blue-700 text-white'
+            : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+        }`}
+      >
+        <Icon size={18} className="shrink-0" />
+        {!collapsed && <span className="font-medium truncate">{item.label}</span>}
+      </Link>
+    );
+  };
 
   return (
     <SidebarContext.Provider value={{ collapsed }}>
@@ -89,61 +120,52 @@ export default function Sidebar() {
           </button>
         </div>
 
-        <nav className="mt-2 px-2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                title={collapsed ? item.label : undefined}
-                className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-2.5 px-3 py-2 rounded-lg mb-0.5 transition-colors text-[13px] ${
-                  isActive
-                    ? 'bg-blue-700 text-white'
-                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                }`}
-              >
-                <Icon size={18} className="shrink-0" />
-                {!collapsed && <span className="font-medium truncate">{item.label}</span>}
-              </Link>
-            );
-          })}
+        <nav className="mt-2 px-2 flex flex-col h-[calc(100%-60px)]">
+          <div className="flex-1 overflow-y-auto">
+            {navItems.map(renderNavItem)}
 
-          <div className="mt-3 pt-3 border-t border-gray-700 px-1">
-            <Link
-              href="/estoque?ajustar=true"
-              onClick={() => setMobileOpen(false)}
-              title={collapsed ? 'Ajustar Estoque' : undefined}
-              className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-2.5 px-3 py-2 rounded-lg text-[13px] bg-blue-600 hover:bg-blue-500 text-white transition-colors`}
+            <div className="mt-2 pt-2 border-t border-gray-700">
+              <Link
+                href="/estoque?ajustar=true"
+                onClick={() => setMobileOpen(false)}
+                title={collapsed ? 'Ajustar Estoque' : undefined}
+                className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-2.5 px-3 py-2 rounded-lg text-[13px] bg-blue-600 hover:bg-blue-500 text-white transition-colors`}
+              >
+                <PlusCircle size={18} className="shrink-0" />
+                {!collapsed && <span className="font-medium truncate">Ajustar Estoque</span>}
+              </Link>
+            </div>
+
+            {isAdmin && (
+              <div className="mt-2 pt-2 border-t border-gray-700">
+                {!collapsed && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider">
+                    <Shield size={12} />
+                    Admin
+                  </div>
+                )}
+                {adminItems.map(renderNavItem)}
+              </div>
+            )}
+          </div>
+
+          <div className="pb-3 pt-2 border-t border-gray-700 mt-auto">
+            {profile && !collapsed && (
+              <div className="px-3 py-2">
+                <p className="text-xs font-medium text-white truncate">{profile.name}</p>
+                <p className="text-[10px] text-gray-400 truncate">{profile.email}</p>
+              </div>
+            )}
+            <button
+              onClick={signOut}
+              title={collapsed ? 'Sair' : undefined}
+              className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-2.5 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-gray-800 transition-colors w-full`}
             >
-              <PlusCircle size={18} className="shrink-0" />
-              {!collapsed && <span className="font-medium truncate">Ajustar Estoque</span>}
-            </Link>
+              <LogOut size={18} className="shrink-0" />
+              {!collapsed && <span className="font-medium">Sair</span>}
+            </button>
           </div>
         </nav>
-
-        {!collapsed && (
-          <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-700">
-            <div className="flex gap-1.5">
-              {['Isla', 'Playa', 'Aura'].map((casa) => (
-                <span
-                  key={casa}
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                    casa === 'Isla'
-                      ? 'bg-emerald-900 text-emerald-300'
-                      : casa === 'Playa'
-                      ? 'bg-blue-900 text-blue-300'
-                      : 'bg-purple-900 text-purple-300'
-                  }`}
-                >
-                  {casa}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
       </aside>
     </SidebarContext.Provider>
   );
