@@ -288,16 +288,16 @@ export default function EstoquePage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Estoque</h1>
-          <p className="text-gray-500 mt-1">Controle de estoque por casa</p>
+          <h1 className="text-xl font-bold text-gray-900">Estoque</h1>
+          <p className="text-sm text-gray-500">Controle de estoque por casa</p>
         </div>
         <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} />
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         <StatCard
           title="Total de Itens"
           value={formatNumber(totalItems)}
@@ -362,22 +362,22 @@ export default function EstoquePage() {
                 const status = getStatus(item);
                 return (
                   <tr key={item.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                    <td className="py-3 px-0 font-medium text-gray-900">
+                    <td className="py-2.5 font-medium text-gray-900">
                       {getItemName(item)}
                     </td>
-                    <td className="py-3 text-gray-600">{getItemCategory(item)}</td>
-                    <td className="py-3">
+                    <td className="py-2.5 text-gray-600">{getItemCategory(item)}</td>
+                    <td className="py-2.5">
                       <span className={`text-xs px-2 py-0.5 rounded ${casaBgColor(getCasaName(item))}`}>
                         {getCasaName(item)}
                       </span>
                     </td>
-                    <td className="py-3 text-right font-medium text-gray-900">
-                      {formatNumber(item.quantity, 2)}
+                    <td className="py-2.5 text-right font-medium text-gray-900">
+                      {formatNumber(item.quantity)}
                     </td>
-                    <td className="py-3 text-right text-gray-600">
-                      {formatNumber(item.minimum, 2)}
+                    <td className="py-2.5 text-right text-gray-600">
+                      {formatNumber(item.minimum)}
                     </td>
-                    <td className="py-3">
+                    <td className="py-2.5">
                       <span
                         className={`text-xs font-medium px-2.5 py-1 rounded-full ${
                           status === 'Comprar'
@@ -388,7 +388,7 @@ export default function EstoquePage() {
                         {status}
                       </span>
                     </td>
-                    <td className="py-3 text-gray-600">{item.unit}</td>
+                    <td className="py-2.5 text-gray-600">{item.unit}</td>
                   </tr>
                 );
               })}

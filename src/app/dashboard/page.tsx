@@ -208,57 +208,57 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 mt-1">Visao geral do estoque e vendas</p>
+          <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-500">Visao geral do estoque e vendas</p>
         </div>
         <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         <StatCard
           title="Receita Total"
           value={formatCurrency(data.totalRevenue)}
-          icon={<DollarSign size={20} />}
+          icon={<DollarSign size={18} />}
           color="green"
         />
         <StatCard
           title="Custo Total"
           value={formatCurrency(data.totalCost)}
-          icon={<ShoppingCart size={20} />}
+          icon={<ShoppingCart size={18} />}
           color="red"
         />
         <StatCard
           title="Lucro"
           value={formatCurrency(data.totalProfit)}
-          icon={<TrendingUp size={20} />}
+          icon={<TrendingUp size={18} />}
           color="blue"
         />
         <StatCard
           title="Vendas"
           value={formatNumber(data.totalSales)}
           subtitle="unidades vendidas"
-          icon={<Wine size={20} />}
+          icon={<Wine size={18} />}
           color="purple"
         />
         <StatCard
           title="Markup Medio"
           value={`${formatNumber(data.avgMarkup, 1)}x`}
-          icon={<TrendingUp size={20} />}
+          icon={<TrendingUp size={18} />}
           color="amber"
         />
         <StatCard
           title="Estoque Baixo"
           value={data.lowStockItems.length}
-          subtitle="itens abaixo do minimo"
-          icon={<AlertTriangle size={20} />}
+          subtitle="abaixo do minimo"
+          icon={<AlertTriangle size={18} />}
           color="red"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <h3 className="font-semibold text-gray-900 mb-4">Top 10 Produtos Mais Vendidos</h3>
           <div className="space-y-3">
             {data.topDrinks.map((drink, i) => (
@@ -281,7 +281,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <h3 className="font-semibold text-gray-900 mb-4">Receita por Casa</h3>
           <div className="space-y-4">
             {data.salesByCasa.map((item) => {
@@ -320,7 +320,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <h3 className="font-semibold text-gray-900 mb-4">Vendas Recentes</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -359,7 +359,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <AlertTriangle size={16} className="text-amber-500" />
             Estoque Baixo

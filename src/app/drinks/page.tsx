@@ -216,42 +216,42 @@ export default function DrinksPage() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Drinks &amp; Produtos</h1>
-          <p className="text-gray-500 mt-1">Banco de dados de todos os produtos e drinks</p>
+          <h1 className="text-xl font-bold text-gray-900">Drinks &amp; Produtos</h1>
+          <p className="text-sm text-gray-500">Banco de dados de todos os produtos e drinks</p>
         </div>
         <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} />
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <StatCard
           title="Total Produtos"
           value={formatNumber(totalDrinks)}
           subtitle="drinks e produtos"
-          icon={<Wine size={20} />}
+          icon={<Wine size={18} />}
           color="purple"
         />
         <StatCard
           title="Preco Medio"
           value={formatCurrency(avgPrice)}
           subtitle="preco de venda"
-          icon={<DollarSign size={20} />}
+          icon={<DollarSign size={18} />}
           color="green"
         />
         <StatCard
           title="Custo Medio"
           value={formatCurrency(avgCost)}
           subtitle="custo unitario"
-          icon={<Percent size={20} />}
+          icon={<Percent size={18} />}
           color="red"
         />
         <StatCard
           title="Markup Medio"
           value={`${formatNumber(avgMarkup, 1)}x`}
           subtitle="venda / custo"
-          icon={<TrendingUp size={20} />}
+          icon={<TrendingUp size={18} />}
           color="amber"
         />
       </div>

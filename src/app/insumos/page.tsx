@@ -174,10 +174,10 @@ export default function InsumosPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Insumos</h1>
-          <p className="text-gray-500 mt-1">Gerenciamento de ingredientes e suprimentos</p>
+          <h1 className="text-xl font-bold text-gray-900">Insumos</h1>
+          <p className="text-sm text-gray-500">Gerenciamento de ingredientes e suprimentos</p>
         </div>
         <button
           onClick={openAddModal}
@@ -189,19 +189,19 @@ export default function InsumosPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
         <StatCard
           title="Total de Insumos"
           value={formatNumber(totalInsumos)}
           subtitle="cadastrados"
-          icon={<ShoppingBasket size={20} />}
+          icon={<ShoppingBasket size={18} />}
           color="purple"
         />
         <StatCard
           title="Custo Medio por Unidade"
           value={formatCurrency(avgUnitCost)}
           subtitle="media de todos os insumos"
-          icon={<DollarSign size={20} />}
+          icon={<DollarSign size={18} />}
           color="green"
         />
       </div>
@@ -324,7 +324,7 @@ export default function InsumosPage() {
                 onClick={closeModal}
                 className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 

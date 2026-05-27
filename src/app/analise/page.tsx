@@ -189,10 +189,10 @@ export default function AnalisePage() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analise</h1>
-          <p className="text-gray-500 mt-1">Analise detalhada de vendas, custos e lucros</p>
+          <h1 className="text-xl font-bold text-gray-900">Analise</h1>
+          <p className="text-sm text-gray-500">Analise detalhada de vendas, custos e lucros</p>
         </div>
         <div className="flex gap-4 flex-wrap">
           <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} />
@@ -209,41 +209,41 @@ export default function AnalisePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
         <StatCard
           title="Receita Total"
           value={formatCurrency(data.totalRevenue)}
-          icon={<DollarSign size={20} />}
+          icon={<DollarSign size={18} />}
           color="green"
         />
         <StatCard
           title="Custo Total"
           value={formatCurrency(data.totalCost)}
-          icon={<Package size={20} />}
+          icon={<Package size={18} />}
           color="red"
         />
         <StatCard
           title="Lucro Total"
           value={formatCurrency(data.totalProfit)}
-          icon={<TrendingUp size={20} />}
+          icon={<TrendingUp size={18} />}
           color="blue"
         />
         <StatCard
           title="Ticket Medio"
           value={formatCurrency(data.avgTicket)}
-          icon={<Wine size={20} />}
+          icon={<Wine size={18} />}
           color="purple"
         />
         <StatCard
           title="Itens Vendidos"
           value={formatNumber(data.totalItems)}
-          icon={<BarChart3 size={20} />}
+          icon={<BarChart3 size={18} />}
           color="amber"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <h3 className="font-semibold text-gray-900 mb-4">Comparativo por Casa</h3>
           {data.casaComparison.length > 0 ? (
             <div className="space-y-4">
@@ -288,7 +288,7 @@ export default function AnalisePage() {
           )}
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <h3 className="font-semibold text-gray-900 mb-4">Vendas por Categoria</h3>
           {data.salesByCategory.length > 0 ? (
             <div className="overflow-x-auto">
@@ -321,8 +321,8 @@ export default function AnalisePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <h3 className="font-semibold text-gray-900 mb-4">Top 10 Drinks por Lucro</h3>
           {data.topProfitDrinks.length > 0 ? (
             <div className="space-y-3">
@@ -353,7 +353,7 @@ export default function AnalisePage() {
           )}
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <h3 className="font-semibold text-gray-900 mb-4">Top 10 Maiores Custos</h3>
           {data.topCostDrinks.length > 0 ? (
             <div className="space-y-3">
@@ -386,7 +386,7 @@ export default function AnalisePage() {
       </div>
 
       {data.salesByDate.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
           <h3 className="font-semibold text-gray-900 mb-4">Vendas por Data</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

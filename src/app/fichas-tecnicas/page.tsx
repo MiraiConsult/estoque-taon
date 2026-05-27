@@ -121,40 +121,40 @@ export default function FichasTecnicasPage() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <ClipboardList className="text-indigo-600" size={28} />
             Fichas Tecnicas
           </h1>
-          <p className="text-gray-500 mt-1">Receitas e custos detalhados dos drinks</p>
+          <p className="text-sm text-gray-500">Receitas e custos detalhados dos drinks</p>
         </div>
         <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} />
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4">
           <div className="p-3 rounded-lg bg-indigo-50 text-indigo-600">
-            <Wine size={20} />
+            <Wine size={18} />
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500">Receitas</p>
             <p className="text-xl font-bold text-gray-900">{stats.total}</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4">
           <div className="p-3 rounded-lg bg-red-50 text-red-600">
-            <DollarSign size={20} />
+            <DollarSign size={18} />
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500">Custo Medio</p>
             <p className="text-xl font-bold text-gray-900">{formatCurrency(stats.avgCost)}</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4">
           <div className="p-3 rounded-lg bg-emerald-50 text-emerald-600">
-            <TrendingUp size={20} />
+            <TrendingUp size={18} />
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500">Markup Medio</p>
@@ -201,7 +201,7 @@ export default function FichasTecnicasPage() {
             <Link
               key={recipe.id}
               href={`/fichas-tecnicas/${recipe.id}`}
-              className="group bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg hover:border-indigo-200 transition-all duration-200"
+              className="group bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg hover:border-indigo-200 transition-all duration-200"
             >
               <div className="flex items-start justify-between mb-3">
                 <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-2">

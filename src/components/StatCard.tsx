@@ -19,20 +19,20 @@ const colorMap = {
 
 export default function StatCard({ title, value, subtitle, icon, trend, color = 'blue' }: StatCardProps) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-500">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-          {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+    <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-gray-500 truncate">{title}</p>
+          <p className="text-lg font-bold text-gray-900 mt-0.5 truncate">{value}</p>
+          {subtitle && <p className="text-[11px] text-gray-400 truncate">{subtitle}</p>}
           {trend && (
-            <p className={`text-sm mt-2 ${trend.value >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            <p className={`text-xs mt-1 ${trend.value >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               {trend.value >= 0 ? '+' : ''}{trend.value}% {trend.label}
             </p>
           )}
         </div>
         {icon && (
-          <div className={`p-3 rounded-lg ${colorMap[color]}`}>
+          <div className={`p-2 rounded-lg shrink-0 ${colorMap[color]}`}>
             {icon}
           </div>
         )}

@@ -178,10 +178,10 @@ export default function TransferenciasPage() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Transferencias</h1>
-          <p className="text-gray-500 mt-1">Transferir mercadorias entre casas</p>
+          <h1 className="text-xl font-bold text-gray-900">Transferencias</h1>
+          <p className="text-sm text-gray-500">Transferir mercadorias entre casas</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
@@ -192,7 +192,7 @@ export default function TransferenciasPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
         <h3 className="font-semibold text-gray-900 mb-4">Historico de Transferencias</h3>
         {loading ? (
           <div className="flex justify-center py-8">
@@ -265,7 +265,7 @@ export default function TransferenciasPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
+          <div className="bg-white rounded-xl max-w-md w-full p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                 <ArrowLeftRight size={18} />

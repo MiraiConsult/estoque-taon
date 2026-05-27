@@ -187,7 +187,7 @@ export default function FichaTecnicaDetailPage() {
       </Link>
 
       {/* Header Card */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -298,7 +298,7 @@ export default function FichaTecnicaDetailPage() {
 
       {/* Cost Breakdown */}
       {recipe.ingredients.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mt-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 mt-6">
           <h3 className="font-semibold text-gray-900 mb-4">Composicao de Custo</h3>
           <div className="space-y-3">
             {recipe.ingredients.map((ing) => {
