@@ -15,6 +15,7 @@ import {
   X,
   ChevronsLeft,
   ChevronsRight,
+  PlusCircle,
 } from 'lucide-react';
 import { useState, createContext, useContext } from 'react';
 
@@ -106,6 +107,18 @@ export default function Sidebar() {
               </Link>
             );
           })}
+
+          <div className="mt-3 pt-3 border-t border-gray-700 px-1">
+            <Link
+              href="/estoque?ajustar=true"
+              onClick={() => setMobileOpen(false)}
+              title={collapsed ? 'Ajustar Estoque' : undefined}
+              className={`flex items-center ${collapsed ? 'justify-center' : ''} gap-2.5 px-3 py-2 rounded-lg text-[13px] bg-emerald-600 hover:bg-emerald-500 text-white transition-colors`}
+            >
+              <PlusCircle size={18} className="shrink-0" />
+              {!collapsed && <span className="font-medium truncate">Ajustar Estoque</span>}
+            </Link>
+          </div>
         </nav>
 
         {!collapsed && (

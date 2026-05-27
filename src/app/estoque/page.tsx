@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency, formatNumber, casaBgColor } from '@/lib/format';
 import CasaFilter from '@/components/CasaFilter';
@@ -53,6 +54,15 @@ type SortField = 'name' | 'category' | 'casa' | 'quantity' | 'minimum' | 'status
 type SortDirection = 'asc' | 'desc';
 
 export default function EstoquePage() {
+  return (
+    <Suspense>
+      <EstoqueContent />
+    </Suspense>
+  );
+}
+
+function EstoqueContent() {
+  const searchParams = useSearchParams();
   const [selectedCasa, setSelectedCasa] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [stockItems, setStockItems] = useState<StockItem[]>([]);
@@ -61,6 +71,13 @@ export default function EstoquePage() {
   const [insumos, setInsumos] = useState<Insumo[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('ajustar') === 'true') {
+      setModalOpen(true);
+      window.history.replaceState(null, '', '/estoque');
+    }
+  }, [searchParams]);
   const [submitting, setSubmitting] = useState(false);
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -264,10 +281,12 @@ export default function EstoquePage() {
 
   const SortHeader = ({ field, label, align }: { field: SortField; label: string; align?: string }) => (
     <th
-      className={`pb-3 font-medium cursor-pointer hover:text-gray-900 select-none ${align === 'right' ? 'text-right' : 'text-left'}`}
+      className={`px-4 py-3 font-medium cursor-pointer hover:text-gray-900 select-none whitespace-nowrap ${
+        align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left'
+      }`}
       onClick={() => handleSort(field)}
     >
-      <span className="inline-flex items-center gap-1">
+      <span className={`inline-flex items-center gap-1 ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : ''}`}>
         {label}
         <ArrowUpDown
           size={14}
@@ -347,14 +366,14 @@ export default function EstoquePage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-500 border-b bg-gray-50/50">
+              <tr className="text-gray-500 border-b bg-gray-50/50">
                 <SortHeader field="name" label="Produto / Insumo" />
-                <SortHeader field="category" label="Categoria" />
-                <SortHeader field="casa" label="Casa" />
-                <SortHeader field="quantity" label="Quantidade" align="right" />
-                <SortHeader field="minimum" label="Minimo" align="right" />
-                <SortHeader field="status" label="Status" />
-                <th className="pb-3 font-medium text-left">Unidade</th>
+                <SortHeader field="category" label="Categoria" align="center" />
+                <SortHeader field="casa" label="Casa" align="center" />
+                <SortHeader field="quantity" label="Quantidade" align="center" />
+                <SortHeader field="minimum" label="Minimo" align="center" />
+                <SortHeader field="status" label="Status" align="center" />
+                <th className="px-4 py-3 font-medium text-center">Unidade</th>
               </tr>
             </thead>
             <tbody>
@@ -362,22 +381,22 @@ export default function EstoquePage() {
                 const status = getStatus(item);
                 return (
                   <tr key={item.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                    <td className="py-2.5 font-medium text-gray-900">
+                    <td className="px-4 py-3 font-medium text-gray-900">
                       {getItemName(item)}
                     </td>
-                    <td className="py-2.5 text-gray-600">{getItemCategory(item)}</td>
-                    <td className="py-2.5">
+                    <td className="px-4 py-3 text-center text-gray-600">{getItemCategory(item)}</td>
+                    <td className="px-4 py-3 text-center">
                       <span className={`text-xs px-2 py-0.5 rounded ${casaBgColor(getCasaName(item))}`}>
                         {getCasaName(item)}
                       </span>
                     </td>
-                    <td className="py-2.5 text-right font-medium text-gray-900">
+                    <td className="px-4 py-3 text-center font-medium text-gray-900">
                       {formatNumber(item.quantity)}
                     </td>
-                    <td className="py-2.5 text-right text-gray-600">
+                    <td className="px-4 py-3 text-center text-gray-600">
                       {formatNumber(item.minimum)}
                     </td>
-                    <td className="py-2.5">
+                    <td className="px-4 py-3 text-center">
                       <span
                         className={`text-xs font-medium px-2.5 py-1 rounded-full ${
                           status === 'Comprar'
@@ -388,7 +407,7 @@ export default function EstoquePage() {
                         {status}
                       </span>
                     </td>
-                    <td className="py-2.5 text-gray-600">{item.unit}</td>
+                    <td className="px-4 py-3 text-center text-gray-600">{item.unit}</td>
                   </tr>
                 );
               })}

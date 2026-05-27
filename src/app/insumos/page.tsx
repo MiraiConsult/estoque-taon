@@ -22,6 +22,7 @@ interface Insumo {
   package_qty: number;
   package_price: number;
   unit_cost: number;
+  minimum: number;
   created_at: string;
 }
 
@@ -31,6 +32,7 @@ interface InsumoForm {
   unit: string;
   package_qty: string;
   package_price: string;
+  minimum: string;
 }
 
 const emptyForm: InsumoForm = {
@@ -39,6 +41,7 @@ const emptyForm: InsumoForm = {
   unit: 'ml',
   package_qty: '',
   package_price: '',
+  minimum: '0',
 };
 
 export default function InsumosPage() {
@@ -59,7 +62,12 @@ export default function InsumosPage() {
       .order('name', { ascending: true });
 
     if (!error && data) {
-      setInsumos(data);
+      setInsumos(
+        data.map((i: Record<string, unknown>) => ({
+          ...i,
+          minimum: Number(i.minimum) || 0,
+        })) as Insumo[]
+      );
     }
     setLoading(false);
   }, []);
@@ -113,6 +121,7 @@ export default function InsumosPage() {
       unit: insumo.unit,
       package_qty: String(insumo.package_qty),
       package_price: String(insumo.package_price),
+      minimum: String(insumo.minimum),
     });
     setShowModal(true);
   };
@@ -144,6 +153,7 @@ export default function InsumosPage() {
       package_qty: packageQty,
       package_price: packagePrice,
       unit_cost: unitCost,
+      minimum: Number(form.minimum) || 0,
     };
 
     if (editingId) {
@@ -235,6 +245,7 @@ export default function InsumosPage() {
                 <th className="pb-3 font-medium text-right">Qtd Embalagem</th>
                 <th className="pb-3 font-medium text-right">Preco Embalagem (R$)</th>
                 <th className="pb-3 font-medium text-right">Custo por ml/un (R$)</th>
+                <th className="pb-3 font-medium text-center">Qtd Minima</th>
                 <th className="pb-3 font-medium text-right">Acoes</th>
               </tr>
             </thead>
@@ -252,13 +263,16 @@ export default function InsumosPage() {
                   <td className="py-3 font-medium text-gray-900">{insumo.name}</td>
                   <td className="py-3 text-gray-600">{insumo.unit}</td>
                   <td className="py-3 text-right text-gray-600">
-                    {formatNumber(insumo.package_qty, 2)}
+                    {formatNumber(insumo.package_qty)}
                   </td>
                   <td className="py-3 text-right text-gray-600">
                     {formatCurrency(insumo.package_price)}
                   </td>
                   <td className="py-3 text-right font-medium text-gray-900">
                     {formatCurrency(insumo.unit_cost)}
+                  </td>
+                  <td className="py-3 text-center text-gray-600">
+                    {formatNumber(insumo.minimum)}
                   </td>
                   <td className="py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -299,7 +313,7 @@ export default function InsumosPage() {
               ))}
               {filteredInsumos.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-gray-500">
+                  <td colSpan={8} className="py-12 text-center text-gray-500">
                     {search
                       ? 'Nenhum insumo encontrado com esse termo'
                       : 'Nenhum insumo cadastrado'}
@@ -405,6 +419,22 @@ export default function InsumosPage() {
                     className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
                 </div>
+              </div>
+
+              {/* Minimum */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Quantidade Minima
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={form.minimum}
+                  onChange={(e) => setForm({ ...form, minimum: e.target.value })}
+                  placeholder="0"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
               </div>
 
               {/* Calculated Unit Cost */}

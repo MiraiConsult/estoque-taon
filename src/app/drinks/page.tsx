@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency, formatNumber, casaBgColor } from '@/lib/format';
 import CasaFilter from '@/components/CasaFilter';
@@ -17,6 +18,7 @@ import {
   Check,
   X,
   PackageOpen,
+  ClipboardList,
 } from 'lucide-react';
 
 interface Product {
@@ -30,6 +32,7 @@ interface Product {
   margin: number;
   casa_id: string;
   casa_name: string;
+  recipe_id: string | null;
 }
 
 type SortField = 'name' | 'casa_name' | 'category' | 'type' | 'sale_price' | 'cost' | 'margin' | 'markup';
@@ -78,6 +81,9 @@ export default function DrinksPage() {
       return;
     }
 
+    const { data: recipes } = await supabase.from('drink_recipes').select('id, product_id');
+    const recipeMap = new Map((recipes || []).map(r => [r.product_id, r.id]));
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mapped = ((data || []) as any[]).map((p: any) => ({
       id: p.id,
@@ -90,6 +96,7 @@ export default function DrinksPage() {
       margin: Number(p.margin) || 0,
       casa_id: p.casa_id,
       casa_name: p.casa?.name || '',
+      recipe_id: recipeMap.get(p.id) || null,
     }));
 
     setProducts(mapped);
@@ -299,6 +306,7 @@ export default function DrinksPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="px-3 py-3 font-semibold text-gray-600 text-center w-10">Ficha</th>
                 {([
                   { field: 'name' as SortField, label: 'Nome', align: 'left' },
                   { field: 'casa_name' as SortField, label: 'Casa', align: 'left' },
@@ -330,6 +338,17 @@ export default function DrinksPage() {
                   key={product.id}
                   className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                 >
+                  <td className="px-3 py-3 text-center">
+                    {product.recipe_id ? (
+                      <Link
+                        href={`/fichas-tecnicas/${product.recipe_id}`}
+                        className="inline-flex items-center justify-center text-indigo-500 hover:text-indigo-700 transition-colors"
+                        title="Ver ficha técnica"
+                      >
+                        <ClipboardList size={16} />
+                      </Link>
+                    ) : null}
+                  </td>
                   <td className="px-4 py-3 font-medium text-gray-900">{product.name}</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs px-2 py-0.5 rounded font-medium ${casaBgColor(product.casa_name)}`}>
@@ -404,7 +423,7 @@ export default function DrinksPage() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center">
+                  <td colSpan={9} className="px-4 py-12 text-center">
                     <PackageOpen size={40} className="mx-auto text-gray-300 mb-3" />
                     <p className="text-gray-500 font-medium">Nenhum produto encontrado</p>
                     <p className="text-gray-400 text-xs mt-1">Tente ajustar os filtros de busca</p>
