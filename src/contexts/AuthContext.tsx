@@ -45,8 +45,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .single()
           .then(({ data }) => {
             if (data) setProfile(data as Profile);
+            setLoading(false);
           })
-          .finally(() => setLoading(false));
+          .then(undefined, () => setLoading(false));
       } else {
         setLoading(false);
       }
