@@ -7,7 +7,8 @@ import { formatCurrency, formatNumber, casaBgColor } from '@/lib/format';
 import CasaFilter from '@/components/CasaFilter';
 import StatCard from '@/components/StatCard';
 import LoadingState from '@/components/LoadingState';
-import { ClipboardList, Search, Wine, DollarSign, TrendingUp, LayoutGrid, List, ArrowUpDown } from 'lucide-react';
+import { ClipboardList, Search, Wine, DollarSign, TrendingUp, LayoutGrid, List, ArrowUpDown, Download } from 'lucide-react';
+import { exportToExcel } from '@/lib/exportExcel';
 
 interface DrinkRecipe {
   id: string;
@@ -122,7 +123,53 @@ export default function FichasTecnicasPage() {
           </h1>
           <p className="text-sm text-gray-500">Receitas e custos detalhados dos drinks</p>
         </div>
-        <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} />
+        <div className="flex gap-2 items-center flex-wrap">
+          <button
+            onClick={async () => {
+              // Fetch all ingredients for the filtered recipes
+              const recipeIds = filtered.map((r) => r.id);
+              const { data: ings } = await supabase
+                .from('recipe_ingredients')
+                .select('recipe_id, quantity, unit, ingredient_cost, insumo:insumos(name)')
+                .in('recipe_id', recipeIds);
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const ingMap = new Map<string, any[]>();
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              ((ings || []) as any[]).forEach((i) => {
+                const arr = ingMap.get(i.recipe_id) || [];
+                arr.push(i);
+                ingMap.set(i.recipe_id, arr);
+              });
+
+              exportToExcel('fichas_tecnicas', {
+                Receitas: filtered.map((r) => ({
+                  Drink: r.product_name,
+                  Casa: r.casa_name,
+                  Categoria: r.category,
+                  'Custo (R$)': r.cost,
+                  'Preco Venda (R$)': r.sale_price,
+                  'Margem (R$)': r.margin,
+                  Markup: r.markup,
+                })),
+                Ingredientes: filtered.flatMap((r) =>
+                  (ingMap.get(r.id) || []).map((ing) => ({
+                    Drink: r.product_name,
+                    Casa: r.casa_name,
+                    Insumo: ing.insumo?.name || '',
+                    Quantidade: ing.quantity,
+                    Unidade: ing.unit,
+                    'Custo Ingrediente (R$)': ing.ingredient_cost,
+                  }))
+                ),
+              });
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+          >
+            <Download size={16} />
+            Excel
+          </button>
+          <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">

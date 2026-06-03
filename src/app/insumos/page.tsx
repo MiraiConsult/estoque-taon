@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import StatCard from '@/components/StatCard';
 import LoadingState from '@/components/LoadingState';
+import { exportToExcel } from '@/lib/exportExcel';
 import {
   Plus,
   Pencil,
@@ -13,6 +14,7 @@ import {
   ShoppingBasket,
   X,
   DollarSign,
+  Download,
 } from 'lucide-react';
 
 interface Insumo {
@@ -192,13 +194,34 @@ export default function InsumosPage() {
           <h1 className="text-xl font-bold text-gray-900">Insumos</h1>
           <p className="text-sm text-gray-500">Gerenciamento de ingredientes e suprimentos</p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors text-sm font-medium"
-        >
-          <Plus size={18} />
-          Novo Insumo
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              exportToExcel('insumos', {
+                Insumos: insumos.map((i) => ({
+                  Codigo: i.code,
+                  Nome: i.name,
+                  Unidade: i.unit,
+                  'Qtd Embalagem': i.package_qty,
+                  'Preco Embalagem (R$)': i.package_price,
+                  'Custo Unitario (R$)': i.unit_cost,
+                  'Qtd Minima': i.minimum,
+                })),
+              });
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+          >
+            <Download size={18} />
+            Exportar Excel
+          </button>
+          <button
+            onClick={openAddModal}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors text-sm font-medium"
+          >
+            <Plus size={18} />
+            Novo Insumo
+          </button>
+        </div>
       </div>
 
       {/* Summary Cards */}

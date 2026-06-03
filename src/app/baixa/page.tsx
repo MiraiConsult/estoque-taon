@@ -26,7 +26,8 @@ interface PreviewRow {
   value: number;
   ticketMedio: number;
   matchedProductId: string | null;
-  status: 'matched' | 'unmatched' | 'ignored';
+  matchedProductName: string | null;
+  status: 'matched' | 'fuzzy' | 'unmatched' | 'ignored';
 }
 
 interface Product {
@@ -123,10 +124,54 @@ export default function BaixaPage() {
       }));
       setProducts(allProducts);
 
-      const productMap = new Map<string, string>();
+      const normalize = (s: string) =>
+        s
+          .normalize('NFD')
+          .replace(/[̀-ͯ]/g, '')
+          .replace(/\s*\([^)]*\)\s*/g, ' ')
+          .replace(/['`']/g, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .toLowerCase();
+
+      const exactMap = new Map<string, { id: string; name: string }>();
+      const normMap = new Map<string, { id: string; name: string }>();
       allProducts.forEach((p) => {
-        productMap.set(p.name.toUpperCase().trim(), p.id);
+        exactMap.set(p.name.toUpperCase().trim(), { id: p.id, name: p.name });
+        normMap.set(normalize(p.name), { id: p.id, name: p.name });
       });
+
+      const fuzzyMatch = (search: string): { id: string; name: string } | null => {
+        const normSearch = normalize(search);
+        if (!normSearch) return null;
+
+        // 1. Exact normalized match
+        const direct = normMap.get(normSearch);
+        if (direct) return direct;
+
+        // 2. One contains the other (substring) - prefer longer/closer
+        let best: { id: string; name: string; score: number } | null = null;
+        for (const [normName, p] of normMap) {
+          if (normName.length < 3) continue;
+          let score = 0;
+          if (normName === normSearch) score = 100;
+          else if (normName.includes(normSearch) || normSearch.includes(normName)) {
+            score = Math.min(normName.length, normSearch.length) / Math.max(normName.length, normSearch.length) * 80;
+          } else {
+            // Levenshtein-lite: count common words
+            const w1 = new Set(normSearch.split(' ').filter((x) => x.length > 2));
+            const w2 = new Set(normName.split(' ').filter((x) => x.length > 2));
+            const common = [...w1].filter((w) => w2.has(w)).length;
+            if (common > 0 && w1.size > 0 && w2.size > 0) {
+              score = (common / Math.max(w1.size, w2.size)) * 60;
+            }
+          }
+          if (score >= 50 && (!best || score > best.score)) {
+            best = { ...p, score };
+          }
+        }
+        return best;
+      };
 
       const parsedRows: PreviewRow[] = jsonData
         .map((row) => {
@@ -137,15 +182,28 @@ export default function BaixaPage() {
           const value = Number(row['valor'] || row['Valor'] || row['VALOR'] || row['value'] || 0);
           const ticketMedio = Number(row['ticket_medio'] || row['Ticket Medio'] || row['TICKET_MEDIO'] || 0);
 
-          const matchedId = productMap.get(productName.toUpperCase()) || null;
+          // Try exact first
+          const exact = exactMap.get(productName.toUpperCase().trim());
+          let matched: { id: string; name: string } | null = exact || null;
+          let status: PreviewRow['status'] = exact ? 'matched' : 'unmatched';
+
+          // Try fuzzy if no exact
+          if (!matched) {
+            const fuzzy = fuzzyMatch(productName);
+            if (fuzzy) {
+              matched = fuzzy;
+              status = 'fuzzy';
+            }
+          }
 
           return {
             originalName: productName,
             quantity,
             value,
             ticketMedio: ticketMedio || (quantity > 0 ? value / quantity : 0),
-            matchedProductId: matchedId,
-            status: (matchedId ? 'matched' : 'unmatched') as PreviewRow['status'],
+            matchedProductId: matched?.id || null,
+            matchedProductName: matched?.name || null,
+            status,
           };
         })
         .filter((r) => r.originalName && r.quantity > 0);
@@ -167,12 +225,24 @@ export default function BaixaPage() {
   };
 
   const updateRowMatch = (index: number, productId: string) => {
+    const matchedProduct = products.find((p) => p.id === productId);
     setRows((prev) =>
       prev.map((r, i) =>
         i === index
-          ? { ...r, matchedProductId: productId || null, status: productId ? 'matched' : 'unmatched' }
+          ? {
+              ...r,
+              matchedProductId: productId || null,
+              matchedProductName: matchedProduct?.name || null,
+              status: productId ? 'matched' : 'unmatched',
+            }
           : r
       )
+    );
+  };
+
+  const confirmFuzzy = (index: number) => {
+    setRows((prev) =>
+      prev.map((r, i) => (i === index ? { ...r, status: 'matched' } : r))
     );
   };
 
@@ -412,9 +482,10 @@ export default function BaixaPage() {
   };
 
   const matchedCount = rows.filter((r) => r.status === 'matched').length;
+  const fuzzyCount = rows.filter((r) => r.status === 'fuzzy').length;
   const unmatchedCount = rows.filter((r) => r.status === 'unmatched').length;
   const ignoredCount = rows.filter((r) => r.status === 'ignored').length;
-  const filteredUnmatched = rows
+  const filteredAttention = rows
     .map((r, i) => ({ ...r, _idx: i }))
     .filter((r) => r.status !== 'matched')
     .filter((r) => !searchUnmatched || r.originalName.toLowerCase().includes(searchUnmatched.toLowerCase()));
@@ -492,10 +563,14 @@ export default function BaixaPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
                 <p className="text-2xl font-bold text-emerald-700">{matchedCount}</p>
                 <p className="text-xs text-emerald-600">Identificados</p>
+              </div>
+              <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold text-yellow-700">{fuzzyCount}</p>
+                <p className="text-xs text-yellow-600">Similares (Confirmar)</p>
               </div>
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
                 <p className="text-2xl font-bold text-amber-700">{unmatchedCount}</p>
@@ -508,8 +583,8 @@ export default function BaixaPage() {
             </div>
           </div>
 
-          {/* Unmatched products to fix */}
-          {(unmatchedCount > 0 || ignoredCount > 0) && (
+          {/* Unmatched + fuzzy products to fix */}
+          {(unmatchedCount > 0 || ignoredCount > 0 || fuzzyCount > 0) && (
             <div className="bg-white rounded-xl border border-gray-200 p-4">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-semibold text-amber-700 flex items-center gap-2">
@@ -528,7 +603,8 @@ export default function BaixaPage() {
                 </div>
               </div>
               <p className="text-xs text-gray-500 mb-3">
-                Selecione um produto existente para fazer o vinculo, ou ignore se nao quiser importar essa linha.
+                <span className="text-yellow-700 font-medium">Similares</span>: o sistema encontrou um produto parecido - confirme se está correto.{' '}
+                <span className="text-amber-700 font-medium">Não Identificados</span>: selecione um produto manualmente ou ignore.
               </p>
               <div className="overflow-x-auto max-h-96 overflow-y-auto border rounded-lg">
                 <table className="w-full text-sm">
@@ -542,9 +618,22 @@ export default function BaixaPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUnmatched.map((r) => (
-                      <tr key={r._idx} className={`border-t ${r.status === 'ignored' ? 'opacity-50 bg-gray-50' : ''}`}>
-                        <td className="px-3 py-2 font-medium text-gray-900">{r.originalName}</td>
+                    {filteredAttention.map((r) => (
+                      <tr
+                        key={r._idx}
+                        className={`border-t ${
+                          r.status === 'ignored' ? 'opacity-50 bg-gray-50' :
+                          r.status === 'fuzzy' ? 'bg-yellow-50/50' : ''
+                        }`}
+                      >
+                        <td className="px-3 py-2 font-medium text-gray-900">
+                          {r.originalName}
+                          {r.status === 'fuzzy' && (
+                            <span className="ml-2 inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-yellow-200 text-yellow-800">
+                              <AlertCircle size={10} /> Similar
+                            </span>
+                          )}
+                        </td>
                         <td className="px-3 py-2 text-right text-gray-700">{r.quantity}</td>
                         <td className="px-3 py-2 text-right text-gray-700">{formatCurrency(r.value)}</td>
                         <td className="px-3 py-2">
@@ -561,16 +650,27 @@ export default function BaixaPage() {
                           </select>
                         </td>
                         <td className="px-3 py-2">
-                          <button
-                            onClick={() => toggleIgnore(r._idx)}
-                            className={`text-xs px-2 py-1 rounded ${
-                              r.status === 'ignored'
-                                ? 'bg-gray-200 text-gray-700'
-                                : 'bg-red-50 text-red-600 hover:bg-red-100'
-                            }`}
-                          >
-                            {r.status === 'ignored' ? 'Restaurar' : 'Ignorar'}
-                          </button>
+                          <div className="flex gap-1 justify-end">
+                            {r.status === 'fuzzy' && (
+                              <button
+                                onClick={() => confirmFuzzy(r._idx)}
+                                className="text-xs px-2 py-1 rounded bg-emerald-600 text-white hover:bg-emerald-700"
+                                title="Confirmar este vinculo"
+                              >
+                                OK
+                              </button>
+                            )}
+                            <button
+                              onClick={() => toggleIgnore(r._idx)}
+                              className={`text-xs px-2 py-1 rounded ${
+                                r.status === 'ignored'
+                                  ? 'bg-gray-200 text-gray-700'
+                                  : 'bg-red-50 text-red-600 hover:bg-red-100'
+                              }`}
+                            >
+                              {r.status === 'ignored' ? 'Restaurar' : 'Ignorar'}
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

@@ -22,7 +22,9 @@ import {
   ClipboardList,
   Link2,
   Unlink,
+  Download,
 } from 'lucide-react';
+import { exportToExcel } from '@/lib/exportExcel';
 
 interface Product {
   id: string;
@@ -294,7 +296,30 @@ export default function DrinksPage() {
           <h1 className="text-xl font-bold text-gray-900">Drinks &amp; Produtos</h1>
           <p className="text-sm text-gray-500">Banco de dados de todos os produtos e drinks</p>
         </div>
-        <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} />
+        <div className="flex gap-2 items-center flex-wrap">
+          <button
+            onClick={() => {
+              exportToExcel('drinks_produtos', {
+                Produtos: filtered.map((p) => ({
+                  Nome: p.name,
+                  Casa: p.casa_name,
+                  Categoria: p.category,
+                  Tipo: p.type === 'drink' ? 'Drink' : 'Produto',
+                  'Preco Venda (R$)': p.sale_price,
+                  'Custo (R$)': p.cost,
+                  'Margem (R$)': p.margin,
+                  Markup: p.markup,
+                  'Insumo Vinculado': p.linked_insumo_name || '',
+                })),
+              });
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+          >
+            <Download size={16} />
+            Excel
+          </button>
+          <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} />
+        </div>
       </div>
 
       {/* Summary Cards */}
