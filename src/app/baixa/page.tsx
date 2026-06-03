@@ -4,15 +4,35 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency, formatNumber, formatDateTime, casaBgColor } from '@/lib/format';
 import CasaFilter from '@/components/CasaFilter';
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, History, X } from 'lucide-react';
+import {
+  Upload,
+  FileSpreadsheet,
+  CheckCircle,
+  AlertCircle,
+  History,
+  X,
+  Trash2,
+  ArrowRight,
+  Search,
+  Eraser,
+} from 'lucide-react';
 import * as XLSX from 'xlsx';
 
-interface ImportResult {
-  success: boolean;
-  matched: number;
-  unmatched: string[];
-  totalValue: number;
-  totalItems: number;
+type Step = 'upload' | 'review' | 'done';
+
+interface PreviewRow {
+  originalName: string;
+  quantity: number;
+  value: number;
+  ticketMedio: number;
+  matchedProductId: string | null;
+  status: 'matched' | 'unmatched' | 'ignored';
+}
+
+interface Product {
+  id: string;
+  name: string;
+  cost: number;
 }
 
 interface ImportHistory {
@@ -27,14 +47,19 @@ interface ImportHistory {
 }
 
 export default function BaixaPage() {
+  const [step, setStep] = useState<Step>('upload');
   const [selectedCasa, setSelectedCasa] = useState('Isla');
   const [eventDate, setEventDate] = useState(new Date().toISOString().split('T')[0]);
   const [eventName, setEventName] = useState('');
-  const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<ImportResult | null>(null);
-  const [history, setHistory] = useState<ImportHistory[]>([]);
-  const [previewData, setPreviewData] = useState<Array<Record<string, unknown>> | null>(null);
   const [fileName, setFileName] = useState('');
+  const [rows, setRows] = useState<PreviewRow[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<{ matched: number; ignored: number; totalValue: number; totalItems: number } | null>(null);
+  const [history, setHistory] = useState<ImportHistory[]>([]);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [clearAllConfirm, setClearAllConfirm] = useState(false);
+  const [searchUnmatched, setSearchUnmatched] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchHistory = useCallback(async () => {
@@ -43,7 +68,7 @@ export default function BaixaPage() {
         .from('sale_imports')
         .select('*, casa:casas(name)')
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(50);
 
       if (data) {
         setHistory(
@@ -61,7 +86,7 @@ export default function BaixaPage() {
         );
       }
     } catch (err) {
-      console.error('Fetch error:', err);
+      console.error('Fetch history error:', err);
     }
   }, []);
 
@@ -74,131 +99,172 @@ export default function BaixaPage() {
     if (!file) return;
 
     setFileName(file.name);
-    setResult(null);
 
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       const data = evt.target?.result;
       const workbook = XLSX.read(data, { type: 'binary' });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet) as Array<Record<string, unknown>>;
-      setPreviewData(jsonData);
+
+      // Fetch products
+      const { data: productsData } = await supabase.from('products').select('id, name, cost');
+      const allProducts: Product[] = (productsData || []).map((p) => ({
+        id: p.id,
+        name: p.name,
+        cost: Number(p.cost),
+      }));
+      setProducts(allProducts);
+
+      const productMap = new Map<string, string>();
+      allProducts.forEach((p) => {
+        productMap.set(p.name.toUpperCase().trim(), p.id);
+      });
+
+      const parsedRows: PreviewRow[] = jsonData
+        .map((row) => {
+          const productName = String(
+            row['produto'] || row['Produto'] || row['PRODUTO'] || row['product'] || ''
+          ).trim();
+          const quantity = Number(row['quantidade'] || row['Quantidade'] || row['QUANTIDADE'] || row['qty'] || 0);
+          const value = Number(row['valor'] || row['Valor'] || row['VALOR'] || row['value'] || 0);
+          const ticketMedio = Number(row['ticket_medio'] || row['Ticket Medio'] || row['TICKET_MEDIO'] || 0);
+
+          const matchedId = productMap.get(productName.toUpperCase()) || null;
+
+          return {
+            originalName: productName,
+            quantity,
+            value,
+            ticketMedio: ticketMedio || (quantity > 0 ? value / quantity : 0),
+            matchedProductId: matchedId,
+            status: (matchedId ? 'matched' : 'unmatched') as PreviewRow['status'],
+          };
+        })
+        .filter((r) => r.originalName && r.quantity > 0);
+
+      setRows(parsedRows);
+      setStep('review');
     };
     reader.readAsBinaryString(file);
   };
 
-  const handleImport = async () => {
-    if (!previewData || previewData.length === 0) return;
+  const resetUpload = () => {
+    setStep('upload');
+    setFileName('');
+    setRows([]);
+    setProducts([]);
+    setImportResult(null);
+    setSearchUnmatched('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
+  const updateRowMatch = (index: number, productId: string) => {
+    setRows((prev) =>
+      prev.map((r, i) =>
+        i === index
+          ? { ...r, matchedProductId: productId || null, status: productId ? 'matched' : 'unmatched' }
+          : r
+      )
+    );
+  };
+
+  const toggleIgnore = (index: number) => {
+    setRows((prev) =>
+      prev.map((r, i) =>
+        i === index
+          ? { ...r, status: r.status === 'ignored' ? (r.matchedProductId ? 'matched' : 'unmatched') : 'ignored' }
+          : r
+      )
+    );
+  };
+
+  const confirmImport = async () => {
     setImporting(true);
-    setResult(null);
 
-    const { data: casa } = await supabase
-      .from('casas')
-      .select('id')
-      .eq('name', selectedCasa)
-      .single();
+    try {
+      const { data: casa } = await supabase.from('casas').select('id').eq('name', selectedCasa).single();
+      if (!casa) throw new Error('Casa não encontrada');
 
-    if (!casa) {
-      setImporting(false);
-      return;
-    }
+      const toImport = rows.filter((r) => r.status === 'matched' && r.matchedProductId);
 
-    const { data: allProducts } = await supabase.from('products').select('id, name, cost');
-    const productMap = new Map<string, { id: string; cost: number }>();
-    (allProducts || []).forEach((p) => {
-      productMap.set(p.name.toUpperCase().trim(), { id: p.id, cost: Number(p.cost) });
-    });
+      const totalValue = toImport.reduce((s, r) => s + r.value, 0);
+      const totalItems = toImport.reduce((s, r) => s + r.quantity, 0);
 
-    const matched: Array<{
-      product_id: string;
-      quantity: number;
-      total_value: number;
-      ticket_medio: number;
-    }> = [];
-    const unmatched: string[] = [];
+      // Create import record first
+      const { data: importRecord, error: impErr } = await supabase
+        .from('sale_imports')
+        .insert({
+          casa_id: casa.id,
+          event_date: eventDate,
+          event_name: eventName || null,
+          file_name: fileName,
+          total_items: totalItems,
+          total_value: totalValue,
+        })
+        .select('id')
+        .single();
 
-    for (const row of previewData) {
-      const productName = String(
-        row['produto'] || row['Produto'] || row['PRODUTO'] || row['product'] || ''
-      ).trim();
-      const quantity = Number(row['quantidade'] || row['Quantidade'] || row['QUANTIDADE'] || row['qty'] || 0);
-      const value = Number(row['valor'] || row['Valor'] || row['VALOR'] || row['value'] || 0);
-      const ticketMedio = Number(
-        row['ticket_medio'] || row['Ticket Medio'] || row['TICKET_MEDIO'] || 0
-      );
+      if (impErr || !importRecord) throw new Error(impErr?.message || 'Falha ao criar importação');
 
-      if (!productName || quantity === 0) continue;
+      const importId = importRecord.id;
 
-      const product = productMap.get(productName.toUpperCase());
-      if (product) {
-        matched.push({
-          product_id: product.id,
-          quantity,
-          total_value: value,
-          ticket_medio: ticketMedio || (quantity > 0 ? value / quantity : 0),
-        });
-      } else {
-        unmatched.push(productName);
-      }
-    }
-
-    if (matched.length > 0) {
-      const salesRecords = matched.map((m) => ({
+      // Insert sales with import_id
+      const salesRecords = toImport.map((r) => ({
         casa_id: casa.id,
+        import_id: importId,
         event_date: eventDate,
         event_name: eventName || null,
-        product_id: m.product_id,
-        quantity: m.quantity,
-        total_value: m.total_value,
-        ticket_medio: m.ticket_medio,
+        product_id: r.matchedProductId!,
+        quantity: r.quantity,
+        total_value: r.value,
+        ticket_medio: r.ticketMedio,
       }));
 
       await supabase.from('sales').insert(salesRecords);
 
-      for (const m of matched) {
-        const product = allProducts?.find((p) => p.id === m.product_id);
-        if (!product) continue;
-
+      // Update stock + create movements
+      for (const r of toImport) {
         const { data: stockItem } = await supabase
           .from('stock_items')
           .select('id, quantity')
           .eq('casa_id', casa.id)
-          .eq('product_id', m.product_id)
-          .single();
+          .eq('product_id', r.matchedProductId!)
+          .maybeSingle();
 
         if (stockItem) {
           await supabase
             .from('stock_items')
             .update({
-              quantity: Math.max(0, stockItem.quantity - m.quantity),
+              quantity: Math.max(0, stockItem.quantity - r.quantity),
               updated_at: new Date().toISOString(),
             })
             .eq('id', stockItem.id);
         }
 
+        // Recipe ingredients deduction
         const { data: recipe } = await supabase
           .from('drink_recipes')
           .select('id')
-          .eq('product_id', m.product_id)
-          .single();
+          .eq('product_id', r.matchedProductId!)
+          .maybeSingle();
 
         if (recipe) {
           const { data: ingredients } = await supabase
             .from('recipe_ingredients')
-            .select('insumo_id, quantity, unit')
+            .select('insumo_id, quantity')
             .eq('recipe_id', recipe.id);
 
           if (ingredients) {
             for (const ing of ingredients) {
-              const totalUsed = ing.quantity * m.quantity;
+              const totalUsed = ing.quantity * r.quantity;
               const { data: insumoStock } = await supabase
                 .from('stock_items')
                 .select('id, quantity')
                 .eq('casa_id', casa.id)
                 .eq('insumo_id', ing.insumo_id)
-                .single();
+                .maybeSingle();
 
               if (insumoStock) {
                 await supabase
@@ -215,46 +281,124 @@ export default function BaixaPage() {
 
         await supabase.from('stock_movements').insert({
           casa_id: casa.id,
-          product_id: m.product_id,
+          product_id: r.matchedProductId!,
+          import_id: importId,
           movement_type: 'venda',
-          quantity: -m.quantity,
+          quantity: -r.quantity,
           reference: `Venda ${eventDate}`,
           notes: eventName || null,
         });
       }
 
-      const totalValue = matched.reduce((sum, m) => sum + m.total_value, 0);
-      const totalItems = matched.reduce((sum, m) => sum + m.quantity, 0);
+      const ignored = rows.filter((r) => r.status === 'unmatched' || r.status === 'ignored').length;
 
-      await supabase.from('sale_imports').insert({
-        casa_id: casa.id,
-        event_date: eventDate,
-        event_name: eventName || null,
-        file_name: fileName,
-        total_items: totalItems,
-        total_value: totalValue,
-      });
-
-      setResult({
-        success: true,
-        matched: matched.length,
-        unmatched,
-        totalValue,
-        totalItems,
-      });
-    } else {
-      setResult({
-        success: false,
-        matched: 0,
-        unmatched,
-        totalValue: 0,
-        totalItems: 0,
-      });
+      setImportResult({ matched: toImport.length, ignored, totalValue, totalItems });
+      setStep('done');
+      fetchHistory();
+    } catch (err) {
+      alert(`Erro ao importar: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setImporting(false);
     }
-
-    setImporting(false);
-    fetchHistory();
   };
+
+  const deleteImport = async (importId: string) => {
+    try {
+      // Get all sales from this import to reverse stock
+      const { data: sales } = await supabase
+        .from('sales')
+        .select('product_id, quantity, casa_id')
+        .eq('import_id', importId);
+
+      if (sales) {
+        for (const sale of sales) {
+          // Add back to product stock
+          const { data: stockItem } = await supabase
+            .from('stock_items')
+            .select('id, quantity')
+            .eq('casa_id', sale.casa_id)
+            .eq('product_id', sale.product_id)
+            .maybeSingle();
+
+          if (stockItem) {
+            await supabase
+              .from('stock_items')
+              .update({
+                quantity: stockItem.quantity + sale.quantity,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', stockItem.id);
+          }
+
+          // Reverse recipe ingredients
+          const { data: recipe } = await supabase
+            .from('drink_recipes')
+            .select('id')
+            .eq('product_id', sale.product_id)
+            .maybeSingle();
+
+          if (recipe) {
+            const { data: ingredients } = await supabase
+              .from('recipe_ingredients')
+              .select('insumo_id, quantity')
+              .eq('recipe_id', recipe.id);
+
+            if (ingredients) {
+              for (const ing of ingredients) {
+                const { data: insumoStock } = await supabase
+                  .from('stock_items')
+                  .select('id, quantity')
+                  .eq('casa_id', sale.casa_id)
+                  .eq('insumo_id', ing.insumo_id)
+                  .maybeSingle();
+
+                if (insumoStock) {
+                  await supabase
+                    .from('stock_items')
+                    .update({
+                      quantity: insumoStock.quantity + (ing.quantity * sale.quantity),
+                      updated_at: new Date().toISOString(),
+                    })
+                    .eq('id', insumoStock.id);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Delete the import (cascades to sales and stock_movements)
+      await supabase.from('sale_imports').delete().eq('id', importId);
+      setDeleteConfirm(null);
+      fetchHistory();
+    } catch (err) {
+      alert(`Erro ao deletar: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
+
+  const clearAllImports = async () => {
+    try {
+      // Get all imports to reverse
+      const { data: allImports } = await supabase.from('sale_imports').select('id');
+      if (allImports) {
+        for (const imp of allImports) {
+          await deleteImport(imp.id);
+        }
+      }
+      setClearAllConfirm(false);
+      fetchHistory();
+    } catch (err) {
+      alert(`Erro: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
+
+  const matchedCount = rows.filter((r) => r.status === 'matched').length;
+  const unmatchedCount = rows.filter((r) => r.status === 'unmatched').length;
+  const ignoredCount = rows.filter((r) => r.status === 'ignored').length;
+  const filteredUnmatched = rows
+    .map((r, i) => ({ ...r, _idx: i }))
+    .filter((r) => r.status !== 'matched')
+    .filter((r) => !searchUnmatched || r.originalName.toLowerCase().includes(searchUnmatched.toLowerCase()));
 
   return (
     <div>
@@ -265,117 +409,203 @@ export default function BaixaPage() {
         </p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Nova Importacao</h3>
+      {/* STEP 1: UPLOAD */}
+      {step === 'upload' && (
+        <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+          <h3 className="font-semibold text-gray-900 mb-4">Nova Importacao</h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Casa</label>
-            <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} showAll={false} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Casa</label>
+              <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} showAll={false} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Data do Evento</label>
+              <input
+                type="date"
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Evento (opcional)</label>
+              <input
+                type="text"
+                value={eventName}
+                onChange={(e) => setEventName(e.target.value)}
+                placeholder="Ex: Festa de Sexta"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Data do Evento</label>
+
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50/50 transition-colors"
+          >
             <input
-              type="date"
-              value={eventDate}
-              onChange={(e) => setEventDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleFileSelect}
+              className="hidden"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nome do Evento (opcional)
-            </label>
-            <input
-              type="text"
-              value={eventName}
-              onChange={(e) => setEventName(e.target.value)}
-              placeholder="Ex: Festa de Sexta"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-            />
+            <FileSpreadsheet size={40} className="mx-auto text-gray-400 mb-3" />
+            <p className="text-sm font-medium text-gray-900">Clique para selecionar a planilha</p>
+            <p className="text-xs text-gray-500 mt-1">Formatos: .xlsx, .xls, .csv</p>
+            <p className="text-xs text-gray-400 mt-1">Colunas: produto, quantidade, valor, ticket_medio</p>
           </div>
         </div>
+      )}
 
-        <div
-          onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50/50 transition-colors"
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-          <FileSpreadsheet size={40} className="mx-auto text-gray-400 mb-3" />
-          {fileName ? (
-            <div>
-              <p className="text-sm font-medium text-gray-900">{fileName}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                {previewData?.length || 0} linhas encontradas
-              </p>
-            </div>
-          ) : (
-            <div>
-              <p className="text-sm font-medium text-gray-900">
-                Clique para selecionar a planilha
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Formatos aceitos: .xlsx, .xls, .csv
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                Colunas esperadas: produto, quantidade, valor, ticket_medio
-              </p>
-            </div>
-          )}
-        </div>
-
-        {previewData && previewData.length > 0 && (
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-gray-700">
-                Pre-visualizacao ({previewData.length} itens)
-              </h4>
-              <button
-                onClick={() => {
-                  setPreviewData(null);
-                  setFileName('');
-                  if (fileInputRef.current) fileInputRef.current.value = '';
-                }}
-                className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
-              >
-                <X size={14} /> Limpar
+      {/* STEP 2: REVIEW */}
+      {step === 'review' && (
+        <div className="space-y-4 mb-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold text-gray-900">Revisao da Importacao</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Arquivo: {fileName} - {selectedCasa} - {eventDate}</p>
+              </div>
+              <button onClick={resetUpload} className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
+                <X size={14} /> Cancelar
               </button>
             </div>
-            <div className="max-h-60 overflow-auto border rounded-lg">
-              <table className="w-full text-xs">
-                <thead className="bg-gray-50 sticky top-0">
-                  <tr>
-                    {Object.keys(previewData[0]).map((key) => (
-                      <th key={key} className="px-3 py-2 text-left font-medium text-gray-500">
-                        {key}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {previewData.slice(0, 15).map((row, i) => (
-                    <tr key={i} className="border-t">
-                      {Object.values(row).map((val, j) => (
-                        <td key={j} className="px-3 py-1.5 text-gray-700">
-                          {String(val)}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
 
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold text-emerald-700">{matchedCount}</p>
+                <p className="text-xs text-emerald-600">Identificados</p>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold text-amber-700">{unmatchedCount}</p>
+                <p className="text-xs text-amber-600">Não Identificados</p>
+              </div>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold text-gray-700">{ignoredCount}</p>
+                <p className="text-xs text-gray-600">Ignorados</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Unmatched products to fix */}
+          {(unmatchedCount > 0 || ignoredCount > 0) && (
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold text-amber-700 flex items-center gap-2">
+                  <AlertCircle size={18} />
+                  Produtos que precisam de atenção
+                </h4>
+                <div className="relative">
+                  <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchUnmatched}
+                    onChange={(e) => setSearchUnmatched(e.target.value)}
+                    placeholder="Buscar..."
+                    className="pl-8 pr-3 py-1.5 border border-gray-300 rounded-lg text-xs"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mb-3">
+                Selecione um produto existente para fazer o vinculo, ou ignore se nao quiser importar essa linha.
+              </p>
+              <div className="overflow-x-auto max-h-96 overflow-y-auto border rounded-lg">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 sticky top-0">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium text-gray-600">Nome na Planilha</th>
+                      <th className="px-3 py-2 text-right font-medium text-gray-600">Qtd</th>
+                      <th className="px-3 py-2 text-right font-medium text-gray-600">Valor</th>
+                      <th className="px-3 py-2 text-left font-medium text-gray-600">Vincular a Produto</th>
+                      <th className="px-3 py-2"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUnmatched.map((r) => (
+                      <tr key={r._idx} className={`border-t ${r.status === 'ignored' ? 'opacity-50 bg-gray-50' : ''}`}>
+                        <td className="px-3 py-2 font-medium text-gray-900">{r.originalName}</td>
+                        <td className="px-3 py-2 text-right text-gray-700">{r.quantity}</td>
+                        <td className="px-3 py-2 text-right text-gray-700">{formatCurrency(r.value)}</td>
+                        <td className="px-3 py-2">
+                          <select
+                            value={r.matchedProductId || ''}
+                            onChange={(e) => updateRowMatch(r._idx, e.target.value)}
+                            disabled={r.status === 'ignored'}
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-xs"
+                          >
+                            <option value="">-- Selecione --</option>
+                            {products.map((p) => (
+                              <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-3 py-2">
+                          <button
+                            onClick={() => toggleIgnore(r._idx)}
+                            className={`text-xs px-2 py-1 rounded ${
+                              r.status === 'ignored'
+                                ? 'bg-gray-200 text-gray-700'
+                                : 'bg-red-50 text-red-600 hover:bg-red-100'
+                            }`}
+                          >
+                            {r.status === 'ignored' ? 'Restaurar' : 'Ignorar'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Matched products preview */}
+          {matchedCount > 0 && (
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <h4 className="font-semibold text-emerald-700 flex items-center gap-2 mb-3">
+                <CheckCircle size={18} />
+                Produtos identificados ({matchedCount})
+              </h4>
+              <div className="overflow-x-auto max-h-60 overflow-y-auto border rounded-lg">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 sticky top-0">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium text-gray-600">Produto</th>
+                      <th className="px-3 py-2 text-right font-medium text-gray-600">Qtd</th>
+                      <th className="px-3 py-2 text-right font-medium text-gray-600">Valor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.filter((r) => r.status === 'matched').map((r, i) => {
+                      const product = products.find((p) => p.id === r.matchedProductId);
+                      return (
+                        <tr key={i} className="border-t">
+                          <td className="px-3 py-2 text-gray-900">{product?.name || r.originalName}</td>
+                          <td className="px-3 py-2 text-right text-gray-700">{r.quantity}</td>
+                          <td className="px-3 py-2 text-right text-gray-700">{formatCurrency(r.value)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Confirm button */}
+          <div className="flex gap-3">
             <button
-              onClick={handleImport}
-              disabled={importing}
-              className="mt-4 w-full bg-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              onClick={resetUpload}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
+            >
+              Voltar
+            </button>
+            <button
+              onClick={confirmImport}
+              disabled={importing || matchedCount === 0}
+              className="flex-1 bg-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-800 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {importing ? (
                 <>
@@ -385,58 +615,52 @@ export default function BaixaPage() {
               ) : (
                 <>
                   <Upload size={18} />
-                  Importar e Dar Baixa no Estoque
+                  Confirmar e Importar ({matchedCount} produtos)
                 </>
               )}
             </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {result && (
-          <div
-            className={`mt-4 p-4 rounded-lg ${
-              result.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              {result.success ? (
-                <CheckCircle size={20} className="text-green-600 mt-0.5" />
-              ) : (
-                <AlertCircle size={20} className="text-red-600 mt-0.5" />
-              )}
-              <div>
-                <p className={`font-medium ${result.success ? 'text-green-800' : 'text-red-800'}`}>
-                  {result.success ? 'Importacao realizada com sucesso!' : 'Nenhum produto encontrado'}
-                </p>
-                <div className="text-sm mt-1 space-y-1">
-                  <p className="text-gray-700">
-                    {result.matched} produtos encontrados | {result.totalItems} unidades |{' '}
-                    {formatCurrency(result.totalValue)}
-                  </p>
-                  {result.unmatched.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-amber-700 font-medium">
-                        {result.unmatched.length} produtos nao encontrados:
-                      </p>
-                      <ul className="text-amber-600 text-xs mt-1 space-y-0.5">
-                        {result.unmatched.map((name, i) => (
-                          <li key={i}>- {name}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+      {/* STEP 3: DONE */}
+      {step === 'done' && importResult && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+          <div className="text-center py-4">
+            <CheckCircle size={48} className="mx-auto text-emerald-500 mb-3" />
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Importacao realizada com sucesso!</h3>
+            <p className="text-sm text-gray-600 mb-6">
+              {importResult.matched} produtos importados | {importResult.totalItems} unidades | {formatCurrency(importResult.totalValue)}
+              {importResult.ignored > 0 && <span className="block text-amber-600 text-xs mt-1">{importResult.ignored} linhas ignoradas</span>}
+            </p>
+            <button
+              onClick={resetUpload}
+              className="bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-800 flex items-center gap-2 mx-auto"
+            >
+              <ArrowRight size={16} />
+              Nova Importacao
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
+      {/* HISTORY */}
       <div className="bg-white rounded-xl border border-gray-200 p-4">
-        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <History size={18} />
-          Historico de Importacoes
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+            <History size={18} />
+            Historico de Importacoes
+          </h3>
+          {history.length > 0 && (
+            <button
+              onClick={() => setClearAllConfirm(true)}
+              className="text-xs px-3 py-1.5 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 flex items-center gap-1.5"
+            >
+              <Eraser size={14} />
+              Limpar Tudo
+            </button>
+          )}
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -446,8 +670,9 @@ export default function BaixaPage() {
                 <th className="pb-2 font-medium">Evento</th>
                 <th className="pb-2 font-medium">Arquivo</th>
                 <th className="pb-2 font-medium text-right">Itens</th>
-                <th className="pb-2 font-medium text-right">Valor Total</th>
+                <th className="pb-2 font-medium text-right">Valor</th>
                 <th className="pb-2 font-medium">Importado em</th>
+                <th className="pb-2 font-medium"></th>
               </tr>
             </thead>
             <tbody>
@@ -460,17 +685,41 @@ export default function BaixaPage() {
                     </span>
                   </td>
                   <td className="py-2 text-gray-600">{h.event_name || '-'}</td>
-                  <td className="py-2 text-gray-600">{h.file_name}</td>
+                  <td className="py-2 text-gray-600 max-w-[150px] truncate" title={h.file_name}>{h.file_name}</td>
                   <td className="py-2 text-right text-gray-900">{formatNumber(h.total_items)}</td>
-                  <td className="py-2 text-right font-medium text-gray-900">
-                    {formatCurrency(h.total_value)}
-                  </td>
+                  <td className="py-2 text-right font-medium text-gray-900">{formatCurrency(h.total_value)}</td>
                   <td className="py-2 text-gray-500 text-xs">{formatDateTime(h.created_at)}</td>
+                  <td className="py-2 text-right">
+                    {deleteConfirm === h.id ? (
+                      <div className="flex gap-1 justify-end">
+                        <button
+                          onClick={() => deleteImport(h.id)}
+                          className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                        >
+                          Confirmar
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(null)}
+                          className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setDeleteConfirm(h.id)}
+                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                        title="Excluir importacao"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
               {history.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-gray-500">
+                  <td colSpan={8} className="py-8 text-center text-gray-500">
                     Nenhuma importacao realizada
                   </td>
                 </tr>
@@ -479,6 +728,32 @@ export default function BaixaPage() {
           </table>
         </div>
       </div>
+
+      {/* Clear all confirmation modal */}
+      {clearAllConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl p-6 max-w-md">
+            <h3 className="font-bold text-lg text-gray-900 mb-2">Limpar todo o historico?</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Isso vai deletar TODAS as importacoes, reverter o estoque de cada venda e restaurar os insumos consumidos. Essa acao nao pode ser desfeita.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setClearAllConfirm(false)}
+                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={clearAllImports}
+                className="flex-1 bg-red-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-red-700"
+              >
+                Sim, limpar tudo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
