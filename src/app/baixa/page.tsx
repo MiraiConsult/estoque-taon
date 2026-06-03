@@ -33,6 +33,8 @@ interface Product {
   id: string;
   name: string;
   cost: number;
+  linked_insumo_id: string | null;
+  unit_conversion: number;
 }
 
 interface ImportHistory {
@@ -109,11 +111,15 @@ export default function BaixaPage() {
       const jsonData = XLSX.utils.sheet_to_json(sheet) as Array<Record<string, unknown>>;
 
       // Fetch products
-      const { data: productsData } = await supabase.from('products').select('id, name, cost');
+      const { data: productsData } = await supabase
+        .from('products')
+        .select('id, name, cost, linked_insumo_id, unit_conversion');
       const allProducts: Product[] = (productsData || []).map((p) => ({
         id: p.id,
         name: p.name,
         cost: Number(p.cost),
+        linked_insumo_id: p.linked_insumo_id || null,
+        unit_conversion: Number(p.unit_conversion) || 1,
       }));
       setProducts(allProducts);
 
@@ -226,18 +232,25 @@ export default function BaixaPage() {
 
       // Update stock + create movements
       for (const r of toImport) {
-        const { data: stockItem } = await supabase
+        const product = products.find((p) => p.id === r.matchedProductId);
+        const useInsumoStock = product?.linked_insumo_id;
+        const conversion = product?.unit_conversion || 1;
+
+        // If product is linked to an insumo, deduct from insumo stock instead of product stock
+        const stockQuery = supabase
           .from('stock_items')
           .select('id, quantity')
-          .eq('casa_id', casa.id)
-          .eq('product_id', r.matchedProductId!)
-          .maybeSingle();
+          .eq('casa_id', casa.id);
+
+        const { data: stockItem } = useInsumoStock
+          ? await stockQuery.eq('insumo_id', useInsumoStock).maybeSingle()
+          : await stockQuery.eq('product_id', r.matchedProductId!).maybeSingle();
 
         if (stockItem) {
           await supabase
             .from('stock_items')
             .update({
-              quantity: Math.max(0, stockItem.quantity - r.quantity),
+              quantity: Math.max(0, stockItem.quantity - (r.quantity * conversion)),
               updated_at: new Date().toISOString(),
             })
             .eq('id', stockItem.id);
@@ -307,24 +320,30 @@ export default function BaixaPage() {
       // Get all sales from this import to reverse stock
       const { data: sales } = await supabase
         .from('sales')
-        .select('product_id, quantity, casa_id')
+        .select('product_id, quantity, casa_id, product:products(linked_insumo_id, unit_conversion)')
         .eq('import_id', importId);
 
       if (sales) {
-        for (const sale of sales) {
-          // Add back to product stock
-          const { data: stockItem } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const sale of (sales as any[])) {
+          const linkedInsumoId = sale.product?.linked_insumo_id;
+          const conversion = Number(sale.product?.unit_conversion) || 1;
+          const reverseQty = sale.quantity * conversion;
+
+          // Reverse stock (insumo if linked, otherwise product)
+          const baseQuery = supabase
             .from('stock_items')
             .select('id, quantity')
-            .eq('casa_id', sale.casa_id)
-            .eq('product_id', sale.product_id)
-            .maybeSingle();
+            .eq('casa_id', sale.casa_id);
+          const { data: stockItem } = linkedInsumoId
+            ? await baseQuery.eq('insumo_id', linkedInsumoId).maybeSingle()
+            : await baseQuery.eq('product_id', sale.product_id).maybeSingle();
 
           if (stockItem) {
             await supabase
               .from('stock_items')
               .update({
-                quantity: stockItem.quantity + sale.quantity,
+                quantity: stockItem.quantity + reverseQty,
                 updated_at: new Date().toISOString(),
               })
               .eq('id', stockItem.id);

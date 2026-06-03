@@ -50,6 +50,43 @@ interface RecipeDetail {
   ingredients: Ingredient[];
 }
 
+function EditableTitle({ productId, value, onSaved }: { productId: string; value: string; onSaved: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [v, setV] = useState(value);
+
+  if (!editing) {
+    return (
+      <button
+        onClick={() => { setV(value); setEditing(true); }}
+        className="text-2xl font-bold text-gray-900 hover:text-blue-700 transition-colors text-left"
+        title="Clique para editar"
+      >
+        {value}
+      </button>
+    );
+  }
+
+  const save = async () => {
+    if (v.trim() && v !== value) {
+      await supabase.from('products').update({ name: v.trim() }).eq('id', productId);
+      onSaved();
+    }
+    setEditing(false);
+  };
+
+  return (
+    <input
+      type="text"
+      value={v}
+      onChange={(e) => setV(e.target.value)}
+      onBlur={save}
+      onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false); }}
+      autoFocus
+      className="text-2xl font-bold text-gray-900 border-b-2 border-blue-600 outline-none w-full"
+    />
+  );
+}
+
 export default function FichaTecnicaDetailPage() {
   const params = useParams();
   const recipeId = params.id as string;
@@ -393,7 +430,11 @@ export default function FichaTecnicaDetailPage() {
                 <Wine size={24} />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{recipe.product_name}</h1>
+                <EditableTitle
+                  productId={recipe.product_id}
+                  value={recipe.product_name}
+                  onSaved={fetchRecipe}
+                />
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${casaBgColor(recipe.casa_name)}`}>
                     {recipe.casa_name}

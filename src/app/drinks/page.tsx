@@ -20,6 +20,8 @@ import {
   X,
   PackageOpen,
   ClipboardList,
+  Link2,
+  Unlink,
 } from 'lucide-react';
 
 interface Product {
@@ -34,10 +36,55 @@ interface Product {
   casa_id: string;
   casa_name: string;
   recipe_id: string | null;
+  linked_insumo_id: string | null;
+  linked_insumo_name: string | null;
 }
 
 type SortField = 'name' | 'casa_name' | 'category' | 'type' | 'sale_price' | 'cost' | 'margin' | 'markup';
 type SortDirection = 'asc' | 'desc';
+
+function InlineNameEdit({ productId, initial, onSaved }: { productId: string; initial: string; onSaved: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(initial);
+  const [busy, setBusy] = useState(false);
+
+  if (!editing) {
+    return (
+      <button
+        onClick={() => { setValue(initial); setEditing(true); }}
+        className="text-left hover:text-blue-700 hover:underline decoration-dashed underline-offset-2 transition-colors"
+        title="Clique para editar"
+      >
+        {initial}
+      </button>
+    );
+  }
+
+  const save = async () => {
+    if (!value.trim() || value === initial) { setEditing(false); return; }
+    setBusy(true);
+    await supabase.from('products').update({ name: value.trim() }).eq('id', productId);
+    setBusy(false);
+    setEditing(false);
+    onSaved();
+  };
+
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={save}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') save();
+        if (e.key === 'Escape') setEditing(false);
+      }}
+      autoFocus
+      disabled={busy}
+      className="w-full px-2 py-1 border border-blue-400 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+    />
+  );
+}
 
 export default function DrinksPage() {
   const [selectedCasa, setSelectedCasa] = useState('all');
@@ -53,6 +100,9 @@ export default function DrinksPage() {
   const [editValue, setEditValue] = useState('');
   const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [linkModalProduct, setLinkModalProduct] = useState<Product | null>(null);
+  const [allInsumos, setAllInsumos] = useState<Array<{ id: string; name: string; unit: string }>>([]);
+  const [linkSearch, setLinkSearch] = useState('');
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -70,7 +120,7 @@ export default function DrinksPage() {
 
       let query = supabase
         .from('products')
-        .select('id, name, category, type, sale_price, cost, markup, margin, casa_id, casa:casas(name)');
+        .select('id, name, category, type, sale_price, cost, markup, margin, casa_id, linked_insumo_id, casa:casas(name), insumo:insumos!linked_insumo_id(id, name, unit)');
 
       if (casaId) {
         query = query.eq('casa_id', casaId);
@@ -99,6 +149,8 @@ export default function DrinksPage() {
         casa_id: p.casa_id,
         casa_name: p.casa?.name || '',
         recipe_id: recipeMap.get(p.id) || null,
+        linked_insumo_id: p.linked_insumo_id || null,
+        linked_insumo_name: p.insumo?.name || null,
       }));
 
       setProducts(mapped);
@@ -116,11 +168,24 @@ export default function DrinksPage() {
   }, [fetchProducts]);
 
   useEffect(() => {
+    supabase.from('insumos').select('id, name, unit').order('name').then(({ data }) => {
+      if (data) setAllInsumos(data);
+    });
+  }, []);
+
+  useEffect(() => {
     if (editingId && inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
     }
   }, [editingId]);
+
+  async function linkInsumo(productId: string, insumoId: string | null) {
+    await supabase.from('products').update({ linked_insumo_id: insumoId }).eq('id', productId);
+    setLinkModalProduct(null);
+    setLinkSearch('');
+    fetchProducts();
+  }
 
   const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort();
 
@@ -331,6 +396,7 @@ export default function DrinksPage() {
                     </div>
                   </th>
                 ))}
+                <th className="px-4 py-3 font-semibold text-gray-600 text-left">Insumo Vinculado</th>
               </tr>
             </thead>
             <tbody>
@@ -350,7 +416,13 @@ export default function DrinksPage() {
                       </Link>
                     ) : null}
                   </td>
-                  <td className="px-4 py-3 font-medium text-gray-900">{product.name}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900">
+                    <InlineNameEdit
+                      productId={product.id}
+                      initial={product.name}
+                      onSaved={() => fetchProducts()}
+                    />
+                  </td>
                   <td className="px-4 py-3">
                     <span className={`text-xs px-2 py-0.5 rounded font-medium ${casaBgColor(product.casa_name)}`}>
                       {product.casa_name}
@@ -420,11 +492,34 @@ export default function DrinksPage() {
                       {formatNumber(product.markup, 1)}x
                     </span>
                   </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => setLinkModalProduct(product)}
+                      className={`inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded transition-colors ${
+                        product.linked_insumo_id
+                          ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                          : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-dashed border-gray-300'
+                      }`}
+                      title={product.linked_insumo_id ? 'Trocar insumo vinculado' : 'Vincular a um insumo'}
+                    >
+                      {product.linked_insumo_id ? (
+                        <>
+                          <Link2 size={12} />
+                          <span className="max-w-[150px] truncate">{product.linked_insumo_name}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Link2 size={12} />
+                          Vincular
+                        </>
+                      )}
+                    </button>
+                  </td>
                 </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-4 py-12 text-center">
+                  <td colSpan={10} className="px-4 py-12 text-center">
                     <PackageOpen size={40} className="mx-auto text-gray-300 mb-3" />
                     <p className="text-gray-500 font-medium">Nenhum produto encontrado</p>
                     <p className="text-gray-400 text-xs mt-1">Tente ajustar os filtros de busca</p>
@@ -440,6 +535,68 @@ export default function DrinksPage() {
           </div>
         )}
       </div>
+
+      {linkModalProduct && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-md w-full max-h-[80vh] flex flex-col">
+            <div className="p-4 border-b">
+              <h3 className="font-semibold text-gray-900">Vincular Insumo</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                Produto: <span className="font-medium">{linkModalProduct.name}</span>
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Quando este produto for vendido, o estoque do insumo vinculado será deduzido.
+              </p>
+            </div>
+            <div className="p-4 border-b">
+              <input
+                type="text"
+                placeholder="Buscar insumo..."
+                value={linkSearch}
+                onChange={(e) => setLinkSearch(e.target.value)}
+                autoFocus
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+              />
+            </div>
+            <div className="flex-1 overflow-y-auto p-2">
+              {linkModalProduct.linked_insumo_id && (
+                <button
+                  onClick={() => linkInsumo(linkModalProduct.id, null)}
+                  className="w-full text-left px-3 py-2 mb-2 rounded-lg text-sm bg-red-50 text-red-700 hover:bg-red-100 flex items-center gap-2"
+                >
+                  <Unlink size={14} />
+                  Remover vínculo atual ({linkModalProduct.linked_insumo_name})
+                </button>
+              )}
+              {allInsumos
+                .filter((i) => !linkSearch || i.name.toLowerCase().includes(linkSearch.toLowerCase()))
+                .slice(0, 50)
+                .map((insumo) => (
+                  <button
+                    key={insumo.id}
+                    onClick={() => linkInsumo(linkModalProduct.id, insumo.id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${
+                      linkModalProduct.linked_insumo_id === insumo.id
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'hover:bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    <span>{insumo.name}</span>
+                    <span className="text-xs text-gray-400">{insumo.unit}</span>
+                  </button>
+                ))}
+            </div>
+            <div className="p-3 border-t bg-gray-50 flex justify-end">
+              <button
+                onClick={() => { setLinkModalProduct(null); setLinkSearch(''); }}
+                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-lg"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </LoadingState>
   );
