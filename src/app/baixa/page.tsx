@@ -58,7 +58,7 @@ export default function BaixaPage() {
   const [rows, setRows] = useState<PreviewRow[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [importing, setImporting] = useState(false);
-  const [importResult, setImportResult] = useState<{ matched: number; ignored: number; totalValue: number; totalItems: number } | null>(null);
+  const [importResult, setImportResult] = useState<{ matched: number; ignored: number; totalValue: number; totalItems: number; learnedAliases: number } | null>(null);
   const [history, setHistory] = useState<ImportHistory[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [clearAllConfirm, setClearAllConfirm] = useState(false);
@@ -124,6 +124,15 @@ export default function BaixaPage() {
       }));
       setProducts(allProducts);
 
+      // Fetch learned aliases
+      const { data: aliasesData } = await supabase
+        .from('product_aliases')
+        .select('alias, product_id');
+      const aliasMap = new Map<string, string>();
+      (aliasesData || []).forEach((a: { alias: string; product_id: string }) => {
+        aliasMap.set(a.alias.toUpperCase().trim(), a.product_id);
+      });
+
       const normalize = (s: string) =>
         s
           .normalize('NFD')
@@ -182,12 +191,29 @@ export default function BaixaPage() {
           const value = Number(row['valor'] || row['Valor'] || row['VALOR'] || row['value'] || 0);
           const ticketMedio = Number(row['ticket_medio'] || row['Ticket Medio'] || row['TICKET_MEDIO'] || 0);
 
-          // Try exact first
-          const exact = exactMap.get(productName.toUpperCase().trim());
-          let matched: { id: string; name: string } | null = exact || null;
-          let status: PreviewRow['status'] = exact ? 'matched' : 'unmatched';
+          // 1. Try learned alias first (from previous manual mappings)
+          const aliasProductId = aliasMap.get(productName.toUpperCase().trim());
+          let matched: { id: string; name: string } | null = null;
+          let status: PreviewRow['status'] = 'unmatched';
 
-          // Try fuzzy if no exact
+          if (aliasProductId) {
+            const aliasProduct = allProducts.find((p) => p.id === aliasProductId);
+            if (aliasProduct) {
+              matched = { id: aliasProduct.id, name: aliasProduct.name };
+              status = 'matched';
+            }
+          }
+
+          // 2. Try exact match
+          if (!matched) {
+            const exact = exactMap.get(productName.toUpperCase().trim());
+            if (exact) {
+              matched = exact;
+              status = 'matched';
+            }
+          }
+
+          // 3. Try fuzzy if no exact
           if (!matched) {
             const fuzzy = fuzzyMatch(productName);
             if (fuzzy) {
@@ -264,6 +290,22 @@ export default function BaixaPage() {
       if (!casa) throw new Error('Casa não encontrada');
 
       const toImport = rows.filter((r) => r.status === 'matched' && r.matchedProductId);
+
+      // Save aliases for non-exact matches so future imports auto-identify
+      const aliasesToSave = toImport
+        .filter((r) => {
+          const exact = r.matchedProductName?.toUpperCase().trim() === r.originalName.toUpperCase().trim();
+          return !exact && r.matchedProductId && r.originalName;
+        })
+        .map((r) => ({
+          alias: r.originalName.trim(),
+          product_id: r.matchedProductId!,
+        }));
+
+      if (aliasesToSave.length > 0) {
+        // Use upsert with onConflict on alias unique constraint
+        await supabase.from('product_aliases').upsert(aliasesToSave, { onConflict: 'alias' });
+      }
 
       const totalValue = toImport.reduce((s, r) => s + r.value, 0);
       const totalItems = toImport.reduce((s, r) => s + r.quantity, 0);
@@ -375,7 +417,7 @@ export default function BaixaPage() {
 
       const ignored = rows.filter((r) => r.status === 'unmatched' || r.status === 'ignored').length;
 
-      setImportResult({ matched: toImport.length, ignored, totalValue, totalItems });
+      setImportResult({ matched: toImport.length, ignored, totalValue, totalItems, learnedAliases: aliasesToSave.length });
       setStep('done');
       fetchHistory();
     } catch (err) {
@@ -751,6 +793,11 @@ export default function BaixaPage() {
             <p className="text-sm text-gray-600 mb-6">
               {importResult.matched} produtos importados | {importResult.totalItems} unidades | {formatCurrency(importResult.totalValue)}
               {importResult.ignored > 0 && <span className="block text-amber-600 text-xs mt-1">{importResult.ignored} linhas ignoradas</span>}
+              {importResult.learnedAliases > 0 && (
+                <span className="block text-blue-600 text-xs mt-1">
+                  🧠 {importResult.learnedAliases} {importResult.learnedAliases === 1 ? 'novo apelido aprendido' : 'novos apelidos aprendidos'} - proximas importacoes vao reconhecer automaticamente
+                </span>
+              )}
             </p>
             <button
               onClick={resetUpload}
