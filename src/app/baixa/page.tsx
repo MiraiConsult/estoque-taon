@@ -49,6 +49,76 @@ interface ImportHistory {
   created_at: string;
 }
 
+type ProductMeta = { linked_insumo_id: string | null; unit_conversion: number };
+type ComponentEntry = { component_product_id: string; quantity: number };
+
+/**
+ * Aplica a baixa/estorno de estoque de um produto vendido, tratando combos.
+ * Se o produto for um combo (tem componentes), desce recursivamente nos componentes.
+ * Senao, desconta do insumo vinculado (se houver) ou do proprio estoque do produto.
+ * sign = -1 para baixa (venda), +1 para estorno (deletar importacao).
+ */
+async function applyStockDelta(
+  casaId: string,
+  productId: string,
+  units: number,
+  sign: number,
+  productMap: Map<string, ProductMeta>,
+  componentsByProduct: Map<string, ComponentEntry[]>,
+  depth = 0
+): Promise<void> {
+  if (depth > 5) return; // protecao contra ciclos
+  const components = componentsByProduct.get(productId);
+  if (components && components.length > 0) {
+    for (const c of components) {
+      await applyStockDelta(
+        casaId,
+        c.component_product_id,
+        units * c.quantity,
+        sign,
+        productMap,
+        componentsByProduct,
+        depth + 1
+      );
+    }
+    return;
+  }
+
+  const meta = productMap.get(productId);
+  const linkedInsumoId = meta?.linked_insumo_id || null;
+  const conversion = meta?.unit_conversion || 1;
+
+  if (linkedInsumoId) {
+    const delta = sign * units * conversion;
+    const { data: si } = await supabase
+      .from('stock_items')
+      .select('id, quantity')
+      .eq('casa_id', casaId)
+      .eq('insumo_id', linkedInsumoId)
+      .maybeSingle();
+    if (si) {
+      await supabase
+        .from('stock_items')
+        .update({ quantity: Math.max(0, Number(si.quantity) + delta), updated_at: new Date().toISOString() })
+        .eq('id', si.id);
+    }
+  } else {
+    const delta = sign * units;
+    const { data: si } = await supabase
+      .from('stock_items')
+      .select('id, quantity')
+      .eq('casa_id', casaId)
+      .eq('product_id', productId)
+      .maybeSingle();
+    if (si) {
+      await supabase
+        .from('stock_items')
+        .update({ quantity: Math.max(0, Number(si.quantity) + delta), updated_at: new Date().toISOString() })
+        .eq('id', si.id);
+    }
+  }
+}
+
 export default function BaixaPage() {
   const [step, setStep] = useState<Step>('upload');
   const [selectedCasa, setSelectedCasa] = useState('Isla');
@@ -287,7 +357,7 @@ export default function BaixaPage() {
 
     try {
       const { data: casa } = await supabase.from('casas').select('id').eq('name', selectedCasa).single();
-      if (!casa) throw new Error('Casa não encontrada');
+      if (!casa) throw new Error('Casa nao encontrada');
 
       const toImport = rows.filter((r) => r.status === 'matched' && r.matchedProductId);
 
@@ -324,7 +394,7 @@ export default function BaixaPage() {
         .select('id')
         .single();
 
-      if (impErr || !importRecord) throw new Error(impErr?.message || 'Falha ao criar importação');
+      if (impErr || !importRecord) throw new Error(impErr?.message || 'Falha ao criar importacao');
 
       const importId = importRecord.id;
 
@@ -342,31 +412,24 @@ export default function BaixaPage() {
 
       await supabase.from('sales').insert(salesRecords);
 
+      // Build product metadata + combo component maps for cascading deduction
+      const { data: componentsData } = await supabase
+        .from('product_components')
+        .select('product_id, component_product_id, quantity');
+      const componentsByProduct = new Map<string, ComponentEntry[]>();
+      (componentsData || []).forEach((c: { product_id: string; component_product_id: string; quantity: number }) => {
+        const arr = componentsByProduct.get(c.product_id) || [];
+        arr.push({ component_product_id: c.component_product_id, quantity: Number(c.quantity) });
+        componentsByProduct.set(c.product_id, arr);
+      });
+      const productMap = new Map<string, ProductMeta>(
+        products.map((p) => [p.id, { linked_insumo_id: p.linked_insumo_id, unit_conversion: p.unit_conversion }])
+      );
+
       // Update stock + create movements
       for (const r of toImport) {
-        const product = products.find((p) => p.id === r.matchedProductId);
-        const useInsumoStock = product?.linked_insumo_id;
-        const conversion = product?.unit_conversion || 1;
-
-        // If product is linked to an insumo, deduct from insumo stock instead of product stock
-        const stockQuery = supabase
-          .from('stock_items')
-          .select('id, quantity')
-          .eq('casa_id', casa.id);
-
-        const { data: stockItem } = useInsumoStock
-          ? await stockQuery.eq('insumo_id', useInsumoStock).maybeSingle()
-          : await stockQuery.eq('product_id', r.matchedProductId!).maybeSingle();
-
-        if (stockItem) {
-          await supabase
-            .from('stock_items')
-            .update({
-              quantity: Math.max(0, stockItem.quantity - (r.quantity * conversion)),
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', stockItem.id);
-        }
+        // Baixa em cascata (trata combos -> componentes -> insumo/produto)
+        await applyStockDelta(casa.id, r.matchedProductId!, r.quantity, -1, productMap, componentsByProduct);
 
         // Recipe ingredients deduction
         const { data: recipe } = await supabase
@@ -432,34 +495,33 @@ export default function BaixaPage() {
       // Get all sales from this import to reverse stock
       const { data: sales } = await supabase
         .from('sales')
-        .select('product_id, quantity, casa_id, product:products(linked_insumo_id, unit_conversion)')
+        .select('product_id, quantity, casa_id')
         .eq('import_id', importId);
 
-      if (sales) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        for (const sale of (sales as any[])) {
-          const linkedInsumoId = sale.product?.linked_insumo_id;
-          const conversion = Number(sale.product?.unit_conversion) || 1;
-          const reverseQty = sale.quantity * conversion;
+      if (sales && sales.length > 0) {
+        // Build fresh product metadata + component maps
+        const { data: allProducts } = await supabase
+          .from('products')
+          .select('id, linked_insumo_id, unit_conversion');
+        const productMap = new Map<string, ProductMeta>(
+          (allProducts || []).map((p: { id: string; linked_insumo_id: string | null; unit_conversion: number }) => [
+            p.id,
+            { linked_insumo_id: p.linked_insumo_id || null, unit_conversion: Number(p.unit_conversion) || 1 },
+          ])
+        );
+        const { data: componentsData } = await supabase
+          .from('product_components')
+          .select('product_id, component_product_id, quantity');
+        const componentsByProduct = new Map<string, ComponentEntry[]>();
+        (componentsData || []).forEach((c: { product_id: string; component_product_id: string; quantity: number }) => {
+          const arr = componentsByProduct.get(c.product_id) || [];
+          arr.push({ component_product_id: c.component_product_id, quantity: Number(c.quantity) });
+          componentsByProduct.set(c.product_id, arr);
+        });
 
-          // Reverse stock (insumo if linked, otherwise product)
-          const baseQuery = supabase
-            .from('stock_items')
-            .select('id, quantity')
-            .eq('casa_id', sale.casa_id);
-          const { data: stockItem } = linkedInsumoId
-            ? await baseQuery.eq('insumo_id', linkedInsumoId).maybeSingle()
-            : await baseQuery.eq('product_id', sale.product_id).maybeSingle();
-
-          if (stockItem) {
-            await supabase
-              .from('stock_items')
-              .update({
-                quantity: stockItem.quantity + reverseQty,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('id', stockItem.id);
-          }
+        for (const sale of sales) {
+          // Estorno em cascata (trata combos)
+          await applyStockDelta(sale.casa_id, sale.product_id, sale.quantity, +1, productMap, componentsByProduct);
 
           // Reverse recipe ingredients
           const { data: recipe } = await supabase
@@ -616,7 +678,7 @@ export default function BaixaPage() {
               </div>
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
                 <p className="text-2xl font-bold text-amber-700">{unmatchedCount}</p>
-                <p className="text-xs text-amber-600">Não Identificados</p>
+                <p className="text-xs text-amber-600">Nao Identificados</p>
               </div>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
                 <p className="text-2xl font-bold text-gray-700">{ignoredCount}</p>
@@ -631,7 +693,7 @@ export default function BaixaPage() {
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-semibold text-amber-700 flex items-center gap-2">
                   <AlertCircle size={18} />
-                  Produtos que precisam de atenção
+                  Produtos que precisam de atencao
                 </h4>
                 <div className="relative">
                   <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -645,8 +707,8 @@ export default function BaixaPage() {
                 </div>
               </div>
               <p className="text-xs text-gray-500 mb-3">
-                <span className="text-yellow-700 font-medium">Similares</span>: o sistema encontrou um produto parecido - confirme se está correto.{' '}
-                <span className="text-amber-700 font-medium">Não Identificados</span>: selecione um produto manualmente ou ignore.
+                <span className="text-yellow-700 font-medium">Similares</span>: o sistema encontrou um produto parecido - confirme se esta correto.{' '}
+                <span className="text-amber-700 font-medium">Nao Identificados</span>: selecione um produto manualmente ou ignore.
               </p>
               <div className="overflow-x-auto max-h-96 overflow-y-auto border rounded-lg">
                 <table className="w-full text-sm">
@@ -795,7 +857,7 @@ export default function BaixaPage() {
               {importResult.ignored > 0 && <span className="block text-amber-600 text-xs mt-1">{importResult.ignored} linhas ignoradas</span>}
               {importResult.learnedAliases > 0 && (
                 <span className="block text-blue-600 text-xs mt-1">
-                  🧠 {importResult.learnedAliases} {importResult.learnedAliases === 1 ? 'novo apelido aprendido' : 'novos apelidos aprendidos'} - proximas importacoes vao reconhecer automaticamente
+                  {importResult.learnedAliases} {importResult.learnedAliases === 1 ? 'novo apelido aprendido' : 'novos apelidos aprendidos'} - proximas importacoes vao reconhecer automaticamente
                 </span>
               )}
             </p>
