@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { formatCurrency, formatNumber } from '@/lib/format';
+import { formatCurrency, formatNumber, casaBgColor } from '@/lib/format';
 import StatCard from '@/components/StatCard';
+import CasaFilter from '@/components/CasaFilter';
 import LoadingState from '@/components/LoadingState';
 import { exportToExcel } from '@/lib/exportExcel';
 import {
@@ -26,6 +27,8 @@ interface Insumo {
   package_price: number;
   unit_cost: number;
   minimum: number;
+  casa_id: string | null;
+  casa_name: string;
   created_at: string;
 }
 
@@ -36,6 +39,7 @@ interface InsumoForm {
   package_qty: string;
   package_price: string;
   minimum: string;
+  casa_id: string;
 }
 
 const emptyForm: InsumoForm = {
@@ -45,10 +49,13 @@ const emptyForm: InsumoForm = {
   package_qty: '',
   package_price: '',
   minimum: '0',
+  casa_id: '',
 };
 
 export default function InsumosPage() {
   const [insumos, setInsumos] = useState<Insumo[]>([]);
+  const [casas, setCasas] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedCasa, setSelectedCasa] = useState('all');
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -62,19 +69,26 @@ export default function InsumosPage() {
     setLoading(true);
     setFetchError(null);
     try {
-      const { data, error } = await supabase
-        .from('insumos')
-        .select('*')
-        .order('name', { ascending: true });
+      const [insumosRes, casasRes] = await Promise.all([
+        supabase
+          .from('insumos')
+          .select('*, casa:casas(id, name)')
+          .order('name', { ascending: true }),
+        supabase.from('casas').select('id, name').order('name'),
+      ]);
 
-      if (!error && data) {
+      if (insumosRes.data) {
         setInsumos(
-          data.map((i: Record<string, unknown>) => ({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (insumosRes.data as any[]).map((i) => ({
             ...i,
             minimum: Number(i.minimum) || 0,
+            casa_id: i.casa_id || null,
+            casa_name: i.casa?.name || '',
           })) as Insumo[]
         );
       }
+      if (casasRes.data) setCasas(casasRes.data);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error('Fetch error:', msg);
@@ -88,10 +102,12 @@ export default function InsumosPage() {
     fetchInsumos();
   }, [fetchInsumos]);
 
-  const filteredInsumos = insumos.filter((insumo) =>
-    insumo.name.toLowerCase().includes(search.toLowerCase()) ||
-    insumo.code.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredInsumos = insumos.filter((insumo) => {
+    if (selectedCasa !== 'all' && insumo.casa_name !== selectedCasa) return false;
+    const s = search.toLowerCase();
+    if (!s) return true;
+    return insumo.name.toLowerCase().includes(s) || insumo.code.toLowerCase().includes(s);
+  });
 
   const totalInsumos = insumos.length;
   const avgUnitCost =
@@ -134,6 +150,7 @@ export default function InsumosPage() {
       package_qty: String(insumo.package_qty),
       package_price: String(insumo.package_price),
       minimum: String(insumo.minimum),
+      casa_id: insumo.casa_id || '',
     });
     setShowModal(true);
   };
@@ -166,6 +183,7 @@ export default function InsumosPage() {
       package_price: packagePrice,
       unit_cost: unitCost,
       minimum: Number(form.minimum) || 0,
+      casa_id: form.casa_id || null,
     };
 
     if (editingId) {
@@ -194,13 +212,15 @@ export default function InsumosPage() {
           <h1 className="text-xl font-bold text-gray-900">Insumos</h1>
           <p className="text-sm text-gray-500">Gerenciamento de ingredientes e suprimentos</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center flex-wrap">
+          <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} />
           <button
             onClick={() => {
               exportToExcel('insumos', {
-                Insumos: insumos.map((i) => ({
+                Insumos: filteredInsumos.map((i) => ({
                   Codigo: i.code,
                   Nome: i.name,
+                  Casa: i.casa_name,
                   Unidade: i.unit,
                   'Qtd Embalagem': i.package_qty,
                   'Preco Embalagem (R$)': i.package_price,
@@ -267,6 +287,7 @@ export default function InsumosPage() {
               <tr className="text-left text-gray-500 border-b">
                 <th className="pb-3 font-medium">Codigo</th>
                 <th className="pb-3 font-medium">Nome</th>
+                <th className="pb-3 font-medium text-center">Casa</th>
                 <th className="pb-3 font-medium">Unidade</th>
                 <th className="pb-3 font-medium text-right">Qtd Embalagem</th>
                 <th className="pb-3 font-medium text-right">Preco Embalagem (R$)</th>
@@ -288,6 +309,15 @@ export default function InsumosPage() {
                     </span>
                   </td>
                   <td className="py-3 font-medium text-gray-900">{insumo.name}</td>
+                  <td className="py-3 text-center">
+                    {insumo.casa_name ? (
+                      <span className={`text-xs px-2 py-0.5 rounded ${casaBgColor(insumo.casa_name)}`}>
+                        {insumo.casa_name}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">-</span>
+                    )}
+                  </td>
                   <td className="py-3 text-gray-600">{insumo.unit}</td>
                   <td className="py-3 text-right text-gray-600">
                     {formatNumber(insumo.package_qty)}
@@ -340,7 +370,7 @@ export default function InsumosPage() {
               ))}
               {filteredInsumos.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-gray-500">
+                  <td colSpan={9} className="py-12 text-center text-gray-500">
                     {search
                       ? 'Nenhum insumo encontrado com esse termo'
                       : 'Nenhum insumo cadastrado'}
@@ -462,6 +492,23 @@ export default function InsumosPage() {
                   placeholder="0"
                   className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                 />
+              </div>
+
+              {/* Casa */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Casa
+                </label>
+                <select
+                  value={form.casa_id}
+                  onChange={(e) => setForm({ ...form, casa_id: e.target.value })}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent bg-white"
+                >
+                  <option value="">Sem casa (compartilhado)</option>
+                  {casas.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
               </div>
 
               {/* Calculated Unit Cost */}
