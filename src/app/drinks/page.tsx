@@ -23,6 +23,9 @@ import {
   Link2,
   Unlink,
   Download,
+  Boxes,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 import { exportToExcel } from '@/lib/exportExcel';
 
@@ -40,6 +43,14 @@ interface Product {
   recipe_id: string | null;
   linked_insumo_id: string | null;
   linked_insumo_name: string | null;
+  component_count: number;
+}
+
+interface ComboComponent {
+  id: string;
+  component_product_id: string;
+  component_name: string;
+  quantity: number;
 }
 
 type SortField = 'name' | 'casa_name' | 'category' | 'type' | 'sale_price' | 'cost' | 'margin' | 'markup';
@@ -105,6 +116,11 @@ export default function DrinksPage() {
   const [linkModalProduct, setLinkModalProduct] = useState<Product | null>(null);
   const [allInsumos, setAllInsumos] = useState<Array<{ id: string; name: string; unit: string }>>([]);
   const [linkSearch, setLinkSearch] = useState('');
+  const [comboModalProduct, setComboModalProduct] = useState<Product | null>(null);
+  const [comboComponents, setComboComponents] = useState<ComboComponent[]>([]);
+  const [comboSearch, setComboSearch] = useState('');
+  const [comboAddQty, setComboAddQty] = useState('1');
+  const [comboBusy, setComboBusy] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -138,6 +154,12 @@ export default function DrinksPage() {
       const { data: recipes } = await supabase.from('drink_recipes').select('id, product_id');
       const recipeMap = new Map((recipes || []).map(r => [r.product_id, r.id]));
 
+      const { data: comps } = await supabase.from('product_components').select('product_id');
+      const comboCount = new Map<string, number>();
+      (comps || []).forEach((c: { product_id: string }) => {
+        comboCount.set(c.product_id, (comboCount.get(c.product_id) || 0) + 1);
+      });
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mapped = ((data || []) as any[]).map((p: any) => ({
         id: p.id,
@@ -153,6 +175,7 @@ export default function DrinksPage() {
         recipe_id: recipeMap.get(p.id) || null,
         linked_insumo_id: p.linked_insumo_id || null,
         linked_insumo_name: p.insumo?.name || null,
+        component_count: comboCount.get(p.id) || 0,
       }));
 
       setProducts(mapped);
@@ -186,6 +209,45 @@ export default function DrinksPage() {
     await supabase.from('products').update({ linked_insumo_id: insumoId }).eq('id', productId);
     setLinkModalProduct(null);
     setLinkSearch('');
+    fetchProducts();
+  }
+
+  async function openComboModal(product: Product) {
+    setComboModalProduct(product);
+    setComboSearch('');
+    setComboAddQty('1');
+    const { data } = await supabase
+      .from('product_components')
+      .select('id, quantity, component_product_id, component:products!component_product_id(name)')
+      .eq('product_id', product.id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setComboComponents(((data || []) as any[]).map((c) => ({
+      id: c.id,
+      component_product_id: c.component_product_id,
+      component_name: c.component?.name || '',
+      quantity: Number(c.quantity),
+    })));
+  }
+
+  async function addComboComponent(componentId: string) {
+    if (!comboModalProduct) return;
+    const qty = Number(comboAddQty) || 1;
+    setComboBusy(true);
+    await supabase.from('product_components').upsert(
+      { product_id: comboModalProduct.id, component_product_id: componentId, quantity: qty },
+      { onConflict: 'product_id,component_product_id' }
+    );
+    setComboBusy(false);
+    setComboSearch('');
+    setComboAddQty('1');
+    openComboModal(comboModalProduct);
+    fetchProducts();
+  }
+
+  async function removeComboComponent(rowId: string) {
+    if (!comboModalProduct) return;
+    await supabase.from('product_components').delete().eq('id', rowId);
+    openComboModal(comboModalProduct);
     fetchProducts();
   }
 
@@ -518,27 +580,36 @@ export default function DrinksPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => setLinkModalProduct(product)}
-                      className={`inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded transition-colors ${
-                        product.linked_insumo_id
-                          ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-                          : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-dashed border-gray-300'
-                      }`}
-                      title={product.linked_insumo_id ? 'Trocar insumo vinculado' : 'Vincular a um insumo'}
-                    >
-                      {product.linked_insumo_id ? (
-                        <>
-                          <Link2 size={12} />
-                          <span className="max-w-[150px] truncate">{product.linked_insumo_name}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Link2 size={12} />
-                          Vincular
-                        </>
+                    <div className="flex flex-col gap-1 items-start">
+                      <button
+                        onClick={() => setLinkModalProduct(product)}
+                        className={`inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded transition-colors ${
+                          product.linked_insumo_id
+                            ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                            : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-dashed border-gray-300'
+                        }`}
+                        title={product.linked_insumo_id ? 'Trocar insumo vinculado' : 'Vincular a um insumo'}
+                      >
+                        <Link2 size={12} />
+                        <span className="max-w-[150px] truncate">
+                          {product.linked_insumo_id ? product.linked_insumo_name : 'Vincular'}
+                        </span>
+                      </button>
+                      {product.type === 'product' && (
+                        <button
+                          onClick={() => openComboModal(product)}
+                          className={`inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded transition-colors ${
+                            product.component_count > 0
+                              ? 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                              : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-dashed border-gray-300'
+                          }`}
+                          title="Definir combo (desconta componentes do estoque na venda)"
+                        >
+                          <Boxes size={12} />
+                          {product.component_count > 0 ? `Combo (${product.component_count})` : 'Combo'}
+                        </button>
                       )}
-                    </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -614,6 +685,110 @@ export default function DrinksPage() {
             <div className="p-3 border-t bg-gray-50 flex justify-end">
               <button
                 onClick={() => { setLinkModalProduct(null); setLinkSearch(''); }}
+                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-lg"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {comboModalProduct && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-lg w-full max-h-[85vh] flex flex-col">
+            <div className="p-4 border-b">
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                <Boxes size={18} className="text-amber-600" />
+                Combo: {comboModalProduct.name}
+              </h3>
+              <p className="text-xs text-gray-500 mt-1">
+                Ao vender este item, o estoque dos componentes abaixo é descontado automaticamente
+                (ex: 1 venda de &quot;Balde 5 Corona&quot; baixa 5 Coronas).
+              </p>
+            </div>
+
+            {/* Current components */}
+            <div className="p-4 border-b">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                Componentes ({comboComponents.length})
+              </p>
+              {comboComponents.length === 0 ? (
+                <p className="text-sm text-gray-400 py-2">Nenhum componente. Adicione abaixo.</p>
+              ) : (
+                <div className="space-y-1.5">
+                  {comboComponents.map((c) => (
+                    <div key={c.id} className="flex items-center justify-between bg-amber-50 rounded-lg px-3 py-2">
+                      <span className="text-sm text-gray-800">{c.component_name}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-semibold text-amber-700">x{c.quantity}</span>
+                        <button
+                          onClick={() => removeComboComponent(c.id)}
+                          className="text-gray-400 hover:text-red-600"
+                          title="Remover componente"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Add component */}
+            <div className="p-4 border-b bg-gray-50">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Adicionar componente</p>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="number"
+                  min="1"
+                  step="any"
+                  value={comboAddQty}
+                  onChange={(e) => setComboAddQty(e.target.value)}
+                  className="w-16 px-2 py-2 border border-gray-300 rounded-lg text-sm text-center"
+                  title="Quantidade"
+                />
+                <span className="text-sm text-gray-400">×</span>
+                <input
+                  type="text"
+                  placeholder="Buscar produto-base..."
+                  value={comboSearch}
+                  onChange={(e) => setComboSearch(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+            </div>
+
+            {/* Candidate products */}
+            <div className="flex-1 overflow-y-auto p-2 min-h-[120px]">
+              {products
+                .filter((p) =>
+                  p.id !== comboModalProduct.id &&
+                  p.casa_id === comboModalProduct.casa_id &&
+                  !comboComponents.some((c) => c.component_product_id === p.id) &&
+                  (!comboSearch || p.name.toLowerCase().includes(comboSearch.toLowerCase()))
+                )
+                .slice(0, 50)
+                .map((p) => (
+                  <button
+                    key={p.id}
+                    disabled={comboBusy}
+                    onClick={() => addComboComponent(p.id)}
+                    className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-amber-50 text-gray-700 flex items-center justify-between disabled:opacity-50"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Plus size={14} className="text-amber-600" />
+                      {p.name}
+                    </span>
+                    <span className="text-xs text-gray-400">{p.category}</span>
+                  </button>
+                ))}
+            </div>
+
+            <div className="p-3 border-t bg-gray-50 flex justify-end">
+              <button
+                onClick={() => { setComboModalProduct(null); setComboComponents([]); setComboSearch(''); }}
                 className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-lg"
               >
                 Fechar
