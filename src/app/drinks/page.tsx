@@ -121,6 +121,9 @@ export default function DrinksPage() {
   const [comboSearch, setComboSearch] = useState('');
   const [comboAddQty, setComboAddQty] = useState('1');
   const [comboBusy, setComboBusy] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [deleteSalesCount, setDeleteSalesCount] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -250,6 +253,43 @@ export default function DrinksPage() {
     openComboModal(comboModalProduct);
     fetchProducts();
   }
+
+  const openDeleteConfirm = async (product: Product) => {
+    setDeleteTarget(product);
+    setDeleteSalesCount(null);
+    const { count } = await supabase
+      .from('sales')
+      .select('id', { count: 'exact', head: true })
+      .eq('product_id', product.id);
+    setDeleteSalesCount(count ?? 0);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const id = deleteTarget.id;
+      // Remove dependências que bloqueiam a exclusão (FK sem cascade).
+      // drink_recipes -> recipe_ingredients, product_aliases e product_components caem em cascata.
+      await supabase.from('sales').delete().eq('product_id', id);
+      await supabase.from('stock_movements').delete().eq('product_id', id);
+      await supabase.from('transfers').delete().eq('product_id', id);
+      await supabase.from('stock_items').delete().eq('product_id', id);
+      // Este produto pode ser componente de um combo de outro produto.
+      await supabase.from('product_components').delete().eq('component_product_id', id);
+
+      const { error } = await supabase.from('products').delete().eq('id', id);
+      if (error) throw new Error(error.message);
+
+      setDeleteTarget(null);
+      setDeleteSalesCount(null);
+      fetchProducts();
+    } catch (err) {
+      alert(`Erro ao excluir: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort();
 
@@ -609,6 +649,14 @@ export default function DrinksPage() {
                           {product.component_count > 0 ? `Combo (${product.component_count})` : 'Combo'}
                         </button>
                       )}
+                      <button
+                        onClick={() => openDeleteConfirm(product)}
+                        className="inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded transition-colors bg-gray-50 text-red-500 hover:bg-red-50 border border-dashed border-red-200"
+                        title="Excluir este item"
+                      >
+                        <Trash2 size={12} />
+                        Excluir
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -792,6 +840,63 @@ export default function DrinksPage() {
                 className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 rounded-lg"
               >
                 Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center">
+                <Trash2 size={18} className="text-red-600" />
+              </div>
+              <h3 className="font-bold text-lg text-gray-900">Excluir {deleteTarget.type === 'drink' ? 'drink' : 'produto'}</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">
+              Tem certeza que deseja excluir <span className="font-semibold text-gray-900">{deleteTarget.name}</span>
+              {' '}({deleteTarget.casa_name})? Esta ação não pode ser desfeita.
+            </p>
+            <div className="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4 space-y-1">
+              <p>Também serão removidos: estoque, movimentos, receita/ficha técnica, apelidos de importação e vínculos de combo deste item.</p>
+              {deleteSalesCount === null ? (
+                <p className="text-gray-400">Verificando histórico de vendas...</p>
+              ) : deleteSalesCount > 0 ? (
+                <p className="text-red-600 font-medium">
+                  Atenção: {deleteSalesCount} {deleteSalesCount === 1 ? 'venda registrada' : 'vendas registradas'} deste produto também
+                  {' '}serão apagadas — isso afeta relatórios e análises passadas.
+                </p>
+              ) : (
+                <p className="text-emerald-600">Sem vendas registradas.</p>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setDeleteTarget(null); setDeleteSalesCount(null); }}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deleting || deleteSalesCount === null}
+                className="flex-1 bg-red-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    Excluindo...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} />
+                    Excluir definitivamente
+                  </>
+                )}
               </button>
             </div>
           </div>

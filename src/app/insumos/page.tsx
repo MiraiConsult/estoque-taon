@@ -64,6 +64,7 @@ export default function InsumosPage() {
   const [form, setForm] = useState<InsumoForm>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchInsumos = useCallback(async () => {
     setLoading(true);
@@ -198,9 +199,25 @@ export default function InsumosPage() {
   };
 
   const handleDelete = async (id: string) => {
-    await supabase.from('insumos').delete().eq('id', id);
-    setDeleteConfirm(null);
-    fetchInsumos();
+    setDeleting(true);
+    try {
+      // Remove dependências que bloqueiam a exclusão (FK sem cascade).
+      // products.linked_insumo_id é SET NULL automaticamente.
+      await supabase.from('recipe_ingredients').delete().eq('insumo_id', id);
+      await supabase.from('stock_movements').delete().eq('insumo_id', id);
+      await supabase.from('transfers').delete().eq('insumo_id', id);
+      await supabase.from('stock_items').delete().eq('insumo_id', id);
+
+      const { error } = await supabase.from('insumos').delete().eq('id', id);
+      if (error) throw new Error(error.message);
+
+      setDeleteConfirm(null);
+      fetchInsumos();
+    } catch (err) {
+      alert(`Erro ao excluir: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -344,13 +361,15 @@ export default function InsumosPage() {
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => handleDelete(insumo.id)}
-                            className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                            disabled={deleting}
+                            className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50"
                           >
-                            Confirmar
+                            {deleting ? 'Excluindo...' : 'Confirmar'}
                           </button>
                           <button
                             onClick={() => setDeleteConfirm(null)}
-                            className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                            disabled={deleting}
+                            className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors disabled:opacity-50"
                           >
                             Cancelar
                           </button>
