@@ -85,6 +85,10 @@ function EstoqueContent() {
   const [submitting, setSubmitting] = useState(false);
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  // Edição inline de quantidade na tabela
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editQty, setEditQty] = useState('');
+  const [savingId, setSavingId] = useState<string | null>(null);
 
   // Form state
   const [formCasaId, setFormCasaId] = useState('');
@@ -290,6 +294,32 @@ function EstoqueContent() {
     fetchData();
   };
 
+  // Ajuste rápido: edita a quantidade direto na linha e registra o movimento de ajuste.
+  const saveQuantity = async (item: StockItem) => {
+    const newQty = parseFloat(editQty.replace(',', '.'));
+    if (isNaN(newQty) || newQty < 0 || newQty === item.quantity) {
+      setEditingId(null);
+      return;
+    }
+    setSavingId(item.id);
+    const diff = newQty - item.quantity;
+    await supabase
+      .from('stock_items')
+      .update({ quantity: newQty, updated_at: new Date().toISOString() })
+      .eq('id', item.id);
+    await supabase.from('stock_movements').insert({
+      casa_id: item.casa_id,
+      product_id: item.product_id,
+      insumo_id: item.insumo_id,
+      movement_type: 'ajuste',
+      quantity: diff,
+      notes: 'Ajuste rápido na tabela de estoque',
+    });
+    setStockItems((prev) => prev.map((s) => (s.id === item.id ? { ...s, quantity: newQty } : s)));
+    setSavingId(null);
+    setEditingId(null);
+  };
+
   const SortHeader = ({ field, label, align }: { field: SortField; label: string; align?: string }) => (
     <th
       className={`px-4 py-3 font-medium cursor-pointer hover:text-gray-900 select-none whitespace-nowrap ${
@@ -395,7 +425,29 @@ function EstoqueContent() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center font-medium text-gray-900">
-                      {formatNumber(item.quantity)}
+                      {editingId === item.id ? (
+                        <input
+                          type="number"
+                          value={editQty}
+                          autoFocus
+                          disabled={savingId === item.id}
+                          onChange={(e) => setEditQty(e.target.value)}
+                          onBlur={() => saveQuantity(item)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveQuantity(item);
+                            if (e.key === 'Escape') setEditingId(null);
+                          }}
+                          className="w-20 px-2 py-1 border border-blue-400 rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        />
+                      ) : (
+                        <button
+                          onClick={() => { setEditingId(item.id); setEditQty(String(item.quantity)); }}
+                          className="hover:text-blue-700 hover:underline decoration-dashed underline-offset-2 transition-colors"
+                          title="Clique para ajustar a quantidade"
+                        >
+                          {formatNumber(item.quantity)}
+                        </button>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center text-gray-600">
                       {formatNumber(item.minimum)}
