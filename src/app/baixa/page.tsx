@@ -1068,26 +1068,38 @@ export default function BaixaPage() {
                 <CheckCircle size={18} />
                 Produtos identificados ({matchedCount})
               </h4>
-              <div className="overflow-x-auto max-h-60 overflow-y-auto border rounded-lg">
+              <p className="text-xs text-gray-500 mb-3">
+                Vinculou errado? Troque o produto, remova o vínculo (volta para &quot;precisam de atenção&quot;) ou cadastre outro direto na coluna abaixo.
+              </p>
+              <div className="overflow-x-auto max-h-72 overflow-y-auto border rounded-lg">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50 sticky top-0">
                     <tr>
-                      <th className="px-3 py-2 text-left font-medium text-gray-600">Produto</th>
+                      <th className="px-3 py-2 text-left font-medium text-gray-600">Nome na Planilha</th>
+                      <th className="px-3 py-2 text-left font-medium text-gray-600">Produto Vinculado</th>
                       <th className="px-3 py-2 text-right font-medium text-gray-600">Qtd</th>
                       <th className="px-3 py-2 text-right font-medium text-gray-600">Valor</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.filter((r) => r.status === 'matched').map((r, i) => {
-                      const product = products.find((p) => p.id === r.matchedProductId);
-                      return (
-                        <tr key={i} className="border-t">
-                          <td className="px-3 py-2 text-gray-900">{product?.name || r.originalName}</td>
+                    {rows
+                      .map((r, i) => ({ ...r, _idx: i }))
+                      .filter((r) => r.status === 'matched')
+                      .map((r) => (
+                        <tr key={r._idx} className="border-t">
+                          <td className="px-3 py-2 text-gray-700">{r.originalName}</td>
+                          <td className="px-3 py-2 min-w-[200px]">
+                            <ProductCombobox
+                              products={products}
+                              value={r.matchedProductId}
+                              onSelect={(productId) => updateRowMatch(r._idx, productId)}
+                              onCreateNew={(searchText) => openNewProduct(r._idx, searchText)}
+                            />
+                          </td>
                           <td className="px-3 py-2 text-right text-gray-700">{r.quantity}</td>
                           <td className="px-3 py-2 text-right text-gray-700">{formatCurrency(r.value)}</td>
                         </tr>
-                      );
-                    })}
+                      ))}
                   </tbody>
                 </table>
               </div>
