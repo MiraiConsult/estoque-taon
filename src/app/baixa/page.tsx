@@ -17,6 +17,7 @@ import {
   Eraser,
   Plus,
   ChevronDown,
+  RotateCcw,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
@@ -215,6 +216,7 @@ interface ImportHistory {
   total_items: number;
   total_value: number;
   created_at: string;
+  pending_count: number;
 }
 
 type ProductMeta = { linked_insumo_id: string | null; unit_conversion: number };
@@ -287,6 +289,118 @@ async function applyStockDelta(
   }
 }
 
+type RawRow = { originalName: string; quantity: number; value: number; ticketMedio: number };
+
+/** Carrega os produtos de uma casa + o mapa de apelidos aprendidos. */
+async function loadCasaCatalog(casaName: string): Promise<{ casaId: string | null; products: Product[]; aliasMap: Map<string, string> }> {
+  const { data: casaRow } = await supabase.from('casas').select('id').eq('name', casaName).single();
+  let productsQuery = supabase
+    .from('products')
+    .select('id, name, category, cost, linked_insumo_id, unit_conversion');
+  if (casaRow) productsQuery = productsQuery.eq('casa_id', casaRow.id);
+  const { data: productsData } = await productsQuery;
+  const products: Product[] = (productsData || []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    category: p.category || '',
+    cost: Number(p.cost),
+    linked_insumo_id: p.linked_insumo_id || null,
+    unit_conversion: Number(p.unit_conversion) || 1,
+  }));
+
+  const { data: aliasesData } = await supabase.from('product_aliases').select('alias, product_id');
+  const aliasMap = new Map<string, string>();
+  (aliasesData || []).forEach((a: { alias: string; product_id: string }) => {
+    aliasMap.set(a.alias.toUpperCase().trim(), a.product_id);
+  });
+
+  return { casaId: casaRow?.id ?? null, products, aliasMap };
+}
+
+/** Casa linhas cruas (arquivo ou pendências) contra o catálogo, via apelido, exato e fuzzy. */
+function matchRawRows(raw: RawRow[], allProducts: Product[], aliasMap: Map<string, string>): PreviewRow[] {
+  const normalize = (s: string) =>
+    s
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/\s*\([^)]*\)\s*/g, ' ')
+      .replace(/['`']/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+
+  const exactMap = new Map<string, { id: string; name: string }>();
+  const normMap = new Map<string, { id: string; name: string }>();
+  allProducts.forEach((p) => {
+    exactMap.set(p.name.toUpperCase().trim(), { id: p.id, name: p.name });
+    normMap.set(normalize(p.name), { id: p.id, name: p.name });
+  });
+
+  const fuzzyMatch = (search: string): { id: string; name: string } | null => {
+    const normSearch = normalize(search);
+    if (!normSearch) return null;
+    const direct = normMap.get(normSearch);
+    if (direct) return direct;
+    let best: { id: string; name: string; score: number } | null = null;
+    for (const [normName, p] of normMap) {
+      if (normName.length < 3) continue;
+      let score = 0;
+      if (normName === normSearch) score = 100;
+      else if (normName.includes(normSearch) || normSearch.includes(normName)) {
+        score = (Math.min(normName.length, normSearch.length) / Math.max(normName.length, normSearch.length)) * 80;
+      } else {
+        const w1 = new Set(normSearch.split(' ').filter((x) => x.length > 2));
+        const w2 = new Set(normName.split(' ').filter((x) => x.length > 2));
+        const common = [...w1].filter((w) => w2.has(w)).length;
+        if (common > 0 && w1.size > 0 && w2.size > 0) score = (common / Math.max(w1.size, w2.size)) * 60;
+      }
+      if (score >= 50 && (!best || score > best.score)) best = { ...p, score };
+    }
+    return best;
+  };
+
+  return raw
+    .map((rr) => {
+      const productName = rr.originalName;
+      const aliasProductId = aliasMap.get(productName.toUpperCase().trim());
+      let matched: { id: string; name: string } | null = null;
+      let status: PreviewRow['status'] = 'unmatched';
+
+      if (aliasProductId) {
+        const aliasProduct = allProducts.find((p) => p.id === aliasProductId);
+        if (aliasProduct) {
+          matched = { id: aliasProduct.id, name: aliasProduct.name };
+          status = 'matched';
+        }
+      }
+      if (!matched) {
+        const exact = exactMap.get(productName.toUpperCase().trim());
+        if (exact) {
+          matched = exact;
+          status = 'matched';
+        }
+      }
+      if (!matched) {
+        const fuzzy = fuzzyMatch(productName);
+        if (fuzzy) {
+          matched = fuzzy;
+          status = 'fuzzy';
+        }
+      }
+
+      return {
+        originalName: productName,
+        quantity: rr.quantity,
+        value: rr.value,
+        ticketMedio: rr.ticketMedio || (rr.quantity > 0 ? rr.value / rr.quantity : 0),
+        matchedProductId: matched?.id || null,
+        matchedProductName: matched?.name || null,
+        status,
+      };
+    })
+    .filter((r) => r.originalName && r.quantity > 0);
+}
+
 export default function BaixaPage() {
   const [step, setStep] = useState<Step>('upload');
   const [selectedCasa, setSelectedCasa] = useState('Isla');
@@ -303,13 +417,14 @@ export default function BaixaPage() {
   const [searchUnmatched, setSearchUnmatched] = useState('');
   const [newProduct, setNewProduct] = useState<NewProductForm | null>(null);
   const [savingProduct, setSavingProduct] = useState(false);
+  const [resumeImportId, setResumeImportId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchHistory = useCallback(async () => {
     try {
       const { data } = await supabase
         .from('sale_imports')
-        .select('*, casa:casas(name)')
+        .select('*, casa:casas(name), pending:sale_import_pending(count)')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -325,6 +440,7 @@ export default function BaixaPage() {
             total_items: d.total_items,
             total_value: d.total_value,
             created_at: d.created_at,
+            pending_count: d.pending?.[0]?.count ?? 0,
           }))
         );
       }
@@ -351,137 +467,64 @@ export default function BaixaPage() {
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet) as Array<Record<string, unknown>>;
 
-      // Fetch products for the selected casa only (so linking/creating stays within that casa)
-      const { data: casaRow } = await supabase.from('casas').select('id').eq('name', selectedCasa).single();
-      let productsQuery = supabase
-        .from('products')
-        .select('id, name, category, cost, linked_insumo_id, unit_conversion');
-      if (casaRow) productsQuery = productsQuery.eq('casa_id', casaRow.id);
-      const { data: productsData } = await productsQuery;
-      const allProducts: Product[] = (productsData || []).map((p) => ({
-        id: p.id,
-        name: p.name,
-        category: p.category || '',
-        cost: Number(p.cost),
-        linked_insumo_id: p.linked_insumo_id || null,
-        unit_conversion: Number(p.unit_conversion) || 1,
-      }));
+      // Produtos da casa + apelidos aprendidos
+      const { products: allProducts, aliasMap } = await loadCasaCatalog(selectedCasa);
       setProducts(allProducts);
 
-      // Fetch learned aliases
-      const { data: aliasesData } = await supabase
-        .from('product_aliases')
-        .select('alias, product_id');
-      const aliasMap = new Map<string, string>();
-      (aliasesData || []).forEach((a: { alias: string; product_id: string }) => {
-        aliasMap.set(a.alias.toUpperCase().trim(), a.product_id);
+      const raw: RawRow[] = jsonData.map((row) => {
+        const originalName = String(
+          row['produto'] || row['Produto'] || row['PRODUTO'] || row['product'] || ''
+        ).trim();
+        const quantity = Number(row['quantidade'] || row['Quantidade'] || row['QUANTIDADE'] || row['qty'] || 0);
+        const value = Number(row['valor'] || row['Valor'] || row['VALOR'] || row['value'] || 0);
+        const ticketMedio = Number(row['ticket_medio'] || row['Ticket Medio'] || row['TICKET_MEDIO'] || 0);
+        return { originalName, quantity, value, ticketMedio };
       });
 
-      const normalize = (s: string) =>
-        s
-          .normalize('NFD')
-          .replace(/[̀-ͯ]/g, '')
-          .replace(/\s*\([^)]*\)\s*/g, ' ')
-          .replace(/['`']/g, '')
-          .replace(/\s+/g, ' ')
-          .trim()
-          .toLowerCase();
-
-      const exactMap = new Map<string, { id: string; name: string }>();
-      const normMap = new Map<string, { id: string; name: string }>();
-      allProducts.forEach((p) => {
-        exactMap.set(p.name.toUpperCase().trim(), { id: p.id, name: p.name });
-        normMap.set(normalize(p.name), { id: p.id, name: p.name });
-      });
-
-      const fuzzyMatch = (search: string): { id: string; name: string } | null => {
-        const normSearch = normalize(search);
-        if (!normSearch) return null;
-
-        // 1. Exact normalized match
-        const direct = normMap.get(normSearch);
-        if (direct) return direct;
-
-        // 2. One contains the other (substring) - prefer longer/closer
-        let best: { id: string; name: string; score: number } | null = null;
-        for (const [normName, p] of normMap) {
-          if (normName.length < 3) continue;
-          let score = 0;
-          if (normName === normSearch) score = 100;
-          else if (normName.includes(normSearch) || normSearch.includes(normName)) {
-            score = Math.min(normName.length, normSearch.length) / Math.max(normName.length, normSearch.length) * 80;
-          } else {
-            // Levenshtein-lite: count common words
-            const w1 = new Set(normSearch.split(' ').filter((x) => x.length > 2));
-            const w2 = new Set(normName.split(' ').filter((x) => x.length > 2));
-            const common = [...w1].filter((w) => w2.has(w)).length;
-            if (common > 0 && w1.size > 0 && w2.size > 0) {
-              score = (common / Math.max(w1.size, w2.size)) * 60;
-            }
-          }
-          if (score >= 50 && (!best || score > best.score)) {
-            best = { ...p, score };
-          }
-        }
-        return best;
-      };
-
-      const parsedRows: PreviewRow[] = jsonData
-        .map((row) => {
-          const productName = String(
-            row['produto'] || row['Produto'] || row['PRODUTO'] || row['product'] || ''
-          ).trim();
-          const quantity = Number(row['quantidade'] || row['Quantidade'] || row['QUANTIDADE'] || row['qty'] || 0);
-          const value = Number(row['valor'] || row['Valor'] || row['VALOR'] || row['value'] || 0);
-          const ticketMedio = Number(row['ticket_medio'] || row['Ticket Medio'] || row['TICKET_MEDIO'] || 0);
-
-          // 1. Try learned alias first (from previous manual mappings)
-          const aliasProductId = aliasMap.get(productName.toUpperCase().trim());
-          let matched: { id: string; name: string } | null = null;
-          let status: PreviewRow['status'] = 'unmatched';
-
-          if (aliasProductId) {
-            const aliasProduct = allProducts.find((p) => p.id === aliasProductId);
-            if (aliasProduct) {
-              matched = { id: aliasProduct.id, name: aliasProduct.name };
-              status = 'matched';
-            }
-          }
-
-          // 2. Try exact match
-          if (!matched) {
-            const exact = exactMap.get(productName.toUpperCase().trim());
-            if (exact) {
-              matched = exact;
-              status = 'matched';
-            }
-          }
-
-          // 3. Try fuzzy if no exact
-          if (!matched) {
-            const fuzzy = fuzzyMatch(productName);
-            if (fuzzy) {
-              matched = fuzzy;
-              status = 'fuzzy';
-            }
-          }
-
-          return {
-            originalName: productName,
-            quantity,
-            value,
-            ticketMedio: ticketMedio || (quantity > 0 ? value / quantity : 0),
-            matchedProductId: matched?.id || null,
-            matchedProductName: matched?.name || null,
-            status,
-          };
-        })
-        .filter((r) => r.originalName && r.quantity > 0);
-
-      setRows(parsedRows);
+      setResumeImportId(null);
+      setRows(matchRawRows(raw, allProducts, aliasMap));
       setStep('review');
     };
     reader.readAsBinaryString(file);
+  };
+
+  // Reabre uma importação anterior carregando as linhas que ficaram pendentes,
+  // re-tentando casar com os produtos que existem hoje.
+  const reopenImport = async (imp: ImportHistory) => {
+    try {
+      const { data: pend } = await supabase
+        .from('sale_import_pending')
+        .select('original_name, quantity, value, ticket_medio')
+        .eq('import_id', imp.id)
+        .order('original_name');
+
+      if (!pend || pend.length === 0) {
+        alert('Esta importação não tem linhas pendentes para vincular.');
+        return;
+      }
+
+      const { products: allProducts, aliasMap } = await loadCasaCatalog(imp.casa_name);
+      setProducts(allProducts);
+
+      const raw: RawRow[] = pend.map((p) => ({
+        originalName: p.original_name,
+        quantity: Number(p.quantity),
+        value: Number(p.value),
+        ticketMedio: Number(p.ticket_medio),
+      }));
+
+      setSelectedCasa(imp.casa_name);
+      setEventDate(imp.event_date);
+      setEventName(imp.event_name || '');
+      setFileName(imp.file_name);
+      setResumeImportId(imp.id);
+      setImportResult(null);
+      setSearchUnmatched('');
+      setRows(matchRawRows(raw, allProducts, aliasMap));
+      setStep('review');
+    } catch (err) {
+      alert(`Erro ao reabrir: ${err instanceof Error ? err.message : String(err)}`);
+    }
   };
 
   const resetUpload = () => {
@@ -491,6 +534,7 @@ export default function BaixaPage() {
     setProducts([]);
     setImportResult(null);
     setSearchUnmatched('');
+    setResumeImportId(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -661,23 +705,27 @@ export default function BaixaPage() {
       const totalValue = toImport.reduce((s, r) => s + r.value, 0);
       const totalItems = toImport.reduce((s, r) => s + r.quantity, 0);
 
-      // Create import record first
-      const { data: importRecord, error: impErr } = await supabase
-        .from('sale_imports')
-        .insert({
-          casa_id: casa.id,
-          event_date: eventDate,
-          event_name: eventName || null,
-          file_name: fileName,
-          total_items: totalItems,
-          total_value: totalValue,
-        })
-        .select('id')
-        .single();
+      // Nova importação: cria o registro. Retomada: reutiliza o existente.
+      let importId: string;
+      if (resumeImportId) {
+        importId = resumeImportId;
+      } else {
+        const { data: importRecord, error: impErr } = await supabase
+          .from('sale_imports')
+          .insert({
+            casa_id: casa.id,
+            event_date: eventDate,
+            event_name: eventName || null,
+            file_name: fileName,
+            total_items: totalItems,
+            total_value: totalValue,
+          })
+          .select('id')
+          .single();
 
-      if (impErr || !importRecord) throw new Error(impErr?.message || 'Falha ao criar importacao');
-
-      const importId = importRecord.id;
+        if (impErr || !importRecord) throw new Error(impErr?.message || 'Falha ao criar importacao');
+        importId = importRecord.id;
+      }
 
       // Insert sales with import_id
       const salesRecords = toImport.map((r) => ({
@@ -691,7 +739,7 @@ export default function BaixaPage() {
         ticket_medio: r.ticketMedio,
       }));
 
-      await supabase.from('sales').insert(salesRecords);
+      if (salesRecords.length > 0) await supabase.from('sales').insert(salesRecords);
 
       // Build product metadata + combo component maps for cascading deduction
       const { data: componentsData } = await supabase
@@ -759,9 +807,39 @@ export default function BaixaPage() {
         });
       }
 
-      const ignored = rows.filter((r) => r.status === 'unmatched' || r.status === 'ignored').length;
+      // Retomada: soma os novos totais ao registro existente.
+      if (resumeImportId && toImport.length > 0) {
+        const { data: cur } = await supabase
+          .from('sale_imports')
+          .select('total_items, total_value')
+          .eq('id', importId)
+          .single();
+        await supabase
+          .from('sale_imports')
+          .update({
+            total_items: (Number(cur?.total_items) || 0) + totalItems,
+            total_value: (Number(cur?.total_value) || 0) + totalValue,
+          })
+          .eq('id', importId);
+      }
 
-      setImportResult({ matched: toImport.length, ignored, totalValue, totalItems, learnedAliases: aliasesToSave.length });
+      // Sincroniza as pendências: o que ficou sem vínculo continua salvo para retomar depois.
+      const pendingRows = rows.filter((r) => r.status === 'unmatched' || r.status === 'ignored');
+      await supabase.from('sale_import_pending').delete().eq('import_id', importId);
+      if (pendingRows.length > 0) {
+        await supabase.from('sale_import_pending').insert(
+          pendingRows.map((r) => ({
+            import_id: importId,
+            casa_id: casa.id,
+            original_name: r.originalName,
+            quantity: r.quantity,
+            value: r.value,
+            ticket_medio: r.ticketMedio,
+          }))
+        );
+      }
+
+      setImportResult({ matched: toImport.length, ignored: pendingRows.length, totalValue, totalItems, learnedAliases: aliasesToSave.length });
       setStep('done');
       fetchHistory();
     } catch (err) {
@@ -940,7 +1018,14 @@ export default function BaixaPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-semibold text-gray-900">Revisao da Importacao</h3>
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  {resumeImportId ? 'Retomando Importação' : 'Revisao da Importacao'}
+                  {resumeImportId && (
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
+                      concluir pendências
+                    </span>
+                  )}
+                </h3>
                 <p className="text-xs text-gray-500 mt-0.5">Arquivo: {fileName} - {selectedCasa} - {eventDate}</p>
               </div>
               <button onClick={resetUpload} className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
@@ -1127,7 +1212,9 @@ export default function BaixaPage() {
               ) : (
                 <>
                   <Upload size={18} />
-                  Confirmar e Importar ({matchedCount} produtos)
+                  {resumeImportId
+                    ? `Concluir pendências (${matchedCount} vinculados)`
+                    : `Confirmar e Importar (${matchedCount} produtos)`}
                 </>
               )}
             </button>
@@ -1188,6 +1275,7 @@ export default function BaixaPage() {
                 <th className="pb-2 font-medium">Arquivo</th>
                 <th className="pb-2 font-medium text-right">Itens</th>
                 <th className="pb-2 font-medium text-right">Valor</th>
+                <th className="pb-2 font-medium">Pendentes</th>
                 <th className="pb-2 font-medium">Importado em</th>
                 <th className="pb-2 font-medium"></th>
               </tr>
@@ -1205,6 +1293,20 @@ export default function BaixaPage() {
                   <td className="py-2 text-gray-600 max-w-[150px] truncate" title={h.file_name}>{h.file_name}</td>
                   <td className="py-2 text-right text-gray-900">{formatNumber(h.total_items)}</td>
                   <td className="py-2 text-right font-medium text-gray-900">{formatCurrency(h.total_value)}</td>
+                  <td className="py-2">
+                    {h.pending_count > 0 ? (
+                      <button
+                        onClick={() => reopenImport(h)}
+                        className="inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
+                        title="Reabrir para vincular os produtos que ficaram pendentes"
+                      >
+                        <RotateCcw size={12} />
+                        Retomar ({h.pending_count})
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-300">—</span>
+                    )}
+                  </td>
                   <td className="py-2 text-gray-500 text-xs">{formatDateTime(h.created_at)}</td>
                   <td className="py-2 text-right">
                     {deleteConfirm === h.id ? (
@@ -1236,7 +1338,7 @@ export default function BaixaPage() {
               ))}
               {history.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-gray-500">
+                  <td colSpan={9} className="py-8 text-center text-gray-500">
                     Nenhuma importacao realizada
                   </td>
                 </tr>

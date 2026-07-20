@@ -29,12 +29,14 @@ interface Product {
   type: string;
   sale_price: number;
   cost: number;
+  casa_id: string;
 }
 
 interface Insumo {
   id: string;
   name: string;
   unit: string;
+  casa_id: string;
 }
 
 interface StockItem {
@@ -115,8 +117,8 @@ function EstoqueContent() {
           return q;
         })(),
         supabase.from('casas').select('id, name'),
-        supabase.from('products').select('id, name, category, type, sale_price, cost').order('name'),
-        supabase.from('insumos').select('id, name, unit').order('name'),
+        supabase.from('products').select('id, name, category, type, sale_price, cost, casa_id').order('name'),
+        supabase.from('insumos').select('id, name, unit, casa_id').order('name'),
       ]);
 
       setStockItems((stockRes.data || []) as unknown as StockItem[]);
@@ -456,7 +458,7 @@ function EstoqueContent() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Casa</label>
                 <select
                   value={formCasaId}
-                  onChange={(e) => setFormCasaId(e.target.value)}
+                  onChange={(e) => { setFormCasaId(e.target.value); setFormItemId(''); }}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
@@ -510,19 +512,25 @@ function EstoqueContent() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
                   <option value="">
-                    Selecione {formItemType === 'product' ? 'o produto' : 'o insumo'}
+                    {formCasaId
+                      ? `Selecione ${formItemType === 'product' ? 'o produto' : 'o insumo'}`
+                      : 'Selecione a casa primeiro'}
                   </option>
                   {formItemType === 'product'
-                    ? products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
-                        </option>
-                      ))
-                    : insumos.map((i) => (
-                        <option key={i.id} value={i.id}>
-                          {i.name} ({i.unit})
-                        </option>
-                      ))}
+                    ? products
+                        .filter((p) => p.casa_id === formCasaId)
+                        .map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))
+                    : insumos
+                        .filter((i) => i.casa_id === formCasaId)
+                        .map((i) => (
+                          <option key={i.id} value={i.id}>
+                            {i.name} ({i.unit})
+                          </option>
+                        ))}
                 </select>
               </div>
 
