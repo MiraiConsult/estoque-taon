@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Package,
-  ClipboardList,
   Wine,
   BarChart3,
   Upload,
@@ -30,7 +29,6 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/estoque', label: 'Estoque', icon: Package },
   { href: '/drinks', label: 'Drinks & Produtos', icon: Wine },
-  { href: '/fichas-tecnicas', label: 'Fichas Técnicas', icon: ClipboardList },
   { href: '/insumos', label: 'Insumos', icon: ShoppingBasket },
   { href: '/baixa', label: 'Importar Vendas', icon: Upload },
   { href: '/transferencias', label: 'Transferências', icon: ArrowLeftRight },
