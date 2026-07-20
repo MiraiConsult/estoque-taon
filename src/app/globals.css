@@ -9,3 +9,31 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
 }
+
+/* Impressão / PDF (Prova Real) */
+.print-only {
+  display: none;
+}
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .no-print,
+  .no-print * {
+    visibility: hidden !important;
+  }
+  .print-only {
+    display: inline !important;
+    visibility: visible !important;
+  }
+}

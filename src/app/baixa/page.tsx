@@ -755,6 +755,19 @@ export default function BaixaPage() {
         products.map((p) => [p.id, { linked_insumo_id: p.linked_insumo_id, unit_conversion: p.unit_conversion }])
       );
 
+      // Prova Real: foto do estoque de PRODUTOS antes da baixa (só em importação nova)
+      const stockBefore = new Map<string, number>();
+      if (!resumeImportId) {
+        const { data: siBefore } = await supabase
+          .from('stock_items')
+          .select('product_id, quantity')
+          .eq('casa_id', casa.id)
+          .not('product_id', 'is', null);
+        (siBefore || []).forEach((s: { product_id: string; quantity: number }) =>
+          stockBefore.set(s.product_id, Number(s.quantity))
+        );
+      }
+
       // Update stock + create movements
       for (const r of toImport) {
         // Baixa em cascata (trata combos -> componentes -> insumo/produto)
@@ -805,6 +818,35 @@ export default function BaixaPage() {
           reference: `Venda ${eventDate}`,
           notes: eventName || null,
         });
+      }
+
+      // Prova Real: foto do estoque depois + grava a reconciliação (só produtos que mudaram)
+      if (!resumeImportId) {
+        const { data: siAfter } = await supabase
+          .from('stock_items')
+          .select('product_id, quantity')
+          .eq('casa_id', casa.id)
+          .not('product_id', 'is', null);
+        const reconRows = (siAfter || [])
+          .map((s: { product_id: string; quantity: number }) => {
+            const after = Number(s.quantity);
+            const before = stockBefore.get(s.product_id) ?? after;
+            return {
+              import_id: importId,
+              casa_id: casa.id,
+              product_id: s.product_id,
+              stock_before: before,
+              sold: before - after,
+              stock_expected: after,
+              is_approx: false,
+            };
+          })
+          .filter((x) => x.sold !== 0);
+        if (reconRows.length > 0) {
+          await supabase
+            .from('event_reconciliation')
+            .upsert(reconRows, { onConflict: 'import_id,product_id' });
+        }
       }
 
       // Retomada: soma os novos totais ao registro existente.
