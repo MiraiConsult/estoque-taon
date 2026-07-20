@@ -19,7 +19,6 @@ import {
   Check,
   X,
   PackageOpen,
-  ClipboardList,
   Link2,
   Unlink,
   Download,
@@ -456,7 +455,6 @@ export default function DrinksPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-3 py-3 font-semibold text-gray-600 text-center w-10">Ficha</th>
                 {([
                   { field: 'name' as SortField, label: 'Nome', align: 'left' },
                   { field: 'casa_name' as SortField, label: 'Casa', align: 'left' },
@@ -489,25 +487,13 @@ export default function DrinksPage() {
                   key={product.id}
                   className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                 >
-                  <td className="px-3 py-3 text-center">
-                    {product.recipe_id ? (
-                      <Link
-                        href={`/fichas-tecnicas/${product.recipe_id}`}
-                        className="inline-flex items-center justify-center text-blue-600 hover:text-blue-800 transition-colors"
-                        title="Ver ficha técnica"
-                      >
-                        <ClipboardList size={16} />
-                      </Link>
-                    ) : null}
-                  </td>
                   <td className="px-4 py-3 font-medium text-gray-900">
                     <Link
                       href={`/fichas-tecnicas/${product.id}`}
-                      className="text-left hover:text-blue-700 hover:underline decoration-dashed underline-offset-2 transition-colors inline-flex items-center gap-1.5"
+                      className="text-left hover:text-blue-700 hover:underline decoration-dashed underline-offset-2 transition-colors"
                       title="Abrir ficha técnica"
                     >
                       {product.name}
-                      <ClipboardList size={13} className="text-gray-300" />
                     </Link>
                   </td>
                   <td className="px-4 py-3">
@@ -623,7 +609,7 @@ export default function DrinksPage() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="px-4 py-12 text-center">
+                  <td colSpan={9} className="px-4 py-12 text-center">
                     <PackageOpen size={40} className="mx-auto text-gray-300 mb-3" />
                     <p className="text-gray-500 font-medium">Nenhum produto encontrado</p>
                     <p className="text-gray-400 text-xs mt-1">Tente ajustar os filtros de busca</p>
