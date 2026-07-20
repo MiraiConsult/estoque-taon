@@ -8,7 +8,6 @@ import {
   ClipboardCheck,
   ArrowLeft,
   Check,
-  X,
   AlertTriangle,
   Printer,
   CheckCircle2,
@@ -122,76 +121,76 @@ export default function ProvaRealPage() {
   const setRow = (id: string, patch: Partial<ReconRow>) =>
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
 
-  // Confirma que a contagem bate com o previsto (✓), sem mexer no estoque.
-  const confirmOk = async (row: ReconRow) => {
+  // Auto-save: grava a contagem/obs sozinho (ao sair do campo). NÃO mexe no estoque aqui —
+  // a correção do estoque acontece só no "Fechar prova real", pra não corrigir errado
+  // enquanto você ainda está editando. Assim dá pra parar e voltar depois.
+  const autoSaveRow = async (row: ReconRow) => {
+    const raw = row.countInput.trim();
+    const counted = raw === '' ? null : parseFloat(raw.replace(',', '.'));
+    if (raw !== '' && (counted === null || isNaN(counted) || counted < 0)) return;
+    const status = counted === null ? 'pendente' : counted === row.stock_expected ? 'ok' : 'divergente';
+    const obs = row.obsInput.trim() || null;
+    // nada mudou? não grava
+    if (counted === row.stock_counted && status === row.status && obs === (row.obs || null)) return;
     setRow(row.id, { saving: true });
-    const counted = row.stock_expected;
     await supabase
       .from('event_reconciliation')
-      .update({ stock_counted: counted, status: 'ok', obs: row.obsInput || null, checked_at: new Date().toISOString() })
+      .update({ stock_counted: counted, status, obs, checked_at: new Date().toISOString() })
       .eq('id', row.id);
-    setRow(row.id, { saving: false, stock_counted: counted, status: 'ok', countInput: String(counted), obs: row.obsInput || null });
+    setRow(row.id, { saving: false, stock_counted: counted, status, obs });
   };
 
-  // Salva a contagem física digitada. Se divergir, corrige o estoque e registra o furo.
-  const saveCount = async (row: ReconRow) => {
-    const counted = parseFloat(row.countInput.replace(',', '.'));
-    if (isNaN(counted) || counted < 0) return;
-    setRow(row.id, { saving: true });
-    const diff = counted - row.stock_expected;
-    const status = diff === 0 ? 'ok' : 'ajustado';
+  // Atalho: "bateu certo" preenche a contagem com o previsto e salva.
+  const markOk = async (row: ReconRow) => {
+    setRow(row.id, { saving: true, countInput: String(row.stock_expected) });
+    await supabase
+      .from('event_reconciliation')
+      .update({ stock_counted: row.stock_expected, status: 'ok', obs: row.obsInput.trim() || null, checked_at: new Date().toISOString() })
+      .eq('id', row.id);
+    setRow(row.id, { saving: false, stock_counted: row.stock_expected, status: 'ok', countInput: String(row.stock_expected) });
+  };
 
-    // Corrige estoque + movimento de ajuste quando há diferença
-    if (diff !== 0 && selected) {
-      const casaId = await getCasaId(selected.casa_name);
-      if (casaId) {
+  // Fecha a prova real: aplica as correções de estoque das divergências (uma vez) e trava o evento.
+  const closeReconciliation = async () => {
+    if (!selected) return;
+    const pendingNow = rows.filter((r) => r.status === 'pendente').length;
+    if (pendingNow > 0 && !window.confirm(`Ainda há ${pendingNow} item(ns) sem contagem. Fechar mesmo assim?`)) return;
+
+    const { data: casa } = await supabase.from('casas').select('id').eq('name', selected.casa_name).single();
+    const casaId = casa?.id as string | undefined;
+
+    for (const r of rows) {
+      if (r.stock_counted === null) continue;
+      const diff = r.stock_counted - r.stock_expected;
+      if (diff !== 0 && casaId) {
         const { data: stockItem } = await supabase
           .from('stock_items')
           .select('id')
           .eq('casa_id', casaId)
-          .eq('product_id', row.product_id)
+          .eq('product_id', r.product_id)
           .is('insumo_id', null)
           .maybeSingle();
         if (stockItem) {
           await supabase
             .from('stock_items')
-            .update({ quantity: counted, updated_at: new Date().toISOString() })
+            .update({ quantity: r.stock_counted, updated_at: new Date().toISOString() })
             .eq('id', stockItem.id);
         }
         await supabase.from('stock_movements').insert({
           casa_id: casaId,
-          product_id: row.product_id,
+          product_id: r.product_id,
           movement_type: 'ajuste',
           quantity: diff,
           reference: `Prova real ${selected.event_name || selected.file_name}`,
-          notes: row.obsInput || `Ajuste prova real (${diff > 0 ? '+' : ''}${diff})`,
+          notes: r.obs || `Ajuste prova real (${diff > 0 ? '+' : ''}${diff})`,
         });
+        await supabase.from('event_reconciliation').update({ status: 'ajustado' }).eq('id', r.id);
       }
     }
 
-    await supabase
-      .from('event_reconciliation')
-      .update({ stock_counted: counted, status, obs: row.obsInput || null, checked_at: new Date().toISOString() })
-      .eq('id', row.id);
-
-    setRow(row.id, { saving: false, stock_counted: counted, status, obs: row.obsInput || null });
-  };
-
-  const casaIdCache = new Map<string, string>();
-  const getCasaId = async (name: string): Promise<string | null> => {
-    if (casaIdCache.has(name)) return casaIdCache.get(name)!;
-    const { data } = await supabase.from('casas').select('id').eq('name', name).single();
-    if (data?.id) {
-      casaIdCache.set(name, data.id);
-      return data.id;
-    }
-    return null;
-  };
-
-  const closeReconciliation = async () => {
-    if (!selected) return;
     await supabase.from('sale_imports').update({ reconciled_at: new Date().toISOString() }).eq('id', selected.id);
     setSelected({ ...selected, reconciled_at: new Date().toISOString() });
+    setRows((prev) => prev.map((r) => (r.stock_counted !== null && r.stock_counted - r.stock_expected !== 0 ? { ...r, status: 'ajustado' } : r)));
     fetchEvents();
     setShowReport(true);
   };
@@ -199,10 +198,10 @@ export default function ProvaRealPage() {
   // ---- Resumo ----
   const done = rows.filter((r) => r.status !== 'pendente').length;
   const okCount = rows.filter((r) => r.status === 'ok').length;
-  const adjCount = rows.filter((r) => r.status === 'ajustado').length;
+  const adjCount = rows.filter((r) => r.status === 'divergente' || r.status === 'ajustado').length;
   const pending = rows.length - done;
   const totalFuro = rows
-    .filter((r) => r.status === 'ajustado' && r.stock_counted !== null)
+    .filter((r) => r.stock_counted !== null)
     .reduce((s, r) => s + (r.stock_counted! - r.stock_expected), 0);
 
   // =================== LISTA DE EVENTOS ===================
@@ -290,6 +289,7 @@ export default function ProvaRealPage() {
           <ArrowLeft size={16} /> Voltar
         </button>
         <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-400 hidden sm:inline">Salvo automaticamente</span>
           <button
             onClick={() => { setShowReport(true); setTimeout(() => window.print(), 200); }}
             className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -299,9 +299,8 @@ export default function ProvaRealPage() {
           {!selected.reconciled_at && (
             <button
               onClick={closeReconciliation}
-              disabled={pending > 0}
-              title={pending > 0 ? 'Confira todos os itens antes de fechar' : 'Fechar prova real'}
-              className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50"
+              title="Fechar prova real (aplica os ajustes de estoque e trava o evento)"
+              className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
             >
               <CheckCircle2 size={15} /> Fechar prova real
             </button>
@@ -327,7 +326,7 @@ export default function ProvaRealPage() {
             <div className="flex gap-4 text-center">
               <div><p className="text-lg font-bold text-gray-900">{rows.length}</p><p className="text-[11px] text-gray-500">Itens</p></div>
               <div><p className="text-lg font-bold text-emerald-700">{okCount}</p><p className="text-[11px] text-gray-500">OK</p></div>
-              <div><p className="text-lg font-bold text-amber-700">{adjCount}</p><p className="text-[11px] text-gray-500">Ajustados</p></div>
+              <div><p className="text-lg font-bold text-amber-700">{adjCount}</p><p className="text-[11px] text-gray-500">Diverg.</p></div>
               <div><p className="text-lg font-bold text-gray-400">{pending}</p><p className="text-[11px] text-gray-500">Pendentes</p></div>
               <div><p className={`text-lg font-bold ${totalFuro === 0 ? 'text-gray-900' : totalFuro < 0 ? 'text-red-700' : 'text-blue-700'}`}>{totalFuro > 0 ? '+' : ''}{formatNumber(totalFuro, 0)}</p><p className="text-[11px] text-gray-500">Furo total</p></div>
             </div>
@@ -362,7 +361,7 @@ export default function ProvaRealPage() {
                   const countedNum = r.countInput === '' ? null : parseFloat(r.countInput.replace(',', '.'));
                   const liveDiff = countedNum === null || isNaN(countedNum) ? null : countedNum - r.stock_expected;
                   return (
-                    <tr key={r.id} className={`border-b border-gray-50 ${r.status === 'ajustado' ? 'bg-amber-50/40' : r.status === 'ok' ? 'bg-emerald-50/30' : ''}`}>
+                    <tr key={r.id} className={`border-b border-gray-50 ${r.status === 'divergente' || r.status === 'ajustado' ? 'bg-amber-50/40' : r.status === 'ok' ? 'bg-emerald-50/30' : ''}`}>
                       <td className="px-4 py-2.5 font-medium text-gray-900">
                         {r.product_name}
                         <span className="ml-2 text-[10px] text-gray-400">{r.category}</span>
@@ -376,6 +375,7 @@ export default function ProvaRealPage() {
                           value={r.countInput}
                           disabled={!!selected.reconciled_at}
                           onChange={(e) => setRow(r.id, { countInput: e.target.value })}
+                          onBlur={() => autoSaveRow(r)}
                           placeholder="—"
                           className="w-20 px-2 py-1 border border-gray-300 rounded text-right text-sm disabled:bg-gray-100 no-print"
                         />
@@ -390,6 +390,7 @@ export default function ProvaRealPage() {
                           value={r.obsInput}
                           disabled={!!selected.reconciled_at}
                           onChange={(e) => setRow(r.id, { obsInput: e.target.value })}
+                          onBlur={() => autoSaveRow(r)}
                           placeholder="—"
                           className="w-full min-w-[120px] px-2 py-1 border border-gray-200 rounded text-sm disabled:bg-gray-100 no-print"
                         />
@@ -398,24 +399,19 @@ export default function ProvaRealPage() {
                       <td className="px-3 py-2.5 text-center no-print">
                         {selected.reconciled_at ? (
                           <span className="text-xs text-gray-400">{r.status}</span>
+                        ) : r.saving ? (
+                          <span className="text-[10px] text-gray-400">salvando…</span>
                         ) : (
                           <div className="flex items-center justify-center gap-1">
                             <button
-                              onClick={() => confirmOk(r)}
-                              disabled={r.saving}
+                              onClick={() => markOk(r)}
                               title="Bateu certo (usar o previsto)"
-                              className="p-1.5 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 disabled:opacity-40"
+                              className="p-1.5 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                             >
                               <Check size={14} />
                             </button>
-                            <button
-                              onClick={() => saveCount(r)}
-                              disabled={r.saving || r.countInput === ''}
-                              title="Salvar contagem (corrige estoque se divergir)"
-                              className="p-1.5 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 disabled:opacity-40"
-                            >
-                              <X size={14} />
-                            </button>
+                            {r.status === 'ok' && <CheckCircle2 size={14} className="text-emerald-500" />}
+                            {(r.status === 'divergente' || r.status === 'ajustado') && <AlertTriangle size={14} className="text-amber-500" />}
                           </div>
                         )}
                       </td>
