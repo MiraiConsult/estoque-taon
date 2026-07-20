@@ -56,49 +56,6 @@ interface ComboComponent {
 type SortField = 'name' | 'casa_name' | 'category' | 'type' | 'sale_price' | 'cost' | 'margin' | 'markup';
 type SortDirection = 'asc' | 'desc';
 
-function InlineNameEdit({ productId, initial, onSaved }: { productId: string; initial: string; onSaved: () => void }) {
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(initial);
-  const [busy, setBusy] = useState(false);
-
-  if (!editing) {
-    return (
-      <button
-        onClick={() => { setValue(initial); setEditing(true); }}
-        className="text-left hover:text-blue-700 hover:underline decoration-dashed underline-offset-2 transition-colors"
-        title="Clique para editar"
-      >
-        {initial}
-      </button>
-    );
-  }
-
-  const save = async () => {
-    if (!value.trim() || value === initial) { setEditing(false); return; }
-    setBusy(true);
-    await supabase.from('products').update({ name: value.trim() }).eq('id', productId);
-    setBusy(false);
-    setEditing(false);
-    onSaved();
-  };
-
-  return (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={save}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') save();
-        if (e.key === 'Escape') setEditing(false);
-      }}
-      autoFocus
-      disabled={busy}
-      className="w-full px-2 py-1 border border-blue-400 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-    />
-  );
-}
-
 export default function DrinksPage() {
   const [selectedCasa, setSelectedCasa] = useState('all');
   const [products, setProducts] = useState<Product[]>([]);
@@ -544,11 +501,14 @@ export default function DrinksPage() {
                     ) : null}
                   </td>
                   <td className="px-4 py-3 font-medium text-gray-900">
-                    <InlineNameEdit
-                      productId={product.id}
-                      initial={product.name}
-                      onSaved={() => fetchProducts()}
-                    />
+                    <Link
+                      href={`/fichas-tecnicas/${product.id}`}
+                      className="text-left hover:text-blue-700 hover:underline decoration-dashed underline-offset-2 transition-colors inline-flex items-center gap-1.5"
+                      title="Abrir ficha técnica"
+                    >
+                      {product.name}
+                      <ClipboardList size={13} className="text-gray-300" />
+                    </Link>
                   </td>
                   <td className="px-4 py-3">
                     <span className={`text-xs px-2 py-0.5 rounded font-medium ${casaBgColor(product.casa_name)}`}>

@@ -257,7 +257,7 @@ export default function FichasTecnicasPage() {
                 {filtered.map((recipe) => (
                   <tr key={recipe.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 font-medium text-gray-900">
-                      <Link href={`/fichas-tecnicas/${recipe.id}`} className="hover:text-blue-700 transition-colors">
+                      <Link href={`/fichas-tecnicas/${recipe.product_id}`} className="hover:text-blue-700 transition-colors">
                         {recipe.product_name}
                       </Link>
                     </td>
@@ -280,7 +280,7 @@ export default function FichasTecnicasPage() {
                     </td>
                     <td className="px-4 py-3 text-right text-gray-600">{formatCurrency(recipe.margin)}</td>
                     <td className="px-4 py-3 text-center">
-                      <Link href={`/fichas-tecnicas/${recipe.id}`} className="text-blue-600 hover:text-blue-800">
+                      <Link href={`/fichas-tecnicas/${recipe.product_id}`} className="text-blue-600 hover:text-blue-800">
                         <ClipboardList size={16} />
                       </Link>
                     </td>
@@ -298,7 +298,7 @@ export default function FichasTecnicasPage() {
           {filtered.map((recipe) => (
             <Link
               key={recipe.id}
-              href={`/fichas-tecnicas/${recipe.id}`}
+              href={`/fichas-tecnicas/${recipe.product_id}`}
               className="group bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg hover:border-blue-300 transition-all"
             >
               <div className="flex items-start justify-between mb-3">

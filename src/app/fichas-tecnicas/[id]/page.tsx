@@ -38,7 +38,7 @@ interface InsumoOption {
 }
 
 interface RecipeDetail {
-  id: string;
+  id: string | null; // null = produto ainda sem ficha técnica
   product_id: string;
   product_name: string;
   category: string;
@@ -89,7 +89,9 @@ function EditableTitle({ productId, value, onSaved }: { productId: string; value
 
 export default function FichaTecnicaDetailPage() {
   const params = useParams();
-  const recipeId = params.id as string;
+  // A rota agora é identificada pelo ID do PRODUTO (não da receita),
+  // para funcionar também com produtos que ainda não têm ficha técnica.
+  const productId = params.id as string;
 
   const [recipe, setRecipe] = useState<RecipeDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,95 +118,84 @@ export default function FichaTecnicaDetailPage() {
     setLoading(true);
     setError(null);
 
-    // Fetch recipe with product info
-    const { data: recipeData, error: recipeError } = await supabase
-      .from('drink_recipes')
-      .select(`
-        id,
-        product_id,
-        product:products (
-          id,
-          name,
-          category,
-          sale_price,
-          cost,
-          markup,
-          margin,
-          casa:casas ( name )
-        )
-      `)
-      .eq('id', recipeId)
+    // 1) Produto (sempre existe, mesmo sem ficha)
+    const { data: productData, error: productError } = await supabase
+      .from('products')
+      .select(`id, name, category, sale_price, cost, markup, margin, casa:casas ( name )`)
+      .eq('id', productId)
       .single();
 
-    if (recipeError || !recipeData) {
-      setError('Ficha tecnica nao encontrada');
+    if (productError || !productData) {
+      setError('Produto nao encontrado');
       setLoading(false);
       return;
     }
 
-    const product = (recipeData as unknown as {
+    const product = productData as unknown as {
       id: string;
-      product_id: string;
-      product: {
-        id: string;
-        name: string;
-        category: string;
-        sale_price: number;
-        cost: number;
-        markup: number;
-        margin: number;
-        casa: { name: string } | null;
-      } | null;
-    }).product;
+      name: string;
+      category: string;
+      sale_price: number;
+      cost: number;
+      markup: number;
+      margin: number;
+      casa: { name: string } | null;
+    };
 
-    if (!product) {
-      setError('Produto associado nao encontrado');
-      setLoading(false);
-      return;
-    }
+    // 2) Receita associada a este produto (pode não existir ainda)
+    const { data: recipeRow } = await supabase
+      .from('drink_recipes')
+      .select('id')
+      .eq('product_id', productId)
+      .maybeSingle();
 
-    // Fetch ingredients
-    const { data: ingredientsData, error: ingredientsError } = await supabase
-      .from('recipe_ingredients')
-      .select(`
-        id,
-        insumo_id,
-        quantity,
-        unit,
-        ingredient_cost,
-        insumo:insumos (
+    const recipeRowId = recipeRow?.id ?? null;
+
+    // 3) Ingredientes (só se houver receita)
+    let ingredients: Ingredient[] = [];
+    if (recipeRowId) {
+      const { data: ingredientsData, error: ingredientsError } = await supabase
+        .from('recipe_ingredients')
+        .select(`
           id,
-          name,
-          unit_cost
-        )
-      `)
-      .eq('recipe_id', recipeId)
-      .order('id');
+          insumo_id,
+          quantity,
+          unit,
+          ingredient_cost,
+          insumo:insumos (
+            id,
+            name,
+            unit_cost
+          )
+        `)
+        .eq('recipe_id', recipeRowId)
+        .order('id');
 
-    if (ingredientsError) {
-      console.error('Error fetching ingredients:', ingredientsError);
+      if (ingredientsError) {
+        console.error('Error fetching ingredients:', ingredientsError);
+      }
+
+      ingredients = ((ingredientsData || []) as unknown as Array<{
+        id: string;
+        insumo_id: string;
+        quantity: number;
+        unit: string;
+        ingredient_cost: number;
+        insumo: { id: string; name: string; unit_cost: number } | null;
+      }>).map((ing) => ({
+        id: ing.id,
+        insumo_id: ing.insumo_id,
+        insumo_name: ing.insumo?.name || 'Desconhecido',
+        quantity: Number(ing.quantity) || 0,
+        unit: ing.unit || '',
+        unit_cost: Number(ing.insumo?.unit_cost) || 0,
+        ingredient_cost: Number(ing.ingredient_cost) || 0,
+      }));
     }
-
-    const ingredients: Ingredient[] = ((ingredientsData || []) as unknown as Array<{
-      id: string;
-      insumo_id: string;
-      quantity: number;
-      unit: string;
-      ingredient_cost: number;
-      insumo: { id: string; name: string; unit_cost: number } | null;
-    }>).map((ing) => ({
-      id: ing.id,
-      insumo_id: ing.insumo_id,
-      insumo_name: ing.insumo?.name || 'Desconhecido',
-      quantity: Number(ing.quantity) || 0,
-      unit: ing.unit || '',
-      unit_cost: Number(ing.insumo?.unit_cost) || 0,
-      ingredient_cost: Number(ing.ingredient_cost) || 0,
-    }));
 
     setRecipe({
-      id: recipeData.id,
-      product_id: (recipeData as unknown as { product_id: string }).product_id,
+      id: recipeRowId,
+      product_id: product.id,
       product_name: product.name,
       category: product.category || 'Sem categoria',
       casa_name: product.casa?.name || 'Desconhecido',
@@ -216,7 +207,15 @@ export default function FichaTecnicaDetailPage() {
     });
 
     setLoading(false);
-  }, [recipeId]);
+  }, [productId]);
+
+  // Cria a ficha técnica (drink_recipe) para um produto que ainda não tem.
+  const createRecipe = async () => {
+    setSaving(true);
+    await supabase.from('drink_recipes').insert({ product_id: productId });
+    setSaving(false);
+    await fetchRecipe();
+  };
 
   const fetchInsumos = useCallback(async () => {
     const { data, error: err } = await supabase
@@ -337,7 +336,7 @@ export default function FichaTecnicaDetailPage() {
       : 0;
 
   const handleSaveNewIngredient = async () => {
-    if (!recipe || !selectedInsumo) return;
+    if (!recipe || !recipe.id || !selectedInsumo) return;
     const qty = parseFloat(newQuantity);
     if (isNaN(qty) || qty <= 0) return;
 
@@ -345,7 +344,7 @@ export default function FichaTecnicaDetailPage() {
     const ingredientCost = qty * selectedInsumo.unit_cost;
 
     await supabase.from('recipe_ingredients').insert({
-      recipe_id: recipeId,
+      recipe_id: recipe.id,
       insumo_id: selectedInsumo.id,
       quantity: qty,
       unit: selectedInsumo.unit,
@@ -522,13 +521,15 @@ export default function FichaTecnicaDetailPage() {
             <ClipboardList size={18} className="text-blue-700" />
             Ingredientes
           </h2>
-          <button
-            onClick={handleOpenAddForm}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors"
-          >
-            <Plus size={16} />
-            Adicionar
-          </button>
+          {recipe.id && (
+            <button
+              onClick={handleOpenAddForm}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors"
+            >
+              <Plus size={16} />
+              Adicionar
+            </button>
+          )}
         </div>
 
         {/* Add ingredient form */}
@@ -600,7 +601,23 @@ export default function FichaTecnicaDetailPage() {
           </div>
         )}
 
-        {recipe.ingredients.length === 0 && !showAddForm ? (
+        {!recipe.id ? (
+          <div className="p-12 text-center">
+            <ClipboardList className="mx-auto text-gray-300 mb-3" size={40} />
+            <p className="text-gray-600 font-medium">Este produto ainda não tem ficha técnica</p>
+            <p className="text-gray-400 text-sm mt-1 mb-4">
+              Crie a ficha para cadastrar os ingredientes e calcular o custo automaticamente.
+            </p>
+            <button
+              onClick={createRecipe}
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50 rounded-lg transition-colors"
+            >
+              <Plus size={16} />
+              {saving ? 'Criando...' : 'Criar ficha técnica'}
+            </button>
+          </div>
+        ) : recipe.ingredients.length === 0 && !showAddForm ? (
           <div className="p-12 text-center">
             <p className="text-gray-500">Nenhum ingrediente cadastrado para esta receita</p>
           </div>
