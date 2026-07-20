@@ -15,6 +15,8 @@ import {
   ArrowRight,
   Search,
   Eraser,
+  Plus,
+  ChevronDown,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
@@ -33,9 +35,175 @@ interface PreviewRow {
 interface Product {
   id: string;
   name: string;
+  category: string;
   cost: number;
   linked_insumo_id: string | null;
   unit_conversion: number;
+}
+
+interface NewProductForm {
+  rowIndex: number;
+  name: string;
+  category: string;
+  salePrice: string;
+  cost: string;
+  quantity: string;
+  minimum: string;
+}
+
+function normalizeName(s: string) {
+  return s
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function ProductCombobox({
+  products,
+  value,
+  disabled,
+  onSelect,
+  onCreateNew,
+}: {
+  products: Product[];
+  value: string | null;
+  disabled?: boolean;
+  onSelect: (productId: string) => void;
+  onCreateNew: (searchText: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number; width: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const selected = products.find((p) => p.id === value);
+
+  const openPanel = () => {
+    if (disabled || !btnRef.current) return;
+    const r = btnRef.current.getBoundingClientRect();
+    const openUp = window.innerHeight - r.bottom < 320 && r.top > 320;
+    setPos({
+      left: Math.min(r.left, window.innerWidth - 300),
+      width: Math.max(r.width, 280),
+      ...(openUp ? { bottom: window.innerHeight - r.top + 4 } : { top: r.bottom + 4 }),
+    });
+    setSearch('');
+    setOpen(true);
+  };
+
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 0);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (panelRef.current?.contains(e.target as Node) || btnRef.current?.contains(e.target as Node)) return;
+      setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const filtered = search
+    ? products.filter((p) => normalizeName(p.name).includes(normalizeName(search)))
+    : products;
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={() => (open ? setOpen(false) : openPanel())}
+        disabled={disabled}
+        className={`w-full flex items-center justify-between gap-1 border border-gray-300 rounded px-2 py-1 text-xs text-left bg-white ${
+          disabled ? 'opacity-60 cursor-not-allowed' : 'hover:border-gray-400'
+        }`}
+      >
+        <span className={selected ? 'text-gray-900' : 'text-gray-400'}>
+          {selected ? selected.name : '-- Selecione --'}
+        </span>
+        <ChevronDown size={12} className="shrink-0 text-gray-400" />
+      </button>
+      {open && pos && (
+        <div
+          ref={panelRef}
+          className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-xl"
+          style={{ left: pos.left, width: pos.width, top: pos.top, bottom: pos.bottom }}
+        >
+          <div className="p-2 border-b border-gray-100">
+            <div className="relative">
+              <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                ref={inputRef}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Pesquisar produto..."
+                className="w-full border border-gray-300 rounded pl-6 pr-2 py-1.5 text-xs"
+              />
+            </div>
+          </div>
+          <div className="max-h-52 overflow-y-auto">
+            {value && (
+              <button
+                type="button"
+                onClick={() => {
+                  onSelect('');
+                  setOpen(false);
+                }}
+                className="w-full text-left px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50 italic"
+              >
+                Remover vínculo
+              </button>
+            )}
+            {filtered.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  onSelect(p.id);
+                  setOpen(false);
+                }}
+                className={`w-full flex items-center justify-between gap-2 text-left px-3 py-1.5 text-xs hover:bg-blue-50 ${
+                  p.id === value ? 'bg-blue-50 text-blue-800 font-medium' : 'text-gray-800'
+                }`}
+              >
+                <span className="truncate">{p.name}</span>
+                {p.category && (
+                  <span className="shrink-0 text-[10px] text-gray-400">{p.category}</span>
+                )}
+              </button>
+            ))}
+            {filtered.length === 0 && (
+              <p className="px-3 py-3 text-xs text-gray-500 text-center">Nenhum produto encontrado</p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              onCreateNew(search.trim());
+            }}
+            className="w-full border-t border-gray-100 flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 rounded-b-lg"
+          >
+            <Plus size={13} />
+            Cadastrar novo produto{search.trim() ? ` "${search.trim()}"` : ''}
+          </button>
+        </div>
+      )}
+    </>
+  );
 }
 
 interface ImportHistory {
@@ -133,6 +301,8 @@ export default function BaixaPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [clearAllConfirm, setClearAllConfirm] = useState(false);
   const [searchUnmatched, setSearchUnmatched] = useState('');
+  const [newProduct, setNewProduct] = useState<NewProductForm | null>(null);
+  const [savingProduct, setSavingProduct] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchHistory = useCallback(async () => {
@@ -181,13 +351,17 @@ export default function BaixaPage() {
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet) as Array<Record<string, unknown>>;
 
-      // Fetch products
-      const { data: productsData } = await supabase
+      // Fetch products for the selected casa only (so linking/creating stays within that casa)
+      const { data: casaRow } = await supabase.from('casas').select('id').eq('name', selectedCasa).single();
+      let productsQuery = supabase
         .from('products')
-        .select('id, name, cost, linked_insumo_id, unit_conversion');
+        .select('id, name, category, cost, linked_insumo_id, unit_conversion');
+      if (casaRow) productsQuery = productsQuery.eq('casa_id', casaRow.id);
+      const { data: productsData } = await productsQuery;
       const allProducts: Product[] = (productsData || []).map((p) => ({
         id: p.id,
         name: p.name,
+        category: p.category || '',
         cost: Number(p.cost),
         linked_insumo_id: p.linked_insumo_id || null,
         unit_conversion: Number(p.unit_conversion) || 1,
@@ -334,6 +508,113 @@ export default function BaixaPage() {
           : r
       )
     );
+  };
+
+  const titleCase = (s: string) =>
+    s
+      .toLowerCase()
+      .split(' ')
+      .filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+
+  const openNewProduct = (rowIndex: number, searchText: string) => {
+    const row = rows[rowIndex];
+    setNewProduct({
+      rowIndex,
+      name: titleCase(searchText || row.originalName),
+      category: '',
+      salePrice: row.ticketMedio > 0 ? row.ticketMedio.toFixed(2) : '',
+      cost: '',
+      quantity: '0',
+      minimum: '0',
+    });
+  };
+
+  const saveNewProduct = async () => {
+    if (!newProduct) return;
+    const name = newProduct.name.trim();
+    if (!name) {
+      alert('Informe o nome do produto');
+      return;
+    }
+
+    const duplicate = products.find((p) => normalizeName(p.name) === normalizeName(name));
+    if (duplicate) {
+      alert(`Já existe um produto com esse nome: "${duplicate.name}". Selecione-o na lista.`);
+      return;
+    }
+
+    setSavingProduct(true);
+    try {
+      const { data: casa } = await supabase.from('casas').select('id').eq('name', selectedCasa).single();
+      if (!casa) throw new Error('Casa não encontrada');
+
+      const salePrice = Number(newProduct.salePrice) || 0;
+      const cost = Number(newProduct.cost) || 0;
+      const quantity = Number(newProduct.quantity) || 0;
+      const minimum = Number(newProduct.minimum) || 0;
+
+      const { data: created, error: prodErr } = await supabase
+        .from('products')
+        .insert({
+          name,
+          category: newProduct.category.trim() || 'Outros',
+          type: 'product',
+          sale_price: salePrice,
+          cost,
+          margin: salePrice > 0 ? salePrice - cost : 0,
+          markup: salePrice > 0 && cost > 0 ? salePrice / cost : 0,
+          casa_id: casa.id,
+        })
+        .select('id, name, category, cost')
+        .single();
+
+      if (prodErr || !created) throw new Error(prodErr?.message || 'Falha ao criar produto');
+
+      const { error: stockErr } = await supabase.from('stock_items').insert({
+        casa_id: casa.id,
+        product_id: created.id,
+        insumo_id: null,
+        quantity,
+        minimum,
+        unit: 'un',
+      });
+      if (stockErr) throw new Error(`Produto criado, mas falhou o estoque: ${stockErr.message}`);
+
+      await supabase.from('stock_movements').insert({
+        casa_id: casa.id,
+        product_id: created.id,
+        insumo_id: null,
+        movement_type: 'ajuste',
+        quantity,
+        notes: 'Cadastro via importação de vendas',
+      });
+
+      const newEntry: Product = {
+        id: created.id,
+        name: created.name,
+        category: created.category || '',
+        cost: Number(created.cost) || 0,
+        linked_insumo_id: null,
+        unit_conversion: 1,
+      };
+      setProducts((prev) => [...prev, newEntry].sort((a, b) => a.name.localeCompare(b.name)));
+
+      const rowIndex = newProduct.rowIndex;
+      setRows((prev) =>
+        prev.map((r, i) =>
+          i === rowIndex
+            ? { ...r, matchedProductId: newEntry.id, matchedProductName: newEntry.name, status: 'matched' }
+            : r
+        )
+      );
+      setNewProduct(null);
+    } catch (err) {
+      alert(`Erro ao cadastrar produto: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setSavingProduct(false);
+    }
   };
 
   const confirmFuzzy = (index: number) => {
@@ -741,17 +1022,13 @@ export default function BaixaPage() {
                         <td className="px-3 py-2 text-right text-gray-700">{r.quantity}</td>
                         <td className="px-3 py-2 text-right text-gray-700">{formatCurrency(r.value)}</td>
                         <td className="px-3 py-2">
-                          <select
-                            value={r.matchedProductId || ''}
-                            onChange={(e) => updateRowMatch(r._idx, e.target.value)}
+                          <ProductCombobox
+                            products={products}
+                            value={r.matchedProductId}
                             disabled={r.status === 'ignored'}
-                            className="w-full border border-gray-300 rounded px-2 py-1 text-xs"
-                          >
-                            <option value="">-- Selecione --</option>
-                            {products.map((p) => (
-                              <option key={p.id} value={p.id}>{p.name}</option>
-                            ))}
-                          </select>
+                            onSelect={(productId) => updateRowMatch(r._idx, productId)}
+                            onCreateNew={(searchText) => openNewProduct(r._idx, searchText)}
+                          />
                         </td>
                         <td className="px-3 py-2">
                           <div className="flex gap-1 justify-end">
@@ -956,6 +1233,127 @@ export default function BaixaPage() {
           </table>
         </div>
       </div>
+
+      {/* New product modal */}
+      {newProduct && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="font-bold text-lg text-gray-900">Cadastrar novo produto</h3>
+              <button onClick={() => setNewProduct(null)} className="text-gray-400 hover:text-gray-600">
+                <X size={18} />
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">
+              Casa: <span className="font-medium">{selectedCasa}</span> · o produto e o estoque inicial serão criados e já vinculados a esta linha.
+            </p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Nome *</label>
+                <input
+                  type="text"
+                  value={newProduct.name}
+                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Categoria</label>
+                <input
+                  type="text"
+                  list="baixa-categorias"
+                  value={newProduct.category}
+                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                  placeholder="Ex: Soft Drinks, Cerveja, Vinho..."
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+                <datalist id="baixa-categorias">
+                  {[...new Set(products.map((p) => p.category).filter(Boolean))].sort().map((c) => (
+                    <option key={c} value={c} />
+                  ))}
+                </datalist>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Preço de venda (R$)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={newProduct.salePrice}
+                    onChange={(e) => setNewProduct({ ...newProduct, salePrice: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Custo (R$)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={newProduct.cost}
+                    onChange={(e) => setNewProduct({ ...newProduct, cost: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Estoque atual</label>
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={newProduct.quantity}
+                    onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Estoque mínimo</label>
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={newProduct.minimum}
+                    onChange={(e) => setNewProduct({ ...newProduct, minimum: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => setNewProduct(null)}
+                disabled={savingProduct}
+                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={saveNewProduct}
+                disabled={savingProduct}
+                className="flex-1 bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-800 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {savingProduct ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Plus size={16} />
+                    Cadastrar e vincular
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Clear all confirmation modal */}
       {clearAllConfirm && (
