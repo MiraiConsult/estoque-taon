@@ -27,9 +27,12 @@ interface EventRow {
 
 interface ReconRow {
   id: string;
-  product_id: string;
-  product_name: string;
+  product_id: string | null;
+  insumo_id: string | null;
+  kind: 'product' | 'insumo';
+  item_name: string;
   category: string;
+  unit: string;
   stock_before: number;
   sold: number;
   stock_expected: number;
@@ -52,6 +55,8 @@ export default function ProvaRealPage() {
   const [rows, setRows] = useState<ReconRow[]>([]);
   const [loadingRows, setLoadingRows] = useState(false);
   const [showReport, setShowReport] = useState(false);
+  const [search, setSearch] = useState('');
+  const [kindFilter, setKindFilter] = useState<'all' | 'product' | 'insumo'>('all');
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
@@ -93,27 +98,37 @@ export default function ProvaRealPage() {
     setLoadingRows(true);
     const { data } = await supabase
       .from('event_reconciliation')
-      .select('*, product:products(name, category)')
+      .select('*, product:products(name, category), insumo:insumos(name, unit)')
       .eq('import_id', ev.id);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mapped: ReconRow[] = ((data as any[]) || [])
-      .map((r) => ({
-        id: r.id,
-        product_id: r.product_id,
-        product_name: r.product?.name || '—',
-        category: r.product?.category || '',
-        stock_before: Number(r.stock_before),
-        sold: Number(r.sold),
-        stock_expected: Number(r.stock_expected),
-        stock_counted: r.stock_counted === null ? null : Number(r.stock_counted),
-        status: r.status,
-        obs: r.obs,
-        is_approx: r.is_approx,
-        countInput: r.stock_counted === null ? '' : String(Number(r.stock_counted)),
-        obsInput: r.obs || '',
-        saving: false,
-      }))
-      .sort((a, b) => b.sold - a.sold || a.product_name.localeCompare(b.product_name));
+      .map((r) => {
+        const kind: 'product' | 'insumo' = r.insumo_id ? 'insumo' : 'product';
+        return {
+          id: r.id,
+          product_id: r.product_id,
+          insumo_id: r.insumo_id,
+          kind,
+          item_name: r.product?.name || r.insumo?.name || '—',
+          category: kind === 'insumo' ? 'Insumo' : r.product?.category || '',
+          unit: r.insumo?.unit || 'un',
+          stock_before: Number(r.stock_before),
+          sold: Number(r.sold),
+          stock_expected: Number(r.stock_expected),
+          stock_counted: r.stock_counted === null ? null : Number(r.stock_counted),
+          status: r.status,
+          obs: r.obs,
+          is_approx: r.is_approx,
+          countInput: r.stock_counted === null ? '' : String(Number(r.stock_counted)),
+          obsInput: r.obs || '',
+          saving: false,
+        };
+      })
+      .sort((a, b) =>
+        a.kind === b.kind
+          ? b.sold - a.sold || a.item_name.localeCompare(b.item_name)
+          : a.kind === 'product' ? -1 : 1
+      );
     setRows(mapped);
     setLoadingRows(false);
   };
@@ -162,30 +177,41 @@ export default function ProvaRealPage() {
     for (const r of rows) {
       if (r.stock_counted === null) continue;
       const diff = r.stock_counted - r.stock_expected;
-      if (diff !== 0 && casaId) {
-        const { data: stockItem } = await supabase
+      if (diff === 0 || !casaId) continue;
+
+      // Localiza o stock_item (produto ou insumo)
+      const q = supabase.from('stock_items').select('id').eq('casa_id', casaId);
+      const { data: stockItem } = r.kind === 'insumo'
+        ? await q.eq('insumo_id', r.insumo_id).is('product_id', null).maybeSingle()
+        : await q.eq('product_id', r.product_id).is('insumo_id', null).maybeSingle();
+
+      if (stockItem) {
+        await supabase
           .from('stock_items')
-          .select('id')
-          .eq('casa_id', casaId)
-          .eq('product_id', r.product_id)
-          .is('insumo_id', null)
-          .maybeSingle();
-        if (stockItem) {
-          await supabase
-            .from('stock_items')
-            .update({ quantity: r.stock_counted, updated_at: new Date().toISOString() })
-            .eq('id', stockItem.id);
-        }
-        await supabase.from('stock_movements').insert({
+          .update({ quantity: r.stock_counted, updated_at: new Date().toISOString() })
+          .eq('id', stockItem.id);
+      } else {
+        // Insumo (ou produto) ainda sem estoque registrado: cria
+        await supabase.from('stock_items').insert({
           casa_id: casaId,
-          product_id: r.product_id,
-          movement_type: 'ajuste',
-          quantity: diff,
-          reference: `Prova real ${selected.event_name || selected.file_name}`,
-          notes: r.obs || `Ajuste prova real (${diff > 0 ? '+' : ''}${diff})`,
+          product_id: r.kind === 'product' ? r.product_id : null,
+          insumo_id: r.kind === 'insumo' ? r.insumo_id : null,
+          quantity: r.stock_counted,
+          minimum: 0,
+          unit: r.unit,
         });
-        await supabase.from('event_reconciliation').update({ status: 'ajustado' }).eq('id', r.id);
       }
+
+      await supabase.from('stock_movements').insert({
+        casa_id: casaId,
+        product_id: r.kind === 'product' ? r.product_id : null,
+        insumo_id: r.kind === 'insumo' ? r.insumo_id : null,
+        movement_type: 'ajuste',
+        quantity: diff,
+        reference: `Prova real ${selected.event_name || selected.file_name}`,
+        notes: r.obs || `Ajuste prova real (${diff > 0 ? '+' : ''}${diff})`,
+      });
+      await supabase.from('event_reconciliation').update({ status: 'ajustado' }).eq('id', r.id);
     }
 
     await supabase.from('sale_imports').update({ reconciled_at: new Date().toISOString() }).eq('id', selected.id);
@@ -203,6 +229,13 @@ export default function ProvaRealPage() {
   const totalFuro = rows
     .filter((r) => r.stock_counted !== null)
     .reduce((s, r) => s + (r.stock_counted! - r.stock_expected), 0);
+
+  const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const filteredRows = rows.filter(
+    (r) =>
+      (kindFilter === 'all' || r.kind === kindFilter) &&
+      (search === '' || norm(r.item_name).includes(norm(search)))
+  );
 
   // =================== LISTA DE EVENTOS ===================
   if (!selected) {
@@ -338,6 +371,27 @@ export default function ProvaRealPage() {
           )}
         </div>
 
+        {/* Busca + filtro */}
+        <div className="flex flex-wrap items-center gap-2 mb-3 no-print">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar item…"
+            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm w-56"
+          />
+          {(['all', 'product', 'insumo'] as const).map((k) => (
+            <button
+              key={k}
+              onClick={() => setKindFilter(k)}
+              className={`text-xs px-3 py-1.5 rounded-lg border ${kindFilter === k ? 'bg-blue-700 text-white border-blue-700' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
+            >
+              {k === 'all' ? 'Todos' : k === 'product' ? 'Produtos' : 'Insumos'}
+            </button>
+          ))}
+          <span className="text-xs text-gray-400 ml-auto">{filteredRows.length} de {rows.length}</span>
+        </div>
+
         {/* Tabela de conferência */}
         {loadingRows ? (
           <div className="py-16 text-center text-gray-400">Carregando…</div>
@@ -346,7 +400,7 @@ export default function ProvaRealPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-gray-500 bg-gray-50 border-b">
-                  <th className="px-4 py-3 font-medium">Produto</th>
+                  <th className="px-4 py-3 font-medium">Item</th>
                   <th className="px-3 py-3 font-medium text-right">Antes</th>
                   <th className="px-3 py-3 font-medium text-right">Vendido</th>
                   <th className="px-3 py-3 font-medium text-right">Previsto</th>
@@ -357,14 +411,17 @@ export default function ProvaRealPage() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => {
+                {filteredRows.map((r) => {
                   const countedNum = r.countInput === '' ? null : parseFloat(r.countInput.replace(',', '.'));
                   const liveDiff = countedNum === null || isNaN(countedNum) ? null : countedNum - r.stock_expected;
                   return (
                     <tr key={r.id} className={`border-b border-gray-50 ${r.status === 'divergente' || r.status === 'ajustado' ? 'bg-amber-50/40' : r.status === 'ok' ? 'bg-emerald-50/30' : ''}`}>
                       <td className="px-4 py-2.5 font-medium text-gray-900">
-                        {r.product_name}
+                        {r.item_name}
                         <span className="ml-2 text-[10px] text-gray-400">{r.category}</span>
+                        {r.kind === 'insumo' && (
+                          <span className="ml-1.5 text-[9px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 align-middle">insumo</span>
+                        )}
                       </td>
                       <td className="px-3 py-2.5 text-right text-gray-600">{formatNumber(r.stock_before, 0)}</td>
                       <td className="px-3 py-2.5 text-right text-gray-600">{formatNumber(r.sold, 0)}</td>

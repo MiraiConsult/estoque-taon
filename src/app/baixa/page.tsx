@@ -755,17 +755,17 @@ export default function BaixaPage() {
         products.map((p) => [p.id, { linked_insumo_id: p.linked_insumo_id, unit_conversion: p.unit_conversion }])
       );
 
-      // Prova Real: foto do estoque de PRODUTOS antes da baixa (só em importação nova)
-      const stockBefore = new Map<string, number>();
+      // Prova Real: foto do estoque (produtos E insumos) antes da baixa (só em importação nova)
+      const stockBefore = new Map<string, number>(); // chave: 'p:'+id ou 'i:'+id
       if (!resumeImportId) {
         const { data: siBefore } = await supabase
           .from('stock_items')
-          .select('product_id, quantity')
-          .eq('casa_id', casa.id)
-          .not('product_id', 'is', null);
-        (siBefore || []).forEach((s: { product_id: string; quantity: number }) =>
-          stockBefore.set(s.product_id, Number(s.quantity))
-        );
+          .select('product_id, insumo_id, quantity')
+          .eq('casa_id', casa.id);
+        (siBefore || []).forEach((s: { product_id: string | null; insumo_id: string | null; quantity: number }) => {
+          const key = s.product_id ? `p:${s.product_id}` : `i:${s.insumo_id}`;
+          stockBefore.set(key, Number(s.quantity));
+        });
       }
 
       // Update stock + create movements
@@ -820,32 +820,44 @@ export default function BaixaPage() {
         });
       }
 
-      // Prova Real: foto do estoque depois + grava a reconciliação (só produtos que mudaram)
+      // Prova Real: foto depois + grava a reconciliação de TODO o estoque da casa
+      // (todos os produtos com estoque + todos os insumos cadastrados, vendidos ou não)
       if (!resumeImportId) {
+        type ReconInsert = {
+          import_id: string; casa_id: string;
+          product_id: string | null; insumo_id: string | null;
+          stock_before: number; sold: number; stock_expected: number; is_approx: boolean;
+        };
         const { data: siAfter } = await supabase
           .from('stock_items')
-          .select('product_id, quantity')
-          .eq('casa_id', casa.id)
-          .not('product_id', 'is', null);
-        const reconRows = (siAfter || [])
-          .map((s: { product_id: string; quantity: number }) => {
-            const after = Number(s.quantity);
-            const before = stockBefore.get(s.product_id) ?? after;
-            return {
-              import_id: importId,
-              casa_id: casa.id,
-              product_id: s.product_id,
-              stock_before: before,
-              sold: before - after,
-              stock_expected: after,
-              is_approx: false,
-            };
-          })
-          .filter((x) => x.sold !== 0);
+          .select('product_id, insumo_id, quantity')
+          .eq('casa_id', casa.id);
+        const reconRows: ReconInsert[] = [];
+        const insumosComStock = new Set<string>();
+        (siAfter || []).forEach((s: { product_id: string | null; insumo_id: string | null; quantity: number }) => {
+          const after = Number(s.quantity);
+          const key = s.product_id ? `p:${s.product_id}` : `i:${s.insumo_id}`;
+          const before = stockBefore.get(key) ?? after;
+          if (s.insumo_id) insumosComStock.add(s.insumo_id);
+          reconRows.push({
+            import_id: importId, casa_id: casa.id,
+            product_id: s.product_id, insumo_id: s.insumo_id,
+            stock_before: before, sold: before - after, stock_expected: after, is_approx: false,
+          });
+        });
+        // Insumos da casa sem estoque registrado: aparecem com 0 pra serem contados
+        const { data: allInsumos } = await supabase.from('insumos').select('id').eq('casa_id', casa.id);
+        (allInsumos || []).forEach((i: { id: string }) => {
+          if (!insumosComStock.has(i.id)) {
+            reconRows.push({
+              import_id: importId, casa_id: casa.id,
+              product_id: null, insumo_id: i.id,
+              stock_before: 0, sold: 0, stock_expected: 0, is_approx: false,
+            });
+          }
+        });
         if (reconRows.length > 0) {
-          await supabase
-            .from('event_reconciliation')
-            .upsert(reconRows, { onConflict: 'import_id,product_id' });
+          await supabase.from('event_reconciliation').insert(reconRows);
         }
       }
 
