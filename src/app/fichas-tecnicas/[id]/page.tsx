@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency, formatNumber, casaBgColor } from '@/lib/format';
@@ -89,6 +89,7 @@ function EditableTitle({ productId, value, onSaved }: { productId: string; value
 
 export default function FichaTecnicaDetailPage() {
   const params = useParams();
+  const router = useRouter();
   // A rota agora é identificada pelo ID do PRODUTO (não da receita),
   // para funcionar também com produtos que ainda não têm ficha técnica.
   const productId = params.id as string;
@@ -215,6 +216,26 @@ export default function FichaTecnicaDetailPage() {
     await supabase.from('drink_recipes').insert({ product_id: productId });
     setSaving(false);
     await fetchRecipe();
+  };
+
+  // Exclui o drink (produto) e volta para a lista.
+  const deleteDrink = async () => {
+    if (!window.confirm('Excluir este drink e sua ficha técnica? Esta ação não pode ser desfeita.')) return;
+    setSaving(true);
+    try {
+      await supabase.from('sales').delete().eq('product_id', productId);
+      await supabase.from('stock_movements').delete().eq('product_id', productId);
+      await supabase.from('transfers').delete().eq('product_id', productId);
+      await supabase.from('stock_items').delete().eq('product_id', productId);
+      await supabase.from('event_reconciliation').delete().eq('product_id', productId);
+      await supabase.from('product_components').delete().eq('component_product_id', productId);
+      const { error } = await supabase.from('products').delete().eq('id', productId);
+      if (error) throw new Error(error.message);
+      router.push('/fichas-tecnicas');
+    } catch (err) {
+      alert('Erro ao excluir: ' + (err instanceof Error ? err.message : String(err)));
+      setSaving(false);
+    }
   };
 
   const fetchInsumos = useCallback(async () => {
@@ -445,6 +466,14 @@ export default function FichaTecnicaDetailPage() {
               </div>
             </div>
           </div>
+          <button
+            onClick={deleteDrink}
+            disabled={saving}
+            className="inline-flex items-center gap-1.5 text-sm text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg self-start disabled:opacity-50"
+            title="Excluir este drink"
+          >
+            <Trash2 size={15} /> Excluir
+          </button>
         </div>
 
         {/* Summary Stats */}

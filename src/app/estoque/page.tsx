@@ -14,6 +14,7 @@ import {
   Search,
   Plus,
   X,
+  Trash2,
   ArrowUpDown,
 } from 'lucide-react';
 
@@ -36,6 +37,7 @@ interface Insumo {
   id: string;
   name: string;
   unit: string;
+  unit_cost: number;
   casa_id: string;
 }
 
@@ -104,6 +106,16 @@ function EstoqueContent() {
   const [newUnit, setNewUnit] = useState('ml');
   const [newPrice, setNewPrice] = useState('');
   const [newCost, setNewCost] = useState('');
+  // Editar / excluir item (produto ou insumo)
+  const [editItem, setEditItem] = useState<StockItem | null>(null);
+  const [eName, setEName] = useState('');
+  const [eCategory, setECategory] = useState('');
+  const [ePrice, setEPrice] = useState('');
+  const [eCost, setECost] = useState('');
+  const [eUnit, setEUnit] = useState('');
+  const [eMin, setEMin] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [deleteItemConfirm, setDeleteItemConfirm] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -129,7 +141,7 @@ function EstoqueContent() {
         })(),
         supabase.from('casas').select('id, name'),
         supabase.from('products').select('id, name, category, type, sale_price, cost, casa_id').order('name'),
-        supabase.from('insumos').select('id, name, unit, casa_id').order('name'),
+        supabase.from('insumos').select('id, name, unit, unit_cost, casa_id').order('name'),
       ]);
 
       setStockItems((stockRes.data || []) as unknown as StockItem[]);
@@ -378,6 +390,79 @@ function EstoqueContent() {
     setEditingId(null);
   };
 
+  // Abre o editor de detalhes do item (produto ou insumo)
+  const openEditItem = (item: StockItem) => {
+    setEditItem(item);
+    setDeleteItemConfirm(false);
+    setEMin(String(item.minimum ?? 0));
+    if (item.product_id) {
+      const p = products.find((x) => x.id === item.product_id);
+      setEName(p?.name || item.product?.name || '');
+      setECategory(p?.category || item.product?.category || '');
+      setEPrice(String(p?.sale_price ?? ''));
+      setECost(String(p?.cost ?? item.product?.cost ?? ''));
+    } else {
+      const ins = insumos.find((x) => x.id === item.insumo_id);
+      setEName(ins?.name || item.insumo?.name || '');
+      setEUnit(ins?.unit || item.insumo?.unit || 'un');
+      setECost(String(ins?.unit_cost ?? ''));
+    }
+  };
+
+  const saveEdit = async () => {
+    if (!editItem || !eName.trim()) return;
+    setSavingEdit(true);
+    if (editItem.product_id) {
+      const price = parseFloat(ePrice) || 0;
+      const cost = parseFloat(eCost) || 0;
+      await supabase.from('products').update({
+        name: eName.trim(), category: eCategory.trim() || 'Outros',
+        sale_price: price, cost, markup: price > 0 && cost > 0 ? price / cost : 0, margin: price - cost,
+      }).eq('id', editItem.product_id);
+    } else {
+      await supabase.from('insumos').update({
+        name: eName.trim(), unit: eUnit.trim() || 'un', unit_cost: parseFloat(eCost) || 0,
+      }).eq('id', editItem.insumo_id);
+    }
+    await supabase.from('stock_items').update({ minimum: parseFloat(eMin) || 0 }).eq('id', editItem.id);
+    setSavingEdit(false);
+    setEditItem(null);
+    fetchData();
+  };
+
+  const deleteItem = async () => {
+    if (!editItem) return;
+    setSavingEdit(true);
+    try {
+      if (editItem.product_id) {
+        const id = editItem.product_id;
+        await supabase.from('sales').delete().eq('product_id', id);
+        await supabase.from('stock_movements').delete().eq('product_id', id);
+        await supabase.from('transfers').delete().eq('product_id', id);
+        await supabase.from('stock_items').delete().eq('product_id', id);
+        await supabase.from('event_reconciliation').delete().eq('product_id', id);
+        await supabase.from('product_components').delete().eq('component_product_id', id);
+        const { error } = await supabase.from('products').delete().eq('id', id);
+        if (error) throw new Error(error.message);
+      } else {
+        const id = editItem.insumo_id;
+        await supabase.from('recipe_ingredients').delete().eq('insumo_id', id);
+        await supabase.from('stock_movements').delete().eq('insumo_id', id);
+        await supabase.from('transfers').delete().eq('insumo_id', id);
+        await supabase.from('stock_items').delete().eq('insumo_id', id);
+        await supabase.from('event_reconciliation').delete().eq('insumo_id', id);
+        const { error } = await supabase.from('insumos').delete().eq('id', id);
+        if (error) throw new Error(error.message);
+      }
+      setEditItem(null);
+      fetchData();
+    } catch (err) {
+      alert('Erro ao excluir: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   const SortHeader = ({ field, label, align }: { field: SortField; label: string; align?: string }) => (
     <th
       className={`px-4 py-3 font-medium cursor-pointer hover:text-gray-900 select-none whitespace-nowrap ${
@@ -484,7 +569,13 @@ function EstoqueContent() {
                 return (
                   <tr key={item.id} className="border-b border-gray-50 hover:bg-gray-50/50">
                     <td className="px-4 py-3 font-medium text-gray-900">
-                      {getItemName(item)}
+                      <button
+                        onClick={() => openEditItem(item)}
+                        className="text-left hover:text-blue-700 hover:underline decoration-dashed underline-offset-2 transition-colors"
+                        title="Editar / excluir este item"
+                      >
+                        {getItemName(item)}
+                      </button>
                     </td>
                     <td className="px-4 py-3 text-center text-gray-600">{getItemCategory(item)}</td>
                     <td className="px-4 py-3 text-center">
@@ -766,6 +857,61 @@ function EstoqueContent() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal editar / excluir item */}
+      {editItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setEditItem(null)} />
+          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Editar {editItem.product_id ? 'produto' : 'insumo'}
+              </h2>
+              <button onClick={() => setEditItem(null)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Nome</label>
+                <input type="text" value={eName} onChange={(e) => setEName(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+              </div>
+              {editItem.product_id ? (
+                <div className="grid grid-cols-3 gap-2">
+                  <div><label className="block text-xs text-gray-600 mb-1">Categoria</label><input type="text" value={eCategory} onChange={(e) => setECategory(e.target.value)} className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+                  <div><label className="block text-xs text-gray-600 mb-1">Preço venda</label><input type="number" step="0.01" value={ePrice} onChange={(e) => setEPrice(e.target.value)} className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+                  <div><label className="block text-xs text-gray-600 mb-1">Custo</label><input type="number" step="0.01" value={eCost} onChange={(e) => setECost(e.target.value)} className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <div><label className="block text-xs text-gray-600 mb-1">Unidade</label><input type="text" value={eUnit} onChange={(e) => setEUnit(e.target.value)} className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+                  <div><label className="block text-xs text-gray-600 mb-1">Custo por unidade</label><input type="number" step="0.0001" value={eCost} onChange={(e) => setECost(e.target.value)} className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+                </div>
+              )}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Estoque mínimo</label>
+                <input type="number" step="1" value={eMin} onChange={(e) => setEMin(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 mt-5">
+              {deleteItemConfirm ? (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-red-600">Excluir mesmo?</span>
+                  <button onClick={deleteItem} disabled={savingEdit} className="px-3 py-1.5 text-xs bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50">{savingEdit ? '...' : 'Sim, excluir'}</button>
+                  <button onClick={() => setDeleteItemConfirm(false)} className="px-3 py-1.5 text-xs bg-gray-200 text-gray-700 rounded">Não</button>
+                </div>
+              ) : (
+                <button onClick={() => setDeleteItemConfirm(true)} className="inline-flex items-center gap-1.5 text-sm text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg">
+                  <Trash2 size={15} /> Excluir
+                </button>
+              )}
+              <div className="flex gap-2">
+                <button onClick={() => setEditItem(null)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">Cancelar</button>
+                <button onClick={saveEdit} disabled={savingEdit || !eName.trim()} className="px-4 py-2 bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-800 disabled:opacity-50">{savingEdit ? 'Salvando…' : 'Salvar'}</button>
+              </div>
+            </div>
           </div>
         </div>
       )}
