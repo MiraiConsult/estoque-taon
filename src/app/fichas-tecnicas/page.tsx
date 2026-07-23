@@ -20,6 +20,7 @@ interface DrinkRecipe {
   cost: number;
   markup: number;
   margin: number;
+  has_recipe: boolean;
 }
 
 type SortField = 'product_name' | 'casa_name' | 'category' | 'cost' | 'sale_price' | 'markup';
@@ -39,24 +40,25 @@ export default function FichasTecnicasPage() {
     setLoading(true);
     setFetchError(null);
     try {
+      // Todos os drinks (com ou sem ficha técnica)
       const { data } = await supabase
-        .from('drink_recipes')
-        .select(`id, product_id, product:products (id, name, category, sale_price, cost, markup, margin, casa:casas ( name ))`);
+        .from('products')
+        .select(`id, name, category, sale_price, cost, markup, margin, casa:casas ( name ), recipe:drink_recipes ( id )`)
+        .eq('type', 'drink');
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mapped: DrinkRecipe[] = ((data || []) as any[])
-        .filter((r) => r.product !== null)
-        .map((r) => ({
-          id: r.id,
-          product_id: r.product_id,
-          product_name: r.product!.name,
-          category: r.product!.category || 'Sem categoria',
-          casa_name: r.product!.casa?.name || 'Desconhecido',
-          sale_price: Number(r.product!.sale_price) || 0,
-          cost: Number(r.product!.cost) || 0,
-          markup: Number(r.product!.markup) || 0,
-          margin: Number(r.product!.margin) || 0,
-        }));
+      const mapped: DrinkRecipe[] = ((data || []) as any[]).map((p) => ({
+        id: p.recipe?.[0]?.id || p.id,
+        product_id: p.id,
+        product_name: p.name,
+        category: p.category || 'Sem categoria',
+        casa_name: p.casa?.name || 'Desconhecido',
+        sale_price: Number(p.sale_price) || 0,
+        cost: Number(p.cost) || 0,
+        markup: Number(p.markup) || 0,
+        margin: Number(p.margin) || 0,
+        has_recipe: (p.recipe?.length || 0) > 0,
+      }));
 
       setRecipes(mapped);
     } catch (err) {
@@ -260,6 +262,9 @@ export default function FichasTecnicasPage() {
                       <Link href={`/fichas-tecnicas/${recipe.product_id}`} className="hover:text-blue-700 transition-colors">
                         {recipe.product_name}
                       </Link>
+                      {!recipe.has_recipe && (
+                        <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">sem ficha</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span className={`text-xs px-2 py-0.5 rounded font-medium ${casaBgColor(recipe.casa_name)}`}>
@@ -312,6 +317,9 @@ export default function FichasTecnicasPage() {
               <span className="inline-block text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 mb-4">
                 {recipe.category}
               </span>
+              {!recipe.has_recipe && (
+                <span className="inline-block ml-1.5 text-xs px-2 py-1 rounded bg-amber-100 text-amber-700 mb-4">sem ficha</span>
+              )}
               <div className="space-y-2 pt-3 border-t border-gray-100">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Custo</span>

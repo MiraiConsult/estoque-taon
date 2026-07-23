@@ -6,11 +6,13 @@ import {
   LayoutDashboard,
   Package,
   ClipboardCheck,
+  ClipboardList,
   Wine,
   BarChart3,
   Upload,
   ArrowLeftRight,
   ShoppingBasket,
+  Boxes,
   Menu,
   X,
   ChevronsLeft,
@@ -29,12 +31,16 @@ import { useAuth } from '@/contexts/AuthContext';
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/estoque', label: 'Estoque', icon: Package },
-  { href: '/drinks', label: 'Drinks & Produtos', icon: Wine },
-  { href: '/insumos', label: 'Insumos', icon: ShoppingBasket },
+  { href: '/fichas-tecnicas', label: 'Fichas Técnicas', icon: ClipboardList },
   { href: '/baixa', label: 'Importar Vendas', icon: Upload },
   { href: '/prova-real', label: 'Prova Real', icon: ClipboardCheck },
   { href: '/transferencias', label: 'Transferências', icon: ArrowLeftRight },
   { href: '/analise', label: 'Análise', icon: BarChart3 },
+];
+
+const cadastrosItems = [
+  { href: '/drinks', label: 'Produtos & Drinks', icon: Wine },
+  { href: '/insumos', label: 'Insumos', icon: ShoppingBasket },
 ];
 
 const adminItems = [
@@ -50,6 +56,7 @@ export default function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
+  const [cadastrosOpen, setCadastrosOpen] = useState(false);
   const { profile, isAdmin, signOut } = useAuth();
 
   const width = collapsed ? 'w-[68px]' : 'w-52';
@@ -136,6 +143,27 @@ export default function Sidebar() {
                 <PlusCircle size={18} className="shrink-0" />
                 {!collapsed && <span className="font-medium truncate">Ajustar Estoque</span>}
               </Link>
+            </div>
+
+            <div className="mt-2 pt-2 border-t border-gray-700">
+              <button
+                onClick={() => setCadastrosOpen(!cadastrosOpen)}
+                title={collapsed ? 'Cadastros' : undefined}
+                className={`flex items-center w-full ${collapsed ? 'justify-center' : 'justify-between'} px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:bg-gray-800 hover:text-white transition-colors`}
+              >
+                <span className="flex items-center gap-2.5">
+                  <Boxes size={18} className="shrink-0" />
+                  {!collapsed && <span className="font-medium">Cadastros</span>}
+                </span>
+                {!collapsed && (
+                  <ChevronDown size={14} className={`transition-transform ${cadastrosOpen ? 'rotate-180' : ''}`} />
+                )}
+              </button>
+              {(cadastrosOpen || collapsed) && (
+                <div className={collapsed ? '' : 'ml-3'}>
+                  {cadastrosItems.map(renderNavItem)}
+                </div>
+              )}
             </div>
 
             {isAdmin && (
