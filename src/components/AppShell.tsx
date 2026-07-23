@@ -33,6 +33,16 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  // Evita que o scroll do mouse altere o valor de inputs numéricos (fonte de erros).
+  useEffect(() => {
+    const onWheel = () => {
+      const el = document.activeElement;
+      if (el instanceof HTMLInputElement && el.type === 'number') el.blur();
+    };
+    document.addEventListener('wheel', onWheel, { passive: true });
+    return () => document.removeEventListener('wheel', onWheel);
+  }, []);
+
   if (pathname === '/login' || pathname === '/teste') {
     return <>{children}</>;
   }

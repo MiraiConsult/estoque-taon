@@ -68,6 +68,7 @@ function EstoqueContent() {
   const searchParams = useSearchParams();
   const [selectedCasa, setSelectedCasa] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [stockItems, setStockItems] = useState<StockItem[]>([]);
   const [casas, setCasas] = useState<Casa[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -160,10 +161,15 @@ function EstoqueContent() {
     return item.quantity < item.minimum ? 'Comprar' : 'Suficiente';
   };
 
-  // Filter items by search query
+  // Categorias disponíveis (dos itens carregados)
+  const categorias = Array.from(new Set(stockItems.map((i) => getItemCategory(i)).filter(Boolean))).sort();
+
+  // Filter items by search query + categoria
   const filteredItems = stockItems.filter((item) => {
     const name = getItemName(item).toLowerCase();
-    return name.includes(searchQuery.toLowerCase());
+    const matchSearch = name.includes(searchQuery.toLowerCase());
+    const matchCat = categoryFilter === 'all' || getItemCategory(item) === categoryFilter;
+    return matchSearch && matchCat;
   });
 
   // Sort items
@@ -386,6 +392,16 @@ function EstoqueContent() {
             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
           />
         </div>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 sm:w-52"
+        >
+          <option value="all">Todas as categorias</option>
+          {categorias.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
         <button
           onClick={openModal}
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors whitespace-nowrap"
