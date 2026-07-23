@@ -98,6 +98,12 @@ function EstoqueContent() {
   const [formQuantity, setFormQuantity] = useState('');
   const [formMovementType, setFormMovementType] = useState<'entrada' | 'saida' | 'ajuste'>('entrada');
   const [formNotes, setFormNotes] = useState('');
+  // Criar novo produto/insumo direto no modal
+  const [newName, setNewName] = useState('');
+  const [newCategory, setNewCategory] = useState('');
+  const [newUnit, setNewUnit] = useState('ml');
+  const [newPrice, setNewPrice] = useState('');
+  const [newCost, setNewCost] = useState('');
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -222,6 +228,11 @@ function EstoqueContent() {
     setFormQuantity('');
     setFormMovementType('entrada');
     setFormNotes('');
+    setNewName('');
+    setNewCategory('');
+    setNewUnit('ml');
+    setNewPrice('');
+    setNewCost('');
   };
 
   const openModal = () => {
@@ -243,6 +254,47 @@ function EstoqueContent() {
 
     const isProduct = formItemType === 'product';
 
+    // Criar novo produto/insumo quando selecionado "+ Criar novo"
+    let itemId = formItemId;
+    let newInsumoUnit = 'un';
+    if (formItemId === '__new__') {
+      if (!newName.trim()) { setSubmitting(false); return; }
+      if (isProduct) {
+        const price = parseFloat(newPrice) || 0;
+        const cost = parseFloat(newCost) || 0;
+        const { data, error } = await supabase
+          .from('products')
+          .insert({
+            name: newName.trim(),
+            category: newCategory.trim() || 'Outros',
+            type: 'product',
+            sale_price: price,
+            cost,
+            markup: price > 0 && cost > 0 ? price / cost : 0,
+            margin: price - cost,
+            casa_id: formCasaId,
+          })
+          .select('id')
+          .single();
+        if (error || !data) { alert('Erro ao criar produto: ' + (error?.message || '')); setSubmitting(false); return; }
+        itemId = data.id;
+      } else {
+        newInsumoUnit = newUnit.trim() || 'un';
+        const { data, error } = await supabase
+          .from('insumos')
+          .insert({
+            name: newName.trim(),
+            unit: newInsumoUnit,
+            unit_cost: parseFloat(newCost) || 0,
+            casa_id: formCasaId,
+          })
+          .select('id')
+          .single();
+        if (error || !data) { alert('Erro ao criar insumo: ' + (error?.message || '')); setSubmitting(false); return; }
+        itemId = data.id;
+      }
+    }
+
     // Find existing stock item
     let stockQuery = supabase
       .from('stock_items')
@@ -250,9 +302,9 @@ function EstoqueContent() {
       .eq('casa_id', formCasaId);
 
     if (isProduct) {
-      stockQuery = stockQuery.eq('product_id', formItemId).is('insumo_id', null);
+      stockQuery = stockQuery.eq('product_id', itemId).is('insumo_id', null);
     } else {
-      stockQuery = stockQuery.eq('insumo_id', formItemId).is('product_id', null);
+      stockQuery = stockQuery.eq('insumo_id', itemId).is('product_id', null);
     }
 
     const { data: existingItems } = await stockQuery;
@@ -274,22 +326,22 @@ function EstoqueContent() {
         .update({ quantity: newQuantity, updated_at: new Date().toISOString() })
         .eq('id', existingItem.id);
     } else {
-      const selectedInsumo = insumos.find((i) => i.id === formItemId);
+      const selectedInsumo = insumos.find((i) => i.id === itemId);
       await supabase.from('stock_items').insert({
         casa_id: formCasaId,
-        product_id: isProduct ? formItemId : null,
-        insumo_id: !isProduct ? formItemId : null,
+        product_id: isProduct ? itemId : null,
+        insumo_id: !isProduct ? itemId : null,
         quantity: newQuantity,
         minimum: 0,
-        unit: !isProduct && selectedInsumo ? selectedInsumo.unit : 'un',
+        unit: isProduct ? 'un' : selectedInsumo ? selectedInsumo.unit : newInsumoUnit,
       });
     }
 
     // Insert stock movement
     await supabase.from('stock_movements').insert({
       casa_id: formCasaId,
-      product_id: isProduct ? formItemId : null,
-      insumo_id: !isProduct ? formItemId : null,
+      product_id: isProduct ? itemId : null,
+      insumo_id: !isProduct ? itemId : null,
       movement_type: formMovementType,
       quantity: qty,
       notes: formNotes || null,
@@ -584,6 +636,9 @@ function EstoqueContent() {
                       ? `Selecione ${formItemType === 'product' ? 'o produto' : 'o insumo'}`
                       : 'Selecione a casa primeiro'}
                   </option>
+                  {formCasaId && (
+                    <option value="__new__">➕ Criar novo {formItemType === 'product' ? 'produto' : 'insumo'}</option>
+                  )}
                   {formItemType === 'product'
                     ? products
                         .filter((p) => p.casa_id === formCasaId)
@@ -601,6 +656,34 @@ function EstoqueContent() {
                         ))}
                 </select>
               </div>
+
+              {/* Campos de criação de novo produto/insumo */}
+              {formItemId === '__new__' && (
+                <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50/40 p-3">
+                  <p className="text-xs font-medium text-blue-800">
+                    Novo {formItemType === 'product' ? 'produto' : 'insumo'} na {casas.find((c) => c.id === formCasaId)?.name}
+                  </p>
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="Nome"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  />
+                  {formItemType === 'product' ? (
+                    <div className="grid grid-cols-3 gap-2">
+                      <input type="text" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Categoria" className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                      <input type="number" step="0.01" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} placeholder="Preço venda" className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                      <input type="number" step="0.01" value={newCost} onChange={(e) => setNewCost(e.target.value)} placeholder="Custo" className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      <input type="text" value={newUnit} onChange={(e) => setNewUnit(e.target.value)} placeholder="Unidade (ml, g, un)" className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                      <input type="number" step="0.0001" value={newCost} onChange={(e) => setNewCost(e.target.value)} placeholder="Custo por unidade" className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Movement type */}
               <div>

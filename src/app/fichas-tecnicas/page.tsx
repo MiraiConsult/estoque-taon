@@ -2,12 +2,13 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency, formatNumber, casaBgColor } from '@/lib/format';
 import CasaFilter from '@/components/CasaFilter';
 import StatCard from '@/components/StatCard';
 import LoadingState from '@/components/LoadingState';
-import { ClipboardList, Search, Wine, DollarSign, TrendingUp, LayoutGrid, List, ArrowUpDown, Download } from 'lucide-react';
+import { ClipboardList, Search, Wine, DollarSign, TrendingUp, LayoutGrid, List, ArrowUpDown, Download, Plus, X } from 'lucide-react';
 import { exportToExcel } from '@/lib/exportExcel';
 
 interface DrinkRecipe {
@@ -26,10 +27,19 @@ interface DrinkRecipe {
 type SortField = 'product_name' | 'casa_name' | 'category' | 'cost' | 'sale_price' | 'markup';
 
 export default function FichasTecnicasPage() {
+  const router = useRouter();
   const [recipes, setRecipes] = useState<DrinkRecipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [selectedCasa, setSelectedCasa] = useState('all');
+  // Nova ficha
+  const [casasList, setCasasList] = useState<Array<{ id: string; name: string }>>([]);
+  const [showNew, setShowNew] = useState(false);
+  const [nfName, setNfName] = useState('');
+  const [nfCasaId, setNfCasaId] = useState('');
+  const [nfCategory, setNfCategory] = useState('');
+  const [nfPrice, setNfPrice] = useState('');
+  const [creating, setCreating] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -73,6 +83,36 @@ export default function FichasTecnicasPage() {
   useEffect(() => {
     fetchRecipes();
   }, [fetchRecipes]);
+
+  useEffect(() => {
+    supabase.from('casas').select('id, name').order('name').then(({ data }) => {
+      if (data) setCasasList(data as Array<{ id: string; name: string }>);
+    });
+  }, []);
+
+  // Cria uma nova ficha técnica (drink ou dose) e vai para o detalhe pra adicionar ingredientes.
+  const createFicha = async () => {
+    if (!nfName.trim() || !nfCasaId) return;
+    setCreating(true);
+    const price = parseFloat(nfPrice) || 0;
+    const { data: prod, error } = await supabase
+      .from('products')
+      .insert({
+        name: nfName.trim(),
+        category: nfCategory.trim() || 'Autorais',
+        type: 'drink',
+        sale_price: price,
+        cost: 0,
+        markup: 0,
+        margin: price,
+        casa_id: nfCasaId,
+      })
+      .select('id')
+      .single();
+    if (error || !prod) { alert('Erro ao criar ficha: ' + (error?.message || '')); setCreating(false); return; }
+    await supabase.from('drink_recipes').insert({ product_id: prod.id });
+    router.push(`/fichas-tecnicas/${prod.id}`);
+  };
 
   const categories = useMemo(() => {
     return ['all', ...Array.from(new Set(recipes.map((r) => r.category))).sort()];
@@ -170,9 +210,53 @@ export default function FichasTecnicasPage() {
             <Download size={16} />
             Excel
           </button>
+          <button
+            onClick={() => { setShowNew(true); setNfName(''); setNfCasaId(''); setNfCategory(''); setNfPrice(''); }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors text-sm font-medium"
+          >
+            <Plus size={16} />
+            Nova Ficha
+          </button>
           <CasaFilter selected={selectedCasa} onChange={setSelectedCasa} />
         </div>
       </div>
+
+      {/* Modal Nova Ficha */}
+      {showNew && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowNew(false)} />
+          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Nova Ficha Técnica</h2>
+              <button onClick={() => setShowNew(false)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">
+              Serve para drinks e doses (ex.: Dose Absolut). Depois de criar, você adiciona os insumos e as quantidades (ml/g).
+            </p>
+            <div className="space-y-3">
+              <input type="text" value={nfName} onChange={(e) => setNfName(e.target.value)} placeholder="Nome (ex.: Caipirinha, Dose Absolut)" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+              <div className="grid grid-cols-2 gap-2">
+                <select value={nfCasaId} onChange={(e) => setNfCasaId(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                  <option value="">Casa</option>
+                  {casasList.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
+                </select>
+                <input type="text" value={nfCategory} onChange={(e) => setNfCategory(e.target.value)} placeholder="Categoria (ex.: Doses)" className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+              </div>
+              <input type="number" step="0.01" value={nfPrice} onChange={(e) => setNfPrice(e.target.value)} placeholder="Preço de venda (R$)" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+            </div>
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setShowNew(false)} className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Cancelar</button>
+              <button
+                onClick={createFicha}
+                disabled={creating || !nfName.trim() || !nfCasaId}
+                className="flex-1 bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-800 disabled:opacity-50"
+              >
+                {creating ? 'Criando…' : 'Criar e adicionar insumos'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         <StatCard title="Receitas" value={stats.total} icon={<Wine size={18} />} color="purple" />
