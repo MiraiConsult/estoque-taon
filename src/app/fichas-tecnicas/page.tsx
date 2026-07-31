@@ -53,7 +53,7 @@ export default function FichasTecnicasPage() {
       // Todos os drinks (com ou sem ficha técnica)
       const { data } = await supabase
         .from('products')
-        .select(`id, name, category, sale_price, cost, markup, margin, casa:casas ( name ), recipe:drink_recipes ( id )`)
+        .select(`id, name, category, sale_price, cost, markup, margin, casa:casas ( name ), recipe:drink_recipes ( id, recipe_ingredients ( id ) ), components:product_components!product_components_product_id_fkey ( id )`)
         .eq('type', 'drink');
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,7 +67,7 @@ export default function FichasTecnicasPage() {
         cost: Number(p.cost) || 0,
         markup: Number(p.markup) || 0,
         margin: Number(p.margin) || 0,
-        has_recipe: (p.recipe?.length || 0) > 0,
+        has_recipe: (p.recipe?.[0]?.recipe_ingredients?.length || 0) > 0 || (p.components?.length || 0) > 0,
       }));
 
       setRecipes(mapped);
