@@ -51,11 +51,11 @@ interface StockItem {
   unit: string;
   updated_at: string;
   product: { name: string; category: string; cost: number } | null;
-  insumo: { name: string; unit: string } | null;
+  insumo: { name: string; unit: string; unit_cost: number } | null;
   casa: { name: string } | null;
 }
 
-type SortField = 'name' | 'category' | 'casa' | 'quantity' | 'minimum' | 'status';
+type SortField = 'name' | 'category' | 'casa' | 'quantity' | 'minimum' | 'status' | 'cost';
 type SortDirection = 'asc' | 'desc';
 
 export default function EstoquePage() {
@@ -135,7 +135,7 @@ function EstoqueContent() {
         (() => {
           let q = supabase
             .from('stock_items')
-            .select('id, casa_id, product_id, insumo_id, quantity, minimum, unit, updated_at, product:products(name, category, cost), insumo:insumos(name, unit), casa:casas(name)');
+            .select('id, casa_id, product_id, insumo_id, quantity, minimum, unit, updated_at, product:products(name, category, cost), insumo:insumos(name, unit, unit_cost), casa:casas(name)');
           if (casaId) q = q.eq('casa_id', casaId);
           return q;
         })(),
@@ -175,6 +175,10 @@ function EstoqueContent() {
     return item.casa?.name || '';
   };
 
+  const getItemCost = (item: StockItem): number => {
+    return Number(item.product?.cost ?? item.insumo?.unit_cost ?? 0);
+  };
+
   const getStatus = (item: StockItem): 'Comprar' | 'Suficiente' => {
     return item.quantity < item.minimum ? 'Comprar' : 'Suficiente';
   };
@@ -212,6 +216,9 @@ function EstoqueContent() {
       case 'status':
         comparison = getStatus(a).localeCompare(getStatus(b));
         break;
+      case 'cost':
+        comparison = getItemCost(a) - getItemCost(b);
+        break;
     }
     return sortDirection === 'asc' ? comparison : -comparison;
   });
@@ -220,8 +227,7 @@ function EstoqueContent() {
   const totalItems = stockItems.length;
   const itemsEmFalta = stockItems.filter((item) => item.quantity < item.minimum).length;
   const valorEstimado = stockItems.reduce((sum, item) => {
-    const unitCost = item.product?.cost || 0;
-    return sum + unitCost * item.quantity;
+    return sum + getItemCost(item) * item.quantity;
   }, 0);
 
   const handleSort = (field: SortField) => {
@@ -560,6 +566,7 @@ function EstoqueContent() {
                 <SortHeader field="quantity" label="Quantidade" align="center" />
                 <SortHeader field="minimum" label="Minimo" align="center" />
                 <SortHeader field="status" label="Status" align="center" />
+                <SortHeader field="cost" label="Custo" align="center" />
                 <th className="px-4 py-3 font-medium text-center">Unidade</th>
               </tr>
             </thead>
@@ -622,13 +629,16 @@ function EstoqueContent() {
                         {status}
                       </span>
                     </td>
+                    <td className="px-4 py-3 text-center text-gray-700">
+                      {getItemCost(item) > 0 ? formatCurrency(getItemCost(item)) : <span className="text-gray-300">—</span>}
+                    </td>
                     <td className="px-4 py-3 text-center text-gray-600">{item.unit}</td>
                   </tr>
                 );
               })}
               {sortedItems.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-gray-500">
+                  <td colSpan={8} className="py-12 text-center text-gray-500">
                     {searchQuery
                       ? 'Nenhum item encontrado para a busca'
                       : 'Nenhum item em estoque'}

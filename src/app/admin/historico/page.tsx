@@ -332,11 +332,11 @@ export default function HistoricoPage() {
                             {formatDateTime(entry.changed_at)}
                           </td>
                           <td className="px-4 py-3">
-                            <div className="text-gray-900 font-medium">
-                              {profile?.name || 'Desconhecido'}
+                            <div className={`font-medium ${profile?.name ? 'text-gray-900' : 'text-gray-400 italic'}`}>
+                              {profile?.name || 'Sistema / importação'}
                             </div>
                             <div className="text-xs text-gray-400">
-                              {profile?.email || ''}
+                              {profile?.email || (profile ? '' : 'alteração em lote / automação')}
                             </div>
                           </td>
                           <td className="px-4 py-3 text-gray-700">
