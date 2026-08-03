@@ -25,6 +25,7 @@ interface Ingredient {
   insumo_id: string;
   product_id: string | null;
   is_product: boolean;
+  is_component: boolean;
   insumo_name: string;
   quantity: number;
   unit: string;
@@ -207,6 +208,7 @@ export default function FichaTecnicaDetailPage() {
           insumo_id: ing.insumo_id || '',
           product_id: ing.product_id || null,
           is_product: isProduct,
+          is_component: false,
           insumo_name: isProduct ? (ing.product?.name || 'Produto') : (ing.insumo?.name || 'Desconhecido'),
           quantity: Number(ing.quantity) || 0,
           unit: ing.unit || '',
@@ -215,6 +217,32 @@ export default function FichaTecnicaDetailPage() {
         };
       });
     }
+
+    // Componentes de combo (produtos inteiros) — mostrados junto dos ingredientes
+    const { data: componentsData } = await supabase
+      .from('product_components')
+      .select('id, quantity, component_product_id, product:products!product_components_component_product_id_fkey ( id, name, cost )')
+      .eq('product_id', productId);
+    const componentIngredients: Ingredient[] = ((componentsData || []) as unknown as Array<{
+      id: string; quantity: number; component_product_id: string;
+      product: { id: string; name: string; cost: number } | null;
+    }>).map((c) => {
+      const qty = Number(c.quantity) || 0;
+      const uc = Number(c.product?.cost) || 0;
+      return {
+        id: c.id,
+        insumo_id: '',
+        product_id: c.component_product_id,
+        is_product: true,
+        is_component: true,
+        insumo_name: c.product?.name || 'Produto',
+        quantity: qty,
+        unit: 'un',
+        unit_cost: uc,
+        ingredient_cost: Math.round(qty * uc * 10000) / 10000,
+      };
+    });
+    ingredients = [...ingredients, ...componentIngredients];
 
     setRecipe({
       id: recipeRowId,
@@ -301,8 +329,18 @@ export default function FichaTecnicaDetailPage() {
       .select('ingredient_cost')
       .in('recipe_id', recipeIds);
 
-    const totalCost = (allIngredients || []).reduce(
+    let totalCost = (allIngredients || []).reduce(
       (sum: number, ing: { ingredient_cost: number }) => sum + Number(ing.ingredient_cost),
+      0
+    );
+
+    // + componentes de combo (produtos inteiros)
+    const { data: comps } = await supabase
+      .from('product_components')
+      .select('quantity, product:products!product_components_component_product_id_fkey ( cost )')
+      .eq('product_id', productId);
+    totalCost += ((comps || []) as unknown as Array<{ quantity: number; product: { cost: number } | null }>).reduce(
+      (sum, c) => sum + Number(c.quantity) * (Number(c.product?.cost) || 0),
       0
     );
 
@@ -334,10 +372,17 @@ export default function FichaTecnicaDetailPage() {
     setSaving(true);
     const ingredientCost = qty * ing.unit_cost;
 
-    await supabase
-      .from('recipe_ingredients')
-      .update({ quantity: qty, ingredient_cost: ingredientCost })
-      .eq('id', ing.id);
+    if (ing.is_component) {
+      await supabase
+        .from('product_components')
+        .update({ quantity: qty })
+        .eq('id', ing.id);
+    } else {
+      await supabase
+        .from('recipe_ingredients')
+        .update({ quantity: qty, ingredient_cost: ingredientCost })
+        .eq('id', ing.id);
+    }
 
     await recalculateProductTotals(recipe.product_id, recipe.sale_price);
 
@@ -357,10 +402,11 @@ export default function FichaTecnicaDetailPage() {
 
     setSaving(true);
 
-    await supabase
-      .from('recipe_ingredients')
-      .delete()
-      .eq('id', ing.id);
+    if (ing.is_component) {
+      await supabase.from('product_components').delete().eq('id', ing.id);
+    } else {
+      await supabase.from('recipe_ingredients').delete().eq('id', ing.id);
+    }
 
     await recalculateProductTotals(recipe.product_id, recipe.sale_price);
 
@@ -681,7 +727,7 @@ export default function FichaTecnicaDetailPage() {
           </div>
         )}
 
-        {!recipe.id ? (
+        {!recipe.id && recipe.ingredients.length === 0 ? (
           <div className="p-12 text-center">
             <ClipboardList className="mx-auto text-gray-300 mb-3" size={40} />
             <p className="text-gray-600 font-medium">Este produto ainda não tem ficha técnica</p>
