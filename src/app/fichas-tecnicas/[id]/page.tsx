@@ -31,6 +31,12 @@ interface Ingredient {
   unit: string;
   unit_cost: number;
   ingredient_cost: number;
+  /** Custo da embalagem inteira (garrafa/lata/unidade de compra). */
+  package_cost: number;
+  /** Descrição da embalagem, ex.: "750 ml", "unidade". */
+  package_label: string;
+  /** false quando o insumo tem custo por ml/g mas nao tem embalagem cadastrada. */
+  package_known: boolean;
 }
 
 interface InsumoOption {
@@ -173,6 +179,9 @@ export default function FichaTecnicaDetailPage() {
           insumo:insumos (
             id,
             name,
+            unit,
+            package_qty,
+            package_price,
             unit_cost
           ),
           product:products (
@@ -196,13 +205,47 @@ export default function FichaTecnicaDetailPage() {
         quantity: number;
         unit: string;
         ingredient_cost: number;
-        insumo: { id: string; name: string; unit_cost: number } | null;
+        insumo: { id: string; name: string; unit: string; package_qty: number; package_price: number; unit_cost: number } | null;
         product: { id: string; name: string; cost: number; unit_conversion: number } | null;
       }>).map((ing) => {
         const isProduct = !!ing.product_id;
-        const prodUnitCost = isProduct
-          ? (Number(ing.product?.cost) || 0) / (Number(ing.product?.unit_conversion) || 1)
-          : 0;
+        const qty = Number(ing.quantity) || 0;
+
+        // Custo por unidade de uso (por ml/g/un) e custo da embalagem inteira.
+        let unitCost: number;
+        let packageCost: number;
+        let packageLabel: string;
+        let packageKnown: boolean;
+
+        if (isProduct) {
+          // Ingrediente que aponta pra um produto: unit_conversion diz quantos ml/g cabem em 1 unidade.
+          const conv = Number(ing.product?.unit_conversion) || 1;
+          packageCost = Number(ing.product?.cost) || 0;
+          unitCost = packageCost / conv;
+          packageLabel = conv > 1 ? `${formatNumber(conv, 0)} ${ing.unit || 'ml'}` : 'unidade';
+          packageKnown = packageCost > 0;
+        } else {
+          const pkgQty = Number(ing.insumo?.package_qty) || 0;
+          const pkgPrice = Number(ing.insumo?.package_price) || 0;
+          const insumoUnit = ing.insumo?.unit || '';
+          unitCost = Number(ing.insumo?.unit_cost) || 0;
+
+          if (pkgPrice > 0) {
+            packageCost = pkgPrice;
+            packageLabel = pkgQty > 1 ? `${formatNumber(pkgQty, 0)} ${insumoUnit}`.trim() : 'unidade';
+            packageKnown = true;
+          } else if (unitCost > 0 && pkgQty > 0) {
+            packageCost = unitCost * pkgQty;
+            packageLabel = pkgQty > 1 ? `${formatNumber(pkgQty, 0)} ${insumoUnit}`.trim() : 'unidade';
+            packageKnown = true;
+          } else {
+            // Tem custo por ml/g, mas ninguem cadastrou o tamanho da embalagem.
+            packageCost = unitCost;
+            packageLabel = `por ${insumoUnit || 'un'} — embalagem nao cadastrada`;
+            packageKnown = false;
+          }
+        }
+
         return {
           id: ing.id,
           insumo_id: ing.insumo_id || '',
@@ -210,10 +253,15 @@ export default function FichaTecnicaDetailPage() {
           is_product: isProduct,
           is_component: false,
           insumo_name: isProduct ? (ing.product?.name || 'Produto') : (ing.insumo?.name || 'Desconhecido'),
-          quantity: Number(ing.quantity) || 0,
+          quantity: qty,
           unit: ing.unit || '',
-          unit_cost: isProduct ? prodUnitCost : (Number(ing.insumo?.unit_cost) || 0),
-          ingredient_cost: Number(ing.ingredient_cost) || 0,
+          unit_cost: unitCost,
+          // Calculado na hora: o valor gravado em ingredient_cost fica defasado
+          // quando o custo do insumo muda depois que a ficha foi montada.
+          ingredient_cost: qty * unitCost,
+          package_cost: packageCost,
+          package_label: packageLabel,
+          package_known: packageKnown,
         };
       });
     }
@@ -240,6 +288,9 @@ export default function FichaTecnicaDetailPage() {
         unit: 'un',
         unit_cost: uc,
         ingredient_cost: Math.round(qty * uc * 10000) / 10000,
+        package_cost: uc,
+        package_label: 'unidade',
+        package_known: uc > 0,
       };
     });
     ingredients = [...ingredients, ...componentIngredients];
@@ -324,15 +375,29 @@ export default function FichaTecnicaDetailPage() {
 
     const recipeIds = recipes.map((r: { id: string }) => r.id);
 
+    // Recalcula a partir do custo ATUAL do insumo/produto, não do ingredient_cost gravado
+    // (que fica defasado quando o custo do insumo muda depois da ficha montada).
     const { data: allIngredients } = await supabase
       .from('recipe_ingredients')
-      .select('ingredient_cost')
+      .select('id, quantity, insumo:insumos ( unit_cost ), product:products ( cost, unit_conversion )')
       .in('recipe_id', recipeIds);
 
-    let totalCost = (allIngredients || []).reduce(
-      (sum: number, ing: { ingredient_cost: number }) => sum + Number(ing.ingredient_cost),
-      0
-    );
+    const ingRows = (allIngredients || []) as unknown as Array<{
+      id: string;
+      quantity: number;
+      insumo: { unit_cost: number } | null;
+      product: { cost: number; unit_conversion: number } | null;
+    }>;
+
+    let totalCost = 0;
+    for (const ing of ingRows) {
+      const unitCost = ing.product
+        ? (Number(ing.product.cost) || 0) / (Number(ing.product.unit_conversion) || 1)
+        : Number(ing.insumo?.unit_cost) || 0;
+      const cost = (Number(ing.quantity) || 0) * unitCost;
+      totalCost += cost;
+      await supabase.from('recipe_ingredients').update({ ingredient_cost: cost }).eq('id', ing.id);
+    }
 
     // + componentes de combo (produtos inteiros)
     const { data: comps } = await supabase
@@ -496,6 +561,10 @@ export default function FichaTecnicaDetailPage() {
   };
 
   const totalIngredientCost = recipe ? recipe.ingredients.reduce((sum, ing) => sum + ing.ingredient_cost, 0) : 0;
+  // O card "Custo Total" mostra products.cost (valor gravado). Se a soma viva dos
+  // ingredientes divergir, o custo do drink está defasado e precisa ser regravado.
+  const custoDesatualizado = !!recipe && recipe.ingredients.length > 0
+    && Math.abs(totalIngredientCost - recipe.cost) > 0.01;
 
   return (
     <LoadingState loading={loading}>
@@ -631,6 +700,21 @@ export default function FichaTecnicaDetailPage() {
             <ClipboardList size={18} className="text-blue-700" />
             Ingredientes
           </h2>
+          {custoDesatualizado && (
+            <button
+              onClick={async () => {
+                setSaving(true);
+                await recalculateProductTotals(recipe.product_id, recipe.sale_price);
+                setSaving(false);
+                await fetchRecipe();
+              }}
+              disabled={saving}
+              className="ml-auto mr-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-amber-800 bg-amber-100 hover:bg-amber-200 rounded-lg transition-colors disabled:opacity-50"
+              title={`O custo gravado (${formatCurrency(recipe.cost)}) nao bate com a soma atual dos ingredientes (${formatCurrency(totalIngredientCost)})`}
+            >
+              Custo desatualizado — recalcular
+            </button>
+          )}
           {recipe.id && (
             <button
               onClick={handleOpenAddForm}
@@ -752,11 +836,10 @@ export default function FichaTecnicaDetailPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-gray-500 bg-gray-50 border-b border-gray-200">
-                  <th className="px-6 py-3 font-medium">Insumo</th>
-                  <th className="px-6 py-3 font-medium text-right">Quantidade</th>
-                  <th className="px-6 py-3 font-medium text-center">Unidade</th>
-                  <th className="px-6 py-3 font-medium text-right">Custo Unitario</th>
-                  <th className="px-6 py-3 font-medium text-right">Custo do Ingrediente</th>
+                  <th className="px-6 py-3 font-medium">Insumo / Produto</th>
+                  <th className="px-6 py-3 font-medium text-right">Custo total do insumo</th>
+                  <th className="px-6 py-3 font-medium text-right">Quantidade usada</th>
+                  <th className="px-6 py-3 font-medium text-right">Custo na ficha</th>
                   <th className="px-6 py-3 font-medium text-center w-24">Acoes</th>
                 </tr>
               </thead>
@@ -768,7 +851,31 @@ export default function FichaTecnicaDetailPage() {
                       index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
                     }`}
                   >
-                    <td className="px-6 py-3.5 font-medium text-gray-900">{ing.insumo_name}</td>
+                    <td className="px-6 py-3.5 font-medium text-gray-900">
+                      {ing.insumo_name}
+                      {ing.is_product && (
+                        <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 align-middle">
+                          {ing.is_component ? 'componente' : 'produto'}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-3.5 text-right text-gray-700">
+                      {ing.package_cost <= 0 ? (
+                        <span className="text-amber-600 text-xs font-medium">sem custo cadastrado</span>
+                      ) : ing.package_known ? (
+                        <>
+                          {formatCurrency(ing.package_cost)}
+                          <span className="block text-xs text-gray-400">{ing.package_label}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span title="Custo por unidade de uso — a embalagem de compra nao esta cadastrada">
+                            R$ {ing.unit_cost.toFixed(4).replace('.', ',')}
+                          </span>
+                          <span className="block text-xs text-amber-600">{ing.package_label}</span>
+                        </>
+                      )}
+                    </td>
                     <td className="px-6 py-3.5 text-right text-gray-700">
                       {editingIngredientId === ing.id ? (
                         <div className="flex items-center justify-end gap-1">
@@ -802,15 +909,12 @@ export default function FichaTecnicaDetailPage() {
                           </button>
                         </div>
                       ) : (
-                        formatNumber(ing.quantity, 2)
+                        <>
+                          {formatNumber(ing.quantity, 2)}
+                          <span className="ml-1 text-xs text-gray-500">{ing.unit}</span>
+                        </>
                       )}
                     </td>
-                    <td className="px-6 py-3.5 text-center">
-                      <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">
-                        {ing.unit}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3.5 text-right text-gray-700">{formatCurrency(ing.unit_cost)}</td>
                     <td className="px-6 py-3.5 text-right font-medium text-gray-900">{formatCurrency(ing.ingredient_cost)}</td>
                     <td className="px-6 py-3.5 text-center">
                       <div className="flex items-center justify-center gap-1">
@@ -837,7 +941,7 @@ export default function FichaTecnicaDetailPage() {
               </tbody>
               <tfoot>
                 <tr className="bg-blue-50 border-t-2 border-blue-300">
-                  <td colSpan={4} className="px-6 py-3.5 text-right font-semibold text-blue-950">
+                  <td colSpan={3} className="px-6 py-3.5 text-right font-semibold text-blue-950">
                     Custo Total dos Ingredientes
                   </td>
                   <td className="px-6 py-3.5 text-right font-bold text-blue-950 text-base">
