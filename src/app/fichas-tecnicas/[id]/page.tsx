@@ -124,6 +124,16 @@ export default function FichaTecnicaDetailPage() {
   const [editingSalePrice, setEditingSalePrice] = useState(false);
   const [editSalePrice, setEditSalePrice] = useState<string>('');
 
+  // Edicao do CADASTRO do insumo/produto direto pela ficha
+  const [editItem, setEditItem] = useState<null | {
+    id: string;
+    isProduct: boolean;
+    name: string;
+    unit: string;
+    packageQty: string;
+    packagePrice: string;
+  }>(null);
+
   // Saving state
   const [saving, setSaving] = useState(false);
 
@@ -527,6 +537,81 @@ export default function FichaTecnicaDetailPage() {
     await fetchRecipe();
   };
 
+  // Abre o editor do cadastro do insumo/produto (custo e embalagem).
+  const handleOpenEditItem = async (ing: Ingredient) => {
+    if (ing.is_product) {
+      const { data } = await supabase
+        .from('products')
+        .select('name, cost, unit_conversion')
+        .eq('id', ing.product_id)
+        .single();
+      if (!data) return;
+      const p = data as { name: string; cost: number; unit_conversion: number | null };
+      setEditItem({
+        id: ing.product_id as string,
+        isProduct: true,
+        name: p.name,
+        unit: 'ml',
+        packageQty: String(Number(p.unit_conversion) || 1),
+        packagePrice: String(Number(p.cost) || 0),
+      });
+    } else {
+      const { data } = await supabase
+        .from('insumos')
+        .select('name, unit, package_qty, package_price')
+        .eq('id', ing.insumo_id)
+        .single();
+      if (!data) return;
+      const i = data as { name: string; unit: string; package_qty: number; package_price: number };
+      setEditItem({
+        id: ing.insumo_id,
+        isProduct: false,
+        name: i.name,
+        unit: i.unit || 'ml',
+        packageQty: String(Number(i.package_qty) || ''),
+        packagePrice: String(Number(i.package_price) || ''),
+      });
+    }
+  };
+
+  const editItemUnitCost = (() => {
+    if (!editItem) return 0;
+    const qty = parseFloat(editItem.packageQty) || 0;
+    const price = parseFloat(editItem.packagePrice) || 0;
+    return qty > 0 ? price / qty : 0;
+  })();
+
+  const handleSaveEditItem = async () => {
+    if (!editItem || !recipe) return;
+    const qty = parseFloat(editItem.packageQty) || 0;
+    const price = parseFloat(editItem.packagePrice) || 0;
+    if (!editItem.name.trim()) return;
+
+    setSaving(true);
+    if (editItem.isProduct) {
+      await supabase
+        .from('products')
+        .update({ name: editItem.name.trim(), cost: price, unit_conversion: qty > 0 ? qty : 1 })
+        .eq('id', editItem.id);
+    } else {
+      await supabase
+        .from('insumos')
+        .update({
+          name: editItem.name.trim(),
+          unit: editItem.unit,
+          package_qty: qty,
+          package_price: price,
+          unit_cost: qty > 0 ? price / qty : 0,
+        })
+        .eq('id', editItem.id);
+    }
+
+    await recalculateProductTotals(recipe.product_id, recipe.sale_price);
+    setEditItem(null);
+    setSaving(false);
+    await fetchRecipe();
+  };
+
   // Edit sale price
   const handleEditSalePrice = () => {
     if (!recipe) return;
@@ -582,6 +667,117 @@ export default function FichaTecnicaDetailPage() {
           </Link>
         </div>
       ) : (<>
+      {/* Modal: editar cadastro do insumo/produto */}
+      {editItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setEditItem(null)} />
+          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Editar {editItem.isProduct ? 'produto' : 'insumo'}
+              </h2>
+              <button onClick={() => setEditItem(null)} className="text-gray-400 hover:text-gray-600">
+                <X size={20} />
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">
+              O custo por {editItem.unit || 'unidade'} sai de <strong>preço da embalagem ÷ quanto vem nela</strong>.
+              Ex.: garrafa de gin R$ 129,99 ÷ 750 ml.
+            </p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Nome</label>
+                <input
+                  type="text"
+                  value={editItem.name}
+                  onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    {editItem.isProduct ? 'Unidade' : 'Unidade'}
+                  </label>
+                  {editItem.isProduct ? (
+                    <input
+                      type="text"
+                      value="ml"
+                      readOnly
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-100 text-gray-500"
+                    />
+                  ) : (
+                    <select
+                      value={editItem.unit}
+                      onChange={(e) => setEditItem({ ...editItem, unit: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    >
+                      {['ml', 'g', 'un'].map((u) => (<option key={u} value={u}>{u}</option>))}
+                    </select>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Qtd na embalagem</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={editItem.packageQty}
+                    onChange={(e) => setEditItem({ ...editItem, packageQty: e.target.value })}
+                    placeholder="750"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Preço da embalagem</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={editItem.packagePrice}
+                    onChange={(e) => setEditItem({ ...editItem, packagePrice: e.target.value })}
+                    placeholder="129.99"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900">
+                Custo por {editItem.isProduct ? 'ml' : editItem.unit}:{' '}
+                <strong>
+                  {editItemUnitCost > 0
+                    ? `R$ ${editItemUnitCost.toFixed(5).replace('.', ',')}`
+                    : '— preencha a qtd e o preço'}
+                </strong>
+              </div>
+
+              <p className="text-xs text-gray-500">
+                Salvar recalcula o custo desta ficha. Outros drinks que usam este item vão mostrar
+                &quot;Custo desatualizado&quot; até serem recalculados.
+              </p>
+            </div>
+
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => setEditItem(null)}
+                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSaveEditItem}
+                disabled={saving || !editItem.name.trim()}
+                className="flex-1 bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-800 disabled:opacity-50"
+              >
+                {saving ? 'Salvando…' : 'Salvar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Back button */}
       <Link
         href="/fichas-tecnicas"
@@ -852,7 +1048,13 @@ export default function FichaTecnicaDetailPage() {
                     }`}
                   >
                     <td className="px-6 py-3.5 font-medium text-gray-900">
-                      {ing.insumo_name}
+                      <button
+                        onClick={() => handleOpenEditItem(ing)}
+                        className="text-left hover:text-blue-700 hover:underline transition-colors"
+                        title="Clique para editar o custo e a embalagem deste item"
+                      >
+                        {ing.insumo_name}
+                      </button>
                       {ing.is_product && (
                         <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 align-middle">
                           {ing.is_component ? 'componente' : 'produto'}
