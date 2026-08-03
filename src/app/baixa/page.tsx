@@ -783,27 +783,31 @@ export default function BaixaPage() {
         if (recipe) {
           const { data: ingredients } = await supabase
             .from('recipe_ingredients')
-            .select('insumo_id, quantity')
+            .select('insumo_id, product_id, quantity, product:products(unit_conversion)')
             .eq('recipe_id', recipe.id);
 
           if (ingredients) {
-            for (const ing of ingredients) {
-              const totalUsed = ing.quantity * r.quantity;
-              const { data: insumoStock } = await supabase
-                .from('stock_items')
-                .select('id, quantity')
-                .eq('casa_id', casa.id)
-                .eq('insumo_id', ing.insumo_id)
-                .maybeSingle();
-
-              if (insumoStock) {
+            for (const ing of ingredients as unknown as Array<{ insumo_id: string | null; product_id: string | null; quantity: number; product: { unit_conversion: number } | null }>) {
+              const stockQuery = supabase.from('stock_items').select('id, quantity').eq('casa_id', casa.id);
+              let totalUsed: number;
+              if (ing.product_id) {
+                // ingrediente-produto: qtd da receita (ml) / tamanho da unidade -> unidades do produto
+                const conv = Number(ing.product?.unit_conversion) || 1;
+                totalUsed = (ing.quantity / conv) * r.quantity;
+                stockQuery.eq('product_id', ing.product_id);
+              } else {
+                totalUsed = ing.quantity * r.quantity;
+                stockQuery.eq('insumo_id', ing.insumo_id!);
+              }
+              const { data: itemStock } = await stockQuery.maybeSingle();
+              if (itemStock) {
                 await supabase
                   .from('stock_items')
                   .update({
-                    quantity: Math.max(0, insumoStock.quantity - totalUsed),
+                    quantity: Math.max(0, itemStock.quantity - totalUsed),
                     updated_at: new Date().toISOString(),
                   })
-                  .eq('id', insumoStock.id);
+                  .eq('id', itemStock.id);
               }
             }
           }
@@ -946,26 +950,30 @@ export default function BaixaPage() {
           if (recipe) {
             const { data: ingredients } = await supabase
               .from('recipe_ingredients')
-              .select('insumo_id, quantity')
+              .select('insumo_id, product_id, quantity, product:products(unit_conversion)')
               .eq('recipe_id', recipe.id);
 
             if (ingredients) {
-              for (const ing of ingredients) {
-                const { data: insumoStock } = await supabase
-                  .from('stock_items')
-                  .select('id, quantity')
-                  .eq('casa_id', sale.casa_id)
-                  .eq('insumo_id', ing.insumo_id)
-                  .maybeSingle();
-
-                if (insumoStock) {
+              for (const ing of ingredients as unknown as Array<{ insumo_id: string | null; product_id: string | null; quantity: number; product: { unit_conversion: number } | null }>) {
+                const stockQuery = supabase.from('stock_items').select('id, quantity').eq('casa_id', sale.casa_id);
+                let addBack: number;
+                if (ing.product_id) {
+                  const conv = Number(ing.product?.unit_conversion) || 1;
+                  addBack = (ing.quantity / conv) * sale.quantity;
+                  stockQuery.eq('product_id', ing.product_id);
+                } else {
+                  addBack = ing.quantity * sale.quantity;
+                  stockQuery.eq('insumo_id', ing.insumo_id!);
+                }
+                const { data: itemStock } = await stockQuery.maybeSingle();
+                if (itemStock) {
                   await supabase
                     .from('stock_items')
                     .update({
-                      quantity: insumoStock.quantity + (ing.quantity * sale.quantity),
+                      quantity: itemStock.quantity + addBack,
                       updated_at: new Date().toISOString(),
                     })
-                    .eq('id', insumoStock.id);
+                    .eq('id', itemStock.id);
                 }
               }
             }

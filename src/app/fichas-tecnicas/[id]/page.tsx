@@ -23,6 +23,8 @@ import {
 interface Ingredient {
   id: string;
   insumo_id: string;
+  product_id: string | null;
+  is_product: boolean;
   insumo_name: string;
   quantity: number;
   unit: string;
@@ -35,6 +37,7 @@ interface InsumoOption {
   name: string;
   unit: string;
   unit_cost: number;
+  is_product?: boolean;
 }
 
 interface RecipeDetail {
@@ -105,6 +108,8 @@ export default function FichaTecnicaDetailPage() {
   // Add ingredient state
   const [showAddForm, setShowAddForm] = useState(false);
   const [insumos, setInsumos] = useState<InsumoOption[]>([]);
+  const [produtos, setProdutos] = useState<InsumoOption[]>([]);
+  const [newSource, setNewSource] = useState<'insumo' | 'produto'>('insumo');
   const [newInsumoId, setNewInsumoId] = useState('');
   const [newQuantity, setNewQuantity] = useState('');
 
@@ -160,6 +165,7 @@ export default function FichaTecnicaDetailPage() {
         .select(`
           id,
           insumo_id,
+          product_id,
           quantity,
           unit,
           ingredient_cost,
@@ -167,6 +173,12 @@ export default function FichaTecnicaDetailPage() {
             id,
             name,
             unit_cost
+          ),
+          product:products (
+            id,
+            name,
+            cost,
+            unit_conversion
           )
         `)
         .eq('recipe_id', recipeRowId)
@@ -178,20 +190,30 @@ export default function FichaTecnicaDetailPage() {
 
       ingredients = ((ingredientsData || []) as unknown as Array<{
         id: string;
-        insumo_id: string;
+        insumo_id: string | null;
+        product_id: string | null;
         quantity: number;
         unit: string;
         ingredient_cost: number;
         insumo: { id: string; name: string; unit_cost: number } | null;
-      }>).map((ing) => ({
-        id: ing.id,
-        insumo_id: ing.insumo_id,
-        insumo_name: ing.insumo?.name || 'Desconhecido',
-        quantity: Number(ing.quantity) || 0,
-        unit: ing.unit || '',
-        unit_cost: Number(ing.insumo?.unit_cost) || 0,
-        ingredient_cost: Number(ing.ingredient_cost) || 0,
-      }));
+        product: { id: string; name: string; cost: number; unit_conversion: number } | null;
+      }>).map((ing) => {
+        const isProduct = !!ing.product_id;
+        const prodUnitCost = isProduct
+          ? (Number(ing.product?.cost) || 0) / (Number(ing.product?.unit_conversion) || 1)
+          : 0;
+        return {
+          id: ing.id,
+          insumo_id: ing.insumo_id || '',
+          product_id: ing.product_id || null,
+          is_product: isProduct,
+          insumo_name: isProduct ? (ing.product?.name || 'Produto') : (ing.insumo?.name || 'Desconhecido'),
+          quantity: Number(ing.quantity) || 0,
+          unit: ing.unit || '',
+          unit_cost: isProduct ? prodUnitCost : (Number(ing.insumo?.unit_cost) || 0),
+          ingredient_cost: Number(ing.ingredient_cost) || 0,
+        };
+      });
     }
 
     setRecipe({
@@ -239,15 +261,25 @@ export default function FichaTecnicaDetailPage() {
   };
 
   const fetchInsumos = useCallback(async () => {
-    const { data, error: err } = await supabase
-      .from('insumos')
-      .select('id, name, unit, unit_cost')
-      .order('name');
+    // casa do drink, pra listar só insumos/produtos da mesma casa
+    const { data: prod } = await supabase.from('products').select('casa_id').eq('id', productId).single();
+    const casaId = (prod as { casa_id: string } | null)?.casa_id;
 
-    if (!err && data) {
-      setInsumos(data as InsumoOption[]);
+    let insQuery = supabase.from('insumos').select('id, name, unit, unit_cost').order('name');
+    if (casaId) insQuery = insQuery.eq('casa_id', casaId);
+    const { data: ins } = await insQuery;
+    if (ins) setInsumos(ins as InsumoOption[]);
+
+    let prodQuery = supabase.from('products').select('id, name, cost, unit_conversion').eq('type', 'product').order('name');
+    if (casaId) prodQuery = prodQuery.eq('casa_id', casaId);
+    const { data: prods } = await prodQuery;
+    if (prods) {
+      setProdutos((prods as unknown as Array<{ id: string; name: string; cost: number; unit_conversion: number }>).map((p) => {
+        const conv = Number(p.unit_conversion) || 1;
+        return { id: p.id, name: p.name, unit: conv > 1 ? 'ml' : 'un', unit_cost: (Number(p.cost) || 0) / conv, is_product: true };
+      }));
     }
-  }, []);
+  }, [productId]);
 
   useEffect(() => {
     fetchRecipe();
@@ -340,6 +372,7 @@ export default function FichaTecnicaDetailPage() {
   const handleOpenAddForm = () => {
     fetchInsumos();
     setShowAddForm(true);
+    setNewSource('insumo');
     setNewInsumoId('');
     setNewQuantity('');
   };
@@ -350,7 +383,7 @@ export default function FichaTecnicaDetailPage() {
     setNewQuantity('');
   };
 
-  const selectedInsumo = insumos.find((i) => i.id === newInsumoId);
+  const selectedInsumo = (newSource === 'produto' ? produtos : insumos).find((i) => i.id === newInsumoId);
   const newIngredientCost =
     selectedInsumo && newQuantity
       ? parseFloat(newQuantity) * selectedInsumo.unit_cost
@@ -363,10 +396,12 @@ export default function FichaTecnicaDetailPage() {
 
     setSaving(true);
     const ingredientCost = qty * selectedInsumo.unit_cost;
+    const isProduct = newSource === 'produto';
 
     await supabase.from('recipe_ingredients').insert({
       recipe_id: recipe.id,
-      insumo_id: selectedInsumo.id,
+      insumo_id: isProduct ? null : selectedInsumo.id,
+      product_id: isProduct ? selectedInsumo.id : null,
       quantity: qty,
       unit: selectedInsumo.unit,
       ingredient_cost: ingredientCost,
@@ -566,16 +601,32 @@ export default function FichaTecnicaDetailPage() {
           <div className="px-6 py-4 border-b border-gray-200 bg-blue-50/50">
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
               <div className="sm:col-span-4">
-                <label className="block text-xs font-medium text-gray-600 mb-1">Insumo</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Ingrediente</label>
+                <div className="flex gap-1 mb-1">
+                  {(['insumo', 'produto'] as const).map((src) => (
+                    <button
+                      key={src}
+                      type="button"
+                      onClick={() => { setNewSource(src); setNewInsumoId(''); }}
+                      className={`flex-1 px-2 py-1 text-xs font-medium rounded-md border transition-colors ${
+                        newSource === src
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {src === 'insumo' ? 'Insumo' : 'Produto'}
+                    </button>
+                  ))}
+                </div>
                 <select
                   value={newInsumoId}
                   onChange={(e) => setNewInsumoId(e.target.value)}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
-                  <option value="">Selecione um insumo...</option>
-                  {insumos.map((insumo) => (
-                    <option key={insumo.id} value={insumo.id}>
-                      {insumo.name}
+                  <option value="">Selecione {newSource === 'produto' ? 'um produto' : 'um insumo'}...</option>
+                  {(newSource === 'produto' ? produtos : insumos).map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.name}
                     </option>
                   ))}
                 </select>
