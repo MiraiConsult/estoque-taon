@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
+import { consumirEntradaPeloHub } from '@/lib/hubEntry';
 import type { User, Session } from '@supabase/supabase-js';
 
 interface Profile {
@@ -42,24 +43,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (initialized.current) return;
     initialized.current = true;
 
-    supabase.auth.getSession().then(({ data }) => {
+    // Entrada pelo MC Castro Hub: se a URL trouxe a sessão do Hub, ela é trocada
+    // por uma sessão daqui ANTES de olhar o armazenamento — senão o AuthGuard
+    // veria "sem sessão" no meio da troca e mandaria para /login.
+    const boot = async () => {
+      const falha = await consumirEntradaPeloHub();
+      if (falha) {
+        try {
+          sessionStorage.setItem('hub_entrada_falhou', falha);
+        } catch {}
+      }
+
+      const { data } = await supabase.auth.getSession();
       setSession(data.session);
       setUser(data.session?.user ?? null);
-      if (data.session?.user) {
-        supabase
-          .from('profiles')
-          .select('id, email, name, role')
-          .eq('id', data.session.user.id)
-          .single()
-          .then(({ data: p }) => {
-            if (p) setProfile(p as Profile);
-            setLoading(false);
-          })
-          .then(undefined, () => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    }).catch(() => setLoading(false));
+      if (!data.session?.user) return;
+
+      const { data: p } = await supabase
+        .from('profiles')
+        .select('id, email, name, role')
+        .eq('id', data.session.user.id)
+        .single();
+      if (p) setProfile(p as Profile);
+    };
+
+    boot()
+      .catch(() => {})
+      .finally(() => setLoading(false));
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, s) => {

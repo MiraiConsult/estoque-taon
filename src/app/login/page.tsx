@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { recadoDaFalha } from '@/lib/hubEntry';
 import Logo from '@/components/Logo';
 import { LogIn, AlertCircle, Mail, Lock } from 'lucide-react';
 
@@ -10,7 +11,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [aviso, setAviso] = useState('');
   const { signIn } = useAuth();
+
+  // Quem tentou entrar pelo Hub e caiu aqui merece saber por quê — senão a tela
+  // de senha aparece do nada, sem explicação.
+  useEffect(() => {
+    try {
+      const motivo = sessionStorage.getItem('hub_entrada_falhou');
+      if (!motivo) return;
+      sessionStorage.removeItem('hub_entrada_falhou');
+      // Uma renderização a mais, uma vez, na montagem: é o preço de ler um
+      // armazenamento do navegador, que não existe no servidor.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAviso(recadoDaFalha(motivo) ?? '');
+    } catch {}
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +71,13 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-white/[0.03] backdrop-blur-xl rounded-2xl border border-white/10 p-8 shadow-2xl shadow-black/20">
+          {aviso && (
+            <div className="mb-5 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-2.5 text-sm text-amber-300">
+              <AlertCircle size={16} className="shrink-0 mt-0.5" />
+              {aviso}
+            </div>
+          )}
+
           {error && (
             <div className="mb-5 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2.5 text-sm text-red-400">
               <AlertCircle size={16} className="shrink-0" />
