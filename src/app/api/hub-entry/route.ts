@@ -20,7 +20,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * podem ser sobrescritos se o Hub rotacionar a chave.
  */
 const HUB_URL = process.env.HUB_SUPABASE_URL ?? 'https://evrkowxyujyrtnzwadjf.supabase.co';
-const HUB_KEY = process.env.HUB_SUPABASE_ANON_KEY ?? 'sb_publishable_3upO38t1f9qcckiZLksW8A';
+const HUB_KEY = process.env.HUB_SUPABASE_ANON_KEY ?? 'sb_publishable_3upO38t1f9qcckiZLksW8A_FkLFtIim';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
